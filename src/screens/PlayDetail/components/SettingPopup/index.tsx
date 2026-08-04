@@ -12,6 +12,8 @@ import SettingCoverSpin from "@/screens/PlayDetail/components/SettingPopup/setti
 import SettingEffects from "@/screens/PlayDetail/components/SettingPopup/settings/SettingEffects.tsx";
 import SettingLayout from "@/screens/PlayDetail/components/SettingPopup/settings/SettingLayout.tsx";
 import SettingVisualEffects from "@/screens/PlayDetail/components/SettingPopup/settings/SettingVisualEffects.tsx";
+import SettingBackground from "@/screens/PlayDetail/components/SettingPopup/settings/SettingBackground.tsx";
+import SettingCover from "@/screens/PlayDetail/components/SettingPopup/settings/SettingCover.tsx";
 
 export interface SettingPopupProps extends Omit<PopupProps, 'children'> {
   direction: 'vertical' | 'horizontal'
@@ -50,6 +52,8 @@ export default forwardRef<SettingPopupType, SettingPopupProps>(({ direction, ...
           <SettingLrcAlign />
           <SettingCoverSpin />
           <SettingLayout />
+          <SettingBackground />
+          <SettingCover />
           <SettingVisualEffects />
           <SettingEffects />
         </View>

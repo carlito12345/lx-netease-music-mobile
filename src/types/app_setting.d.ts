@@ -151,6 +151,19 @@ declare global {
       'playDetail.effect.lyricStage.enabled': boolean
       'playDetail.effect.lyricProximity.enabled': boolean
 
+      /** 背景模式 */
+      'playDetail.background.type': string
+      'playDetail.background.solidColor': string
+      'playDetail.background.followCover': boolean
+      'playDetail.background.blurRadius': number
+
+      /** 封面样式 */
+      'playDetail.cover.style': string
+      'playDetail.cover.effect.glow': boolean
+      'playDetail.cover.effect.particles': boolean
+      'playDetail.cover.effect.rotate': boolean
+      'playDetail.cover.effect.swipe': boolean
+
       /**
        * 字体阴影
        */

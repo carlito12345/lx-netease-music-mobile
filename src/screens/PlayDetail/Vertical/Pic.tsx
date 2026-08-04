@@ -80,16 +80,21 @@ export default memo(({ componentId }: { componentId: string }) => {
     outputRange: ['0deg', '360deg'],
   });
 
+  const coverStyle = useSettingValue('playDetail.cover.style')
   const imageContainerStyle = useMemo(() => {
     const imgWidth = Math.min(winWidth * 0.85, (winHeight - statusBarHeight - HEADER_HEIGHT) * 0.5);
+    let borderRadius = 4
+    if (coverStyle === 'circle' || coverStyle === 'vinyl') borderRadius = imgWidth / 2
+    else if (coverStyle === 'rounded') borderRadius = 16
+    else if (coverStyle === 'square') borderRadius = 0
     return {
       width: imgWidth,
       height: imgWidth,
-      borderRadius: isCoverSpin ? imgWidth / 2 : 4,
+      borderRadius: isCoverSpin ? imgWidth / 2 : borderRadius,
       elevation: 3,
-      opacity: 1, // 直接设置为1，让动画引擎控制可见性
+      opacity: coverStyle === 'hidden' ? 0 : 1,
     };
-  }, [statusBarHeight, winHeight, winWidth, isCoverSpin]);
+  }, [statusBarHeight, winHeight, winWidth, isCoverSpin, coverStyle]);
 
   const imageStyle = useMemo(() => ({
     width: '100%',

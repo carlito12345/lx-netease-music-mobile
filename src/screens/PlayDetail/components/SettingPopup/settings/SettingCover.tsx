@@ -1,0 +1,103 @@
+/**
+ * SettingCover - 封面样式设置(完整组件)
+ * 圆形/方形/圆角/黑胶/隐藏 + 特效(发光/粒子/旋转/滑动)
+ * 规范: 留空不贴边, 居左对齐
+ */
+import { memo, useCallback } from 'react'
+import { View, TouchableOpacity } from 'react-native'
+import { createStyle } from '@/utils/tools'
+import { useTheme } from '@/store/theme/hook'
+import { useSettingValue } from '@/store/setting/hook'
+import Text from '@/components/common/Text'
+import { updateSetting } from '@/core/common'
+import { setSpText } from '@/utils/pixelRatio'
+
+const COVER_STYLES = [
+  { id: 'circle', label: '圆形' },
+  { id: 'square', label: '方形' },
+  { id: 'rounded', label: '圆角' },
+  { id: 'vinyl', label: '黑胶' },
+  { id: 'hidden', label: '隐藏' },
+] as const
+
+const EFFECTS = [
+  { key: 'glow', label: '发光' },
+  { key: 'particles', label: '粒子' },
+  { key: 'rotate', label: '旋转' },
+  { key: 'swipe', label: '滑动' },
+] as const
+
+export default memo(() => {
+  const theme = useTheme()
+  const coverStyle = useSettingValue('playDetail.cover.style')
+  const effectGlow = useSettingValue('playDetail.cover.effect.glow')
+  const effectParticles = useSettingValue('playDetail.cover.effect.particles')
+  const effectRotate = useSettingValue('playDetail.cover.effect.rotate')
+  const effectSwipe = useSettingValue('playDetail.cover.effect.swipe')
+
+  const effects = { glow: effectGlow, particles: effectParticles, rotate: effectRotate, swipe: effectSwipe }
+
+  const handleStyleChange = useCallback((style: string) => {
+    updateSetting({ 'playDetail.cover.style': style })
+  }, [])
+
+  const handleEffectToggle = useCallback((key: string) => {
+    updateSetting({ [`playDetail.cover.effect.${key}`]: !effects[key as keyof typeof effects] })
+  }, [effects])
+
+  return (
+    <View style={styles.container}>
+      <Text style={[styles.title, { color: theme['c-primary'], fontSize: setSpText(13) }]}>封面样式</Text>
+      <View style={styles.row}>
+        {COVER_STYLES.map(s => (
+          <TouchableOpacity
+            key={s.id}
+            style={[styles.chip, coverStyle === s.id && { backgroundColor: theme['c-primary'] }]}
+            onPress={() => handleStyleChange(s.id)}
+          >
+            <Text style={{ fontSize: setSpText(12), color: coverStyle === s.id ? '#fff' : theme['c-font'] }}>{s.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      <Text style={[styles.title, { color: theme['c-primary'], fontSize: setSpText(13) }]}>特效开关</Text>
+      <View style={styles.row}>
+        {EFFECTS.map(e => (
+          <TouchableOpacity
+            key={e.key}
+            style={[styles.chip, effects[e.key as keyof typeof effects] && { backgroundColor: theme['c-primary'] }]}
+            onPress={() => handleEffectToggle(e.key)}
+          >
+            <Text style={{ fontSize: setSpText(12), color: effects[e.key as keyof typeof effects] ? '#fff' : theme['c-font'] }}>{e.label}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  )
+})
+
+const styles = createStyle({
+  container: {
+    paddingTop: 8,
+    paddingLeft: 0,
+    paddingRight: 20,
+    paddingBottom: 12,
+  },
+  title: {
+    paddingBottom: 10,
+    paddingLeft: 20,
+  },
+  row: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+    paddingLeft: 20,
+    marginBottom: 8,
+  },
+  chip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
+    backgroundColor: 'rgba(128,128,128,0.15)',
+  },
+})

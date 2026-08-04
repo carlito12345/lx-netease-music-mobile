@@ -153,6 +153,19 @@ const defaultSetting: LX.AppSetting = {
   // 歌词舞台/聚焦
   'playDetail.effect.lyricStage.enabled': false,
   'playDetail.effect.lyricProximity.enabled': false,
+
+  // 背景模式
+  'playDetail.background.type': 'theme',
+  'playDetail.background.solidColor': '#000000',
+  'playDetail.background.followCover': false,
+  'playDetail.background.blurRadius': 20,
+
+  // 封面样式
+  'playDetail.cover.style': 'circle',
+  'playDetail.cover.effect.glow': false,
+  'playDetail.cover.effect.particles': false,
+  'playDetail.cover.effect.rotate': false,
+  'playDetail.cover.effect.swipe': false,
 }
 
 // 使用新年皮肤
