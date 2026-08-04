@@ -31,6 +31,8 @@ export default memo(() => {
   const slideshow = useSettingValue('playDetail.effect.slideshow.enabled')
   const lyricGradient = useSettingValue('playDetail.effect.lyricGradient.enabled')
   const lyricGradientPreset = useSettingValue('playDetail.effect.lyricGradient.preset')
+  const lyricStage = useSettingValue('playDetail.effect.lyricStage.enabled')
+  const lyricProximity = useSettingValue('playDetail.effect.lyricProximity.enabled')
 
   return (
     <View style={styles.container}>
@@ -154,6 +156,24 @@ export default memo(() => {
           </View>
         </View>
       ) : null}
+
+      {/* 歌词舞台 */}
+      <View style={styles.listContainer}>
+        <CheckBoxItem
+          check={lyricStage}
+          label="歌词舞台"
+          onChange={v => updateSetting({ 'playDetail.effect.lyricStage.enabled': v })}
+        />
+      </View>
+
+      {/* 歌词聚焦 */}
+      <View style={styles.listContainer}>
+        <CheckBoxItem
+          check={lyricProximity}
+          label="歌词聚焦"
+          onChange={v => updateSetting({ 'playDetail.effect.lyricProximity.enabled': v })}
+        />
+      </View>
     </View>
   )
 })

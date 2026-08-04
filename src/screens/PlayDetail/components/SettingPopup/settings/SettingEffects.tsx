@@ -79,6 +79,7 @@ const styles = createStyle({
   },
   radiusRow: {
     marginTop: 8,
+    paddingLeft: 20,
   },
   radiusOptions: {
     flexDirection: 'row',

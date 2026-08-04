@@ -147,6 +147,10 @@ declare global {
       'playDetail.effect.lyricGradient.enabled': boolean
       'playDetail.effect.lyricGradient.preset': string
 
+      /** 歌词舞台/聚焦 */
+      'playDetail.effect.lyricStage.enabled': boolean
+      'playDetail.effect.lyricProximity.enabled': boolean
+
       /**
        * 字体阴影
        */

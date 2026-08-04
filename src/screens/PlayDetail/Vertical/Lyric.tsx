@@ -1,5 +1,6 @@
 import { memo, useMemo, useEffect, useRef, useCallback } from 'react'
 import {
+  Animated,
   View,
   FlatList,
   type FlatListProps,
@@ -81,6 +82,28 @@ const LrcLine = memo(
 
     const gradientEnabled = useSettingValue('playDetail.effect.lyricGradient.enabled')
     const gradientPreset = useSettingValue('playDetail.effect.lyricGradient.preset')
+    // 歌词聚焦: 当前行放大突出
+    const proximityEnabled = useSettingValue('playDetail.effect.lyricProximity.enabled')
+    const PROXIMITY_SCALE = 1.18
+    const scale = useRef(new Animated.Value(activeLine === lineNum && proximityEnabled ? PROXIMITY_SCALE : 1)).current
+    useEffect(() => {
+      Animated.spring(scale, {
+        toValue: activeLine === lineNum && proximityEnabled ? PROXIMITY_SCALE : 1,
+        tension: 160,
+        friction: 14,
+        useNativeDriver: true,
+      }).start()
+    }, [activeLine, lineNum, proximityEnabled])
+    // 歌词舞台: 当前行发光
+    const stageEnabled = useSettingValue('playDetail.effect.lyricStage.enabled')
+    const stageStyle = useMemo(() => {
+      const active = activeLine == lineNum
+      return active && stageEnabled ? {
+        textShadowColor: theme['c-primary'],
+        textShadowOffset: { width: 0, height: 0 },
+        textShadowRadius: 6,
+      } : {}
+    }, [activeLine, lineNum, stageEnabled, theme])
     const colors = useMemo(() => {
       const active = activeLine == lineNum
       return active
@@ -100,7 +123,7 @@ const LrcLine = memo(
     // https://stackoverflow.com/a/72822360
     return (
       <TouchableOpacity activeOpacity={0.7} onPress={handlePress}>
-        <View style={styles.line} onLayout={handleLayout}>
+        <Animated.View style={[styles.line, { transform: [{ scale }] }]} onLayout={handleLayout}>
           {activeLine == lineNum && gradientEnabled ? (
             <GradientText
               text={line.text}
@@ -113,6 +136,7 @@ const LrcLine = memo(
             <AnimatedColorText
               style={{
                 ...styles.lineText,
+                ...stageStyle,
                 textAlign,
                 lineHeight,
               }}
@@ -142,7 +166,7 @@ const LrcLine = memo(
               </AnimatedColorText>
             )
           })}
-        </View>
+        </Animated.View>
       </TouchableOpacity>
     )
   },

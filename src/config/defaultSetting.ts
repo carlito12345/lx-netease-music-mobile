@@ -149,6 +149,10 @@ const defaultSetting: LX.AppSetting = {
   // 歌词渐变色
   'playDetail.effect.lyricGradient.enabled': false,
   'playDetail.effect.lyricGradient.preset': 'aurora',
+
+  // 歌词舞台/聚焦
+  'playDetail.effect.lyricStage.enabled': false,
+  'playDetail.effect.lyricProximity.enabled': false,
 }
 
 // 使用新年皮肤

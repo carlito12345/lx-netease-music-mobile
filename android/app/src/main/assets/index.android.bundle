@@ -128533,7 +128533,10 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     'playDetail.effect.spectrum.enabled': false,
     // 歌词渐变色
     'playDetail.effect.lyricGradient.enabled': false,
-    'playDetail.effect.lyricGradient.preset': 'aurora'
+    'playDetail.effect.lyricGradient.preset': 'aurora',
+    // 歌词舞台/聚焦
+    'playDetail.effect.lyricStage.enabled': false,
+    'playDetail.effect.lyricProximity.enabled': false
   };
 
   // 使用新年皮肤
@@ -296073,7 +296076,8 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       marginBottom: 6
     },
     radiusRow: {
-      marginTop: 8
+      marginTop: 8,
+      paddingLeft: 20
     },
     radiusOptions: {
       flexDirection: 'row',
@@ -296237,6 +296241,8 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     var slideshow = (0, _$$_REQUIRE(_dependencyMap[8], "../../../../../store/setting/hook").useSettingValue)('playDetail.effect.slideshow.enabled');
     var lyricGradient = (0, _$$_REQUIRE(_dependencyMap[8], "../../../../../store/setting/hook").useSettingValue)('playDetail.effect.lyricGradient.enabled');
     var lyricGradientPreset = (0, _$$_REQUIRE(_dependencyMap[8], "../../../../../store/setting/hook").useSettingValue)('playDetail.effect.lyricGradient.preset');
+    var lyricStage = (0, _$$_REQUIRE(_dependencyMap[8], "../../../../../store/setting/hook").useSettingValue)('playDetail.effect.lyricStage.enabled');
+    var lyricProximity = (0, _$$_REQUIRE(_dependencyMap[8], "../../../../../store/setting/hook").useSettingValue)('playDetail.effect.lyricProximity.enabled');
     return /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
       style: styles.container,
       children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_Text.default, {
@@ -296402,7 +296408,29 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
             }, key);
           })
         })]
-      }) : null]
+      }) : null, /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.View, {
+        style: styles.listContainer,
+        children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_CheckBoxItem.default, {
+          check: lyricStage,
+          label: "\u6B4C\u8BCD\u821E\u53F0",
+          onChange: function onChange(v) {
+            return (0, _$$_REQUIRE(_dependencyMap[10], "../../../../../core/common").updateSetting)({
+              'playDetail.effect.lyricStage.enabled': v
+            });
+          }
+        })
+      }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.View, {
+        style: styles.listContainer,
+        children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_CheckBoxItem.default, {
+          check: lyricProximity,
+          label: "\u6B4C\u8BCD\u805A\u7126",
+          onChange: function onChange(v) {
+            return (0, _$$_REQUIRE(_dependencyMap[10], "../../../../../core/common").updateSetting)({
+              'playDetail.effect.lyricProximity.enabled': v
+            });
+          }
+        })
+      })]
     });
   });
   var styles = (0, _$$_REQUIRE(_dependencyMap[12], "../../../../../utils/tools").createStyle)({
@@ -298695,6 +298723,31 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     var lineHeight = (0, _$$_REQUIRE(_dependencyMap[10], "../../../utils/pixelRatio").setSpText)(size) * 1.3;
     var gradientEnabled = (0, _$$_REQUIRE(_dependencyMap[9], "../../../store/setting/hook").useSettingValue)('playDetail.effect.lyricGradient.enabled');
     var gradientPreset = (0, _$$_REQUIRE(_dependencyMap[9], "../../../store/setting/hook").useSettingValue)('playDetail.effect.lyricGradient.preset');
+    // 歌词聚焦: 当前行放大突出
+    var proximityEnabled = (0, _$$_REQUIRE(_dependencyMap[9], "../../../store/setting/hook").useSettingValue)('playDetail.effect.lyricProximity.enabled');
+    var PROXIMITY_SCALE = 1.18;
+    var scale = (0, _react.useRef)(new _reactNative.Animated.Value(activeLine === lineNum && proximityEnabled ? PROXIMITY_SCALE : 1)).current;
+    (0, _react.useEffect)(function () {
+      _reactNative.Animated.spring(scale, {
+        toValue: activeLine === lineNum && proximityEnabled ? PROXIMITY_SCALE : 1,
+        tension: 160,
+        friction: 14,
+        useNativeDriver: true
+      }).start();
+    }, [activeLine, lineNum, proximityEnabled]);
+    // 歌词舞台: 当前行发光
+    var stageEnabled = (0, _$$_REQUIRE(_dependencyMap[9], "../../../store/setting/hook").useSettingValue)('playDetail.effect.lyricStage.enabled');
+    var stageStyle = (0, _react.useMemo)(function () {
+      var active = activeLine == lineNum;
+      return active && stageEnabled ? {
+        textShadowColor: theme['c-primary'],
+        textShadowOffset: {
+          width: 0,
+          height: 0
+        },
+        textShadowRadius: 6
+      } : {};
+    }, [activeLine, lineNum, stageEnabled, theme]);
     var colors = (0, _react.useMemo)(function () {
       var active = activeLine == lineNum;
       return active ? [theme.isDark ? theme['c-font'] : theme['c-primary-font-active'], theme['c-primary-alpha-200'], 1] : [theme['c-450'], theme['c-400'], 0.8];
@@ -298712,8 +298765,12 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     return /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.TouchableOpacity, {
       activeOpacity: 0.7,
       onPress: handlePress,
-      children: /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
-        style: styles.line,
+      children: /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.Animated.View, {
+        style: [styles.line, {
+          transform: [{
+            scale: scale
+          }]
+        }],
         onLayout: handleLayout,
         children: [activeLine == lineNum && gradientEnabled ? /*#__PURE__*/(0, _jsxRuntime.jsx)(_GradientText.default, {
           text: line.text,
@@ -298722,7 +298779,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
           lineHeight: lineHeight,
           textAlign: textAlign
         }) : /*#__PURE__*/(0, _jsxRuntime.jsx)(_$$_REQUIRE(_dependencyMap[11], "../../../components/common/Text").AnimatedColorText, {
-          style: Object.assign({}, styles.lineText, {
+          style: Object.assign({}, styles.lineText, stageStyle, {
             textAlign: textAlign,
             lineHeight: lineHeight
           }),
