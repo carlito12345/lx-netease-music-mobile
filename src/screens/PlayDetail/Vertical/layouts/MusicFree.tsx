@@ -43,7 +43,8 @@ export default memo(({ componentId }: Props) => {
     return () => clearInterval(t)
   }, [])
 
-  const coverUrl = (mi as any)?.pic
+  // 新底包封面字段: musicInfo.musicInfo.meta.picUrl (与 Pic.tsx 一致)
+  const coverUrl = (playMusicInfo.musicInfo as any)?.meta?.picUrl
   const title = (mi as any)?.name || ''
   const artist = (mi as any)?.singer || ''
   const bgColor = theme['c-app-background']
@@ -65,7 +66,7 @@ export default memo(({ componentId }: Props) => {
   if (showLyrics) {
     return (
       <View style={[styles.container, { backgroundColor: bgColor }]}>
-        <Header />
+        <Header hideTitle />
         <Pressable style={styles.lyricFull} onPress={() => setShowLyrics(false)}>
           <Lyric />
         </Pressable>
@@ -84,7 +85,7 @@ export default memo(({ componentId }: Props) => {
       ) : null}
 
       {/* Header */}
-      <Header />
+      <Header hideTitle />
 
       {/* 封面 + CoverLyrics 叠加 */}
       <Pressable style={styles.body} onPress={() => setShowLyrics(true)} {...swipePan.panHandlers}>
@@ -112,6 +113,16 @@ export default memo(({ componentId }: Props) => {
           ) : null}
         </View>
       </Pressable>
+
+      {/* 居中标题(歌名+歌手) */}
+      <View style={styles.titleSection}>
+        <Text style={styles.titleText} numberOfLines={1} size={17} color={theme['c-font']}>
+          {title}
+        </Text>
+        <Text style={styles.artistText} numberOfLines={1} size={13} color={theme['c-font-label']}>
+          {artist}
+        </Text>
+      </View>
 
       {/* 控件 */}
       <MusicFreePlayer componentId={componentId} />
@@ -174,5 +185,17 @@ const styles = StyleSheet.create({
   },
   lyricFull: {
     flex: 1,
+  },
+  titleSection: {
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: PADDING_H,
+  },
+  titleText: {
+    textAlign: 'center',
+  },
+  artistText: {
+    textAlign: 'center',
+    marginTop: 4,
   },
 })

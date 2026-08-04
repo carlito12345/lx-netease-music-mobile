@@ -96,7 +96,12 @@ const Title = () => {
 }
 
 
-export default memo(() => {
+interface HeaderProps {
+  /** 隐藏标题(供 MF 布局等自定义标题时使用, 默认 false) */
+  hideTitle?: boolean
+}
+
+export default memo(({ hideTitle = false }: HeaderProps = {}) => {
   const popupRef = useRef<SettingPopupType>(null)
   const statusBarHeight = useStatusbarHeight()
   const back = () => {
@@ -113,7 +118,7 @@ export default memo(() => {
       <StatusBar />
       <View style={styles.container}>
         <Btn icon="chevron-left" onPress={back} />
-        <Title />
+        {hideTitle ? <View style={styles.titleContent} /> : <Title />}
         <TimeoutExitBtn />
         <Btn icon="slider" onPress={showSetting} />
       </View>

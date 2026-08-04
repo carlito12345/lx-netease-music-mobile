@@ -295370,6 +295370,9 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     });
   };
   var _default = exports.default = (0, _react.memo)(function () {
+    var _ref = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {},
+      _ref$hideTitle = _ref.hideTitle,
+      hideTitle = _ref$hideTitle === void 0 ? false : _ref$hideTitle;
     var popupRef = (0, _react.useRef)(null);
     var statusBarHeight = (0, _$$_REQUIRE(_dependencyMap[16], "../../../../store/common/hook").useStatusbarHeight)();
     var back = function back() {
@@ -295391,7 +295394,9 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_Btn.default, {
           icon: "chevron-left",
           onPress: back
-        }), /*#__PURE__*/(0, _jsxRuntime.jsx)(Title, {}), /*#__PURE__*/(0, _jsxRuntime.jsx)(_TimeoutExitBtn.default, {}), /*#__PURE__*/(0, _jsxRuntime.jsx)(_Btn.default, {
+        }), hideTitle ? /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.View, {
+          style: styles.titleContent
+        }) : /*#__PURE__*/(0, _jsxRuntime.jsx)(Title, {}), /*#__PURE__*/(0, _jsxRuntime.jsx)(_TimeoutExitBtn.default, {}), /*#__PURE__*/(0, _jsxRuntime.jsx)(_Btn.default, {
           icon: "slider",
           onPress: showSetting
         })]
@@ -298820,6 +298825,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   var COVER_SIZE = Math.min(SW * 0.6, SH * 0.35);
   var PADDING_H = Math.min(SW * 0.04, 60);
   var _default = exports.default = (0, _react.memo)(function (_ref) {
+    var _playMusicInfo$musicI, _playMusicInfo$musicI2;
     var componentId = _ref.componentId;
     var theme = (0, _$$_REQUIRE(_dependencyMap[10], "../../../../store/theme/hook").useTheme)();
     var playMusicInfo = (0, _$$_REQUIRE(_dependencyMap[11], "../../../../store/player/hook").usePlayMusicInfo)();
@@ -298850,7 +298856,9 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         return clearInterval(t);
       };
     }, []);
-    var coverUrl = mi == null ? void 0 : mi.pic;
+
+    // 新底包封面字段: musicInfo.musicInfo.meta.picUrl (与 Pic.tsx 一致)
+    var coverUrl = (_playMusicInfo$musicI = playMusicInfo.musicInfo) == null ? void 0 : (_playMusicInfo$musicI2 = _playMusicInfo$musicI.meta) == null ? void 0 : _playMusicInfo$musicI2.picUrl;
     var title = (mi == null ? void 0 : mi.name) || '';
     var artist = (mi == null ? void 0 : mi.singer) || '';
     var bgColor = theme['c-app-background'];
@@ -298881,7 +298889,9 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         style: [styles.container, {
           backgroundColor: bgColor
         }],
-        children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_Header.default, {}), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Pressable, {
+        children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_Header.default, {
+          hideTitle: true
+        }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Pressable, {
           style: styles.lyricFull,
           onPress: function onPress() {
             return setShowLyrics(false);
@@ -298910,7 +298920,9 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
             backgroundColor: 'rgba(0,0,0,0.35)'
           }]
         })]
-      }) : null, /*#__PURE__*/(0, _jsxRuntime.jsx)(_Header.default, {}), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Pressable, Object.assign({
+      }) : null, /*#__PURE__*/(0, _jsxRuntime.jsx)(_Header.default, {
+        hideTitle: true
+      }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Pressable, Object.assign({
         style: styles.body,
         onPress: function onPress() {
           return setShowLyrics(true);
@@ -298947,7 +298959,22 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
             })]
           }) : null]
         })
-      })), /*#__PURE__*/(0, _jsxRuntime.jsx)(_MusicFreePlayer.default, {
+      })), /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
+        style: styles.titleSection,
+        children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_Text.default, {
+          style: styles.titleText,
+          numberOfLines: 1,
+          size: 17,
+          color: theme['c-font'],
+          children: title
+        }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_Text.default, {
+          style: styles.artistText,
+          numberOfLines: 1,
+          size: 13,
+          color: theme['c-font-label'],
+          children: artist
+        })]
+      }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_MusicFreePlayer.default, {
         componentId: componentId
       })]
     });
@@ -299015,6 +299042,18 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     },
     lyricFull: {
       flex: 1
+    },
+    titleSection: {
+      alignItems: 'center',
+      paddingVertical: 10,
+      paddingHorizontal: PADDING_H
+    },
+    titleText: {
+      textAlign: 'center'
+    },
+    artistText: {
+      textAlign: 'center',
+      marginTop: 4
     }
   });
 },1744,[6,7,65,15,985,1298,1706,1742,1745,106,984,1370,645,667],"src/screens/PlayDetail/Vertical/layouts/MusicFree.tsx");
