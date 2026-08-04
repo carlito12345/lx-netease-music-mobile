@@ -1,4 +1,4 @@
-import { TouchableOpacity, View } from 'react-native'
+import { View } from 'react-native'
 import { Icon } from '@/components/common/Icon'
 import { useTheme } from '@/store/theme/hook'
 // import { useIsPlay } from '@/store/player/hook'
@@ -8,37 +8,47 @@ import { createStyle } from '@/utils/tools'
 import { useWindowSize } from '@/utils/hooks'
 import { BTN_WIDTH } from './MoreBtn/Btn'
 import { useMemo } from 'react'
+import MagicRings from '@/components/common/MagicRings'
+import { useSettingValue } from '@/store/setting/hook'
 
 const PrevBtn = ({ size }: { size: number }) => {
   const theme = useTheme()
   const activeColor = theme.isDark ? theme['c-font'] : theme['c-primary'];
+  const magicRings = useSettingValue('playDetail.effect.magicRings.enabled')
   const handlePlayPrev = () => {
     void playPrev()
   }
   return (
-    <TouchableOpacity
+    <MagicRings
+      enabled={magicRings}
+      color={activeColor}
+      radius={size * 0.55}
+      onPress={handlePlayPrev}
       style={{ ...styles.cotrolBtn, width: size, height: size }}
       activeOpacity={0.5}
-      onPress={handlePlayPrev}
     >
       <Icon name="prevMusic" color={activeColor} rawSize={size * 0.7} />
-    </TouchableOpacity>
+    </MagicRings>
   )
 }
 const NextBtn = ({ size }: { size: number }) => {
   const theme = useTheme()
   const activeColor = theme.isDark ? theme['c-font'] : theme['c-primary'];
+  const magicRings = useSettingValue('playDetail.effect.magicRings.enabled')
   const handlePlayNext = () => {
     void playNext()
   }
   return (
-    <TouchableOpacity
+    <MagicRings
+      enabled={magicRings}
+      color={activeColor}
+      radius={size * 0.55}
+      onPress={handlePlayNext}
       style={{ ...styles.cotrolBtn, width: size, height: size }}
       activeOpacity={0.5}
-      onPress={handlePlayNext}
     >
       <Icon name="nextMusic" color={activeColor} rawSize={size * 0.7} />
-    </TouchableOpacity>
+    </MagicRings>
   )
 }
 
@@ -46,14 +56,18 @@ const TogglePlayBtn = ({ size }: { size: number }) => {
   const theme = useTheme()
   const activeColor = theme.isDark ? theme['c-font'] : theme['c-primary'];
   const isPlay = useIsPlay()
+  const magicRings = useSettingValue('playDetail.effect.magicRings.enabled')
   return (
-    <TouchableOpacity
+    <MagicRings
+      enabled={magicRings}
+      color={activeColor}
+      radius={size * 0.55}
+      onPress={togglePlay}
       style={{ ...styles.cotrolBtn, width: size, height: size }}
       activeOpacity={0.5}
-      onPress={togglePlay}
     >
       <Icon name={isPlay ? 'pause' : 'play'} color={activeColor} rawSize={size * 0.7} />
-    </TouchableOpacity>
+    </MagicRings>
   )
 }
 
