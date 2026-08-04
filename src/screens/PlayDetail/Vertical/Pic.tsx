@@ -7,6 +7,7 @@ import { HEADER_HEIGHT } from './components/Header';
 import Image from '@/components/common/Image';
 import { useStatusbarHeight } from '@/store/common/hook';
 import { useSettingValue } from '@/store/setting/hook';
+import { useTheme } from '@/store/theme/hook';
 import { createStyle, toast, requestStoragePermission } from '@/utils/tools';
 import Menu, { type MenuType, type Menus } from '@/components/common/Menu';
 import { addTask } from '@/core/download';
@@ -21,6 +22,7 @@ export default memo(({ componentId }: { componentId: string }) => {
   const statusBarHeight = useStatusbarHeight();
   const isPlay = useIsPlay();
   const isCoverSpin = useSettingValue('playDetail.isCoverSpin');
+  const theme = useTheme();
   const spinValue = useRef(new Animated.Value(0)).current;
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
   const isAnimating = useRef(false);
@@ -81,26 +83,24 @@ export default memo(({ componentId }: { componentId: string }) => {
   });
 
   const coverStyle = useSettingValue('playDetail.cover.style')
-  const imageContainerStyle = useMemo(() => {
-    const imgWidth = Math.min(winWidth * 0.85, (winHeight - statusBarHeight - HEADER_HEIGHT) * 0.5);
-    let borderRadius = 4
-    if (coverStyle === 'circle' || coverStyle === 'vinyl') borderRadius = imgWidth / 2
-    else if (coverStyle === 'rounded') borderRadius = 16
-    else if (coverStyle === 'square') borderRadius = 0
-    return {
-      width: imgWidth,
-      height: imgWidth,
-      borderRadius: coverStyle === 'circle' && isCoverSpin ? imgWidth / 2 : borderRadius,
-      elevation: 3,
-      opacity: coverStyle === 'hidden' ? 0 : 1,
-    };
-  }, [statusBarHeight, winHeight, winWidth, isCoverSpin, coverStyle]);
+  const { imgWidth, borderRadius, ringSize } = useMemo(() => {
+    const w = Math.min(winWidth * 0.85, (winHeight - statusBarHeight - HEADER_HEIGHT) * 0.5);
+    let br: number
+    switch (coverStyle) {
+      case 'circle': br = w / 2; break
+      case 'square': br = 0; break
+      case 'rounded': br = w * 0.08; break
+      case 'vinyl': br = w / 2; break
+      default: br = w / 2
+    }
+    return { imgWidth: w, borderRadius: br, ringSize: w + 4 }
+  }, [statusBarHeight, winHeight, winWidth, coverStyle])
 
   const imageStyle = useMemo(() => ({
-    width: '100%',
-    height: '100%',
-    borderRadius: imageContainerStyle.borderRadius,
-  } as any), [imageContainerStyle.borderRadius]);
+    width: imgWidth,
+    height: imgWidth,
+    borderRadius,
+  } as any), [imgWidth, borderRadius]);
 
   const menus = useMemo((): Menus => [
     { action: 'download_song', label: '下载歌曲' },
@@ -167,16 +167,37 @@ export default memo(({ componentId }: { componentId: string }) => {
     }
   };
 
+  // 黑胶唱片中心孔
+  const vinylHole = coverStyle === 'vinyl' && (
+    <View style={{
+      position: 'absolute',
+      width: imgWidth * 0.18,
+      height: imgWidth * 0.18,
+      borderRadius: imgWidth * 0.09,
+      backgroundColor: theme['c-content-background'],
+      borderWidth: 2,
+      borderColor: theme['c-primary-alpha-400'],
+    }} />
+  )
+
   return (
     <View style={styles.container}>
       <TouchableWithoutFeedback onLongPress={handleLongPress}>
-        <View ref={coverRef} style={[styles.content, imageContainerStyle, { overflow: 'hidden' }]}>
-          <Animated.View style={{ width: '100%', height: '100%', transform: [{ rotate: spin }] }}>
-            <Image
-              url={(musicInfo.musicInfo as LX.Music.MusicInfo)?.meta?.picUrl} // 直接使用 store 中的数据
-              nativeID={NAV_SHEAR_NATIVE_IDS.playDetail_pic}
-              style={imageStyle}
-            />
+        <View ref={coverRef} style={[styles.content, { opacity: coverStyle === 'hidden' ? 0 : 1 }]}>
+          <Animated.View style={{ transform: [{ rotate: spin }] }}>
+            <View style={{
+              width: ringSize, height: ringSize, borderRadius: ringSize / 2,
+              borderWidth: coverStyle === 'vinyl' ? 3 : 1,
+              borderColor: coverStyle === 'vinyl' ? theme['c-primary-alpha-600'] : theme['c-primary-alpha-400'],
+              justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent',
+            }}>
+              <Image
+                url={(musicInfo.musicInfo as LX.Music.MusicInfo)?.meta?.picUrl}
+                nativeID={NAV_SHEAR_NATIVE_IDS.playDetail_pic}
+                style={imageStyle}
+              />
+              {vinylHole}
+            </View>
           </Animated.View>
         </View>
       </TouchableWithoutFeedback>

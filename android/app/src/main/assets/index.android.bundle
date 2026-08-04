@@ -298858,6 +298858,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     var statusBarHeight = (0, _$$_REQUIRE(_dependencyMap[12], "../../../store/common/hook").useStatusbarHeight)();
     var isPlay = (0, _$$_REQUIRE(_dependencyMap[10], "../../../store/player/hook").useIsPlay)();
     var isCoverSpin = (0, _$$_REQUIRE(_dependencyMap[13], "../../../store/setting/hook").useSettingValue)('playDetail.isCoverSpin');
+    var theme = (0, _$$_REQUIRE(_dependencyMap[14], "../../../store/theme/hook").useTheme)();
     var spinValue = (0, _react.useRef)(new _reactNative.Animated.Value(0)).current;
     var animationRef = (0, _react.useRef)(null);
     var isAnimating = (0, _react.useRef)(false);
@@ -298916,25 +298917,41 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       outputRange: ['0deg', '360deg']
     });
     var coverStyle = (0, _$$_REQUIRE(_dependencyMap[13], "../../../store/setting/hook").useSettingValue)('playDetail.cover.style');
-    var imageContainerStyle = (0, _react.useMemo)(function () {
-      var imgWidth = Math.min(winWidth * 0.85, (winHeight - statusBarHeight - _$$_REQUIRE(_dependencyMap[14], "./components/Header").HEADER_HEIGHT) * 0.5);
-      var borderRadius = 4;
-      if (coverStyle === 'circle' || coverStyle === 'vinyl') borderRadius = imgWidth / 2;else if (coverStyle === 'rounded') borderRadius = 16;else if (coverStyle === 'square') borderRadius = 0;
+    var _useMemo = (0, _react.useMemo)(function () {
+        var w = Math.min(winWidth * 0.85, (winHeight - statusBarHeight - _$$_REQUIRE(_dependencyMap[15], "./components/Header").HEADER_HEIGHT) * 0.5);
+        var br;
+        switch (coverStyle) {
+          case 'circle':
+            br = w / 2;
+            break;
+          case 'square':
+            br = 0;
+            break;
+          case 'rounded':
+            br = w * 0.08;
+            break;
+          case 'vinyl':
+            br = w / 2;
+            break;
+          default:
+            br = w / 2;
+        }
+        return {
+          imgWidth: w,
+          borderRadius: br,
+          ringSize: w + 4
+        };
+      }, [statusBarHeight, winHeight, winWidth, coverStyle]),
+      imgWidth = _useMemo.imgWidth,
+      borderRadius = _useMemo.borderRadius,
+      ringSize = _useMemo.ringSize;
+    var imageStyle = (0, _react.useMemo)(function () {
       return {
         width: imgWidth,
         height: imgWidth,
-        borderRadius: coverStyle === 'circle' && isCoverSpin ? imgWidth / 2 : borderRadius,
-        elevation: 3,
-        opacity: coverStyle === 'hidden' ? 0 : 1
+        borderRadius: borderRadius
       };
-    }, [statusBarHeight, winHeight, winWidth, isCoverSpin, coverStyle]);
-    var imageStyle = (0, _react.useMemo)(function () {
-      return {
-        width: '100%',
-        height: '100%',
-        borderRadius: imageContainerStyle.borderRadius
-      };
-    }, [imageContainerStyle.borderRadius]);
+    }, [imgWidth, borderRadius]);
     var menus = (0, _react.useMemo)(function () {
       return [{
         action: 'download_song',
@@ -298965,24 +298982,24 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         case 'download_song':
           if (musicInfo.musicInfo) {
             var quality = _state.default.setting['player.playQuality'];
-            (0, _$$_REQUIRE(_dependencyMap[15], "../../../core/download").addTask)(musicInfo.musicInfo, quality);
+            (0, _$$_REQUIRE(_dependencyMap[16], "../../../core/download").addTask)(musicInfo.musicInfo, quality);
           }
           break;
         case 'download_pic':
           if (musicInfo.musicInfo) {
             void (0, _asyncToGenerator2.default)(function* () {
               try {
-                var isGranted = yield (0, _$$_REQUIRE(_dependencyMap[16], "../../../utils/tools").requestStoragePermission)();
+                var isGranted = yield (0, _$$_REQUIRE(_dependencyMap[17], "../../../utils/tools").requestStoragePermission)();
                 if (isGranted === false) {
-                  (0, _$$_REQUIRE(_dependencyMap[16], "../../../utils/tools").toast)('没有存储权限，无法下载', 'short');
+                  (0, _$$_REQUIRE(_dependencyMap[17], "../../../utils/tools").toast)('没有存储权限，无法下载', 'short');
                   return;
                 }
-                (0, _$$_REQUIRE(_dependencyMap[16], "../../../utils/tools").toast)('正在下载封面...', 'short');
-                var picUrl = yield (0, _$$_REQUIRE(_dependencyMap[17], "../../../core/music/online").getPicUrl)({
+                (0, _$$_REQUIRE(_dependencyMap[17], "../../../utils/tools").toast)('正在下载封面...', 'short');
+                var picUrl = yield (0, _$$_REQUIRE(_dependencyMap[18], "../../../core/music/online").getPicUrl)({
                   musicInfo: musicInfo.musicInfo,
                   isRefresh: true
                 });
-                var extension = (0, _$$_REQUIRE(_dependencyMap[18], "../../Home/Views/Mylist/MusicList/download/utils").getFileExtensionFromUrl)(picUrl);
+                var extension = (0, _$$_REQUIRE(_dependencyMap[19], "../../Home/Views/Mylist/MusicList/download/utils").getFileExtensionFromUrl)(picUrl);
                 var picBaseDir = _rnFetchBlob.default.fs.dirs.PictureDir || _rnFetchBlob.default.fs.dirs.DownloadDir;
                 var downloadDir = `${picBaseDir}/LX-N-Music`;
                 var mInfo = musicInfo.musicInfo;
@@ -299003,37 +299020,59 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
                 yield _rnFetchBlob.default.fs.scanFile([{
                   path: targetPath
                 }]);
-                (0, _$$_REQUIRE(_dependencyMap[16], "../../../utils/tools").toast)(`封面已保存到: ${targetPath}`, 'long');
+                (0, _$$_REQUIRE(_dependencyMap[17], "../../../utils/tools").toast)(`封面已保存到: ${targetPath}`, 'long');
               } catch (err) {
-                (0, _$$_REQUIRE(_dependencyMap[16], "../../../utils/tools").toast)(`下载封面失败: ${err.message}`, 'long');
+                (0, _$$_REQUIRE(_dependencyMap[17], "../../../utils/tools").toast)(`下载封面失败: ${err.message}`, 'long');
               }
             })();
           }
           break;
       }
     };
+
+    // 黑胶唱片中心孔
+    var vinylHole = coverStyle === 'vinyl' && /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.View, {
+      style: {
+        position: 'absolute',
+        width: imgWidth * 0.18,
+        height: imgWidth * 0.18,
+        borderRadius: imgWidth * 0.09,
+        backgroundColor: theme['c-content-background'],
+        borderWidth: 2,
+        borderColor: theme['c-primary-alpha-400']
+      }
+    });
     return /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
       style: styles.container,
       children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.TouchableWithoutFeedback, {
         onLongPress: handleLongPress,
         children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.View, {
           ref: coverRef,
-          style: [styles.content, imageContainerStyle, {
-            overflow: 'hidden'
+          style: [styles.content, {
+            opacity: coverStyle === 'hidden' ? 0 : 1
           }],
           children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Animated.View, {
             style: {
-              width: '100%',
-              height: '100%',
               transform: [{
                 rotate: spin
               }]
             },
-            children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_Image.default, {
-              url: (_musicInfo$musicInfo2 = musicInfo.musicInfo) == null ? void 0 : (_musicInfo$musicInfo3 = _musicInfo$musicInfo2.meta) == null ? void 0 : _musicInfo$musicInfo3.picUrl // 直接使用 store 中的数据
-              ,
-              nativeID: _$$_REQUIRE(_dependencyMap[19], "../../../config/constant").NAV_SHEAR_NATIVE_IDS.playDetail_pic,
-              style: imageStyle
+            children: /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
+              style: {
+                width: ringSize,
+                height: ringSize,
+                borderRadius: ringSize / 2,
+                borderWidth: coverStyle === 'vinyl' ? 3 : 1,
+                borderColor: coverStyle === 'vinyl' ? theme['c-primary-alpha-600'] : theme['c-primary-alpha-400'],
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'transparent'
+              },
+              children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_Image.default, {
+                url: (_musicInfo$musicInfo2 = musicInfo.musicInfo) == null ? void 0 : (_musicInfo$musicInfo3 = _musicInfo$musicInfo2.meta) == null ? void 0 : _musicInfo$musicInfo3.picUrl,
+                nativeID: _$$_REQUIRE(_dependencyMap[20], "../../../config/constant").NAV_SHEAR_NATIVE_IDS.playDetail_pic,
+                style: imageStyle
+              }), vinylHole]
             })
           })
         })
@@ -299047,7 +299086,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       })]
     });
   });
-  var styles = (0, _$$_REQUIRE(_dependencyMap[16], "../../../utils/tools").createStyle)({
+  var styles = (0, _$$_REQUIRE(_dependencyMap[17], "../../../utils/tools").createStyle)({
     container: {
       flexGrow: 1,
       flexShrink: 1,
@@ -299059,7 +299098,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       backgroundColor: 'rgba(0,0,0,0)'
     }
   });
-},1745,[6,13,7,65,15,1298,1352,676,553,106,1370,1288,1312,997,1706,1316,543,671,1330,647],"src/screens/PlayDetail/Vertical/Pic.tsx");
+},1745,[6,13,7,65,15,1298,1352,676,553,106,1370,1288,1312,997,984,1706,1316,543,671,1330,647],"src/screens/PlayDetail/Vertical/Pic.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
