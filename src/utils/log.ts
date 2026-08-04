@@ -104,7 +104,7 @@ export const log = {
     // 增强: 错误日志同步写入原生文件(可分享/持久)
     try {
       const logger = getNativeLogger()
-      if (logger?.write) logger.write('LX-Netease', 'ERROR', msg)
+      if (logger?.writeLog) logger.writeLog('LX-Netease', 'ERROR', msg)
     } catch {}
   },
 }
@@ -165,3 +165,20 @@ if (process.env.NODE_ENV !== 'development') {
 }
 
  */
+
+// 通用调试日志: 写入原生文件(Download/LXMusic_Logs/) + console
+// 供特效/功能组件调试使用,不依赖 adb logcat(小米/车机受限时也能抓)
+export const debugLog = (tag: string, ...msgs: any[]) => {
+  try {
+    const msg = msgs
+      .map((m) =>
+        typeof m == 'string' ? m : m instanceof Error ? (m.stack ?? m.message) : JSON.stringify(m)
+      )
+      .join(' ')
+    const logger = getNativeLogger()
+    if (logger?.writeLog) {
+      logger.writeLog(tag, 'DEBUG', msg)
+    }
+    console.log(`[${tag}] ${msg}`)
+  } catch {}
+}

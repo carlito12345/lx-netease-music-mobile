@@ -1,7 +1,6 @@
 package com.lxnetease.music.mobile.logger;
 
 import android.content.Context;
-import android.os.Environment;
 import android.util.Log;
 
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -18,15 +17,18 @@ import java.util.Locale;
 
 public class NativeLoggerModule extends ReactContextBaseJavaModule {
   private static final String TAG = "[NativeLogger]";
-  private static final String LOG_DIR = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS) + "/LXMusic_Logs";
+  // 动态获取 app 专属外部目录(无需存储权限, 安卓全版本可写)
+  // 路径: /storage/emulated/0/Android/data/<包名>/files/LXMusic_Logs/
   private static final long MAX_LOG_SIZE = 50 * 1024 * 1024L;
 
   // 静态自初始化:首次调用时自动创建文件
   private static boolean initialized = false;
   private static File logFile = null;
+  private static ReactApplicationContext appContext = null;
 
   public NativeLoggerModule(ReactApplicationContext reactContext) {
     super(reactContext);
+    appContext = reactContext;
   }
 
   @Override
@@ -36,14 +38,42 @@ public class NativeLoggerModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void getLogPath(Promise promise) {
     ensureInit();
-    promise.resolve(logFile != null ? logFile.getAbsolutePath() : LOG_DIR);
+    promise.resolve(logFile != null ? logFile.getAbsolutePath() : "(未初始化)");
+  }
+
+  // JS 写入日志(调试用)
+  @ReactMethod
+  public void writeLog(String tag, String level, String message) {
+    write(tag, level, message);
+  }
+
+  // JS 读取全部日志
+  @ReactMethod
+  public void readLogs(Promise promise) {
+    ensureInit();
+    if (logFile == null) { promise.resolve(""); return; }
+    try {
+      StringBuilder sb = new StringBuilder();
+      java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.FileReader(logFile));
+      String line;
+      while ((line = reader.readLine()) != null) {
+        sb.append(line).append("\n");
+      }
+      reader.close();
+      promise.resolve(sb.toString());
+    } catch (Exception e) {
+      promise.reject("READ_LOG_ERROR", e.getMessage());
+    }
   }
 
   private static synchronized void ensureInit() {
     if (initialized) return;
     initialized = true;
     try {
-      File dir = new File(LOG_DIR);
+      File baseDir = appContext != null
+          ? appContext.getExternalFilesDir(null)
+          : null;
+      File dir = new File(baseDir != null ? baseDir.getAbsolutePath() : "/data/data/lxnetease/tmp", "LXMusic_Logs");
       if (!dir.exists()) dir.mkdirs();
       String dateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
       logFile = new File(dir, "log_" + dateStr + ".log");

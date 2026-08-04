@@ -33,7 +33,13 @@ export default memo(() => {
       <CheckBoxItem
         check={enabled}
         label="全局极光背景"
-        onChange={(v) => updateSetting({ 'app.background.aurora.enabled': v })}
+        onChange={(v) => {
+          updateSetting({ 'app.background.aurora.enabled': v })
+          try {
+            const { debugLog } = require('@/utils/log')
+            debugLog('AuroraDebug', 'user toggled enabled=' + v)
+          } catch {}
+        }}
       />
       {enabled ? (
         <View style={styles.options}>
@@ -44,7 +50,13 @@ export default memo(() => {
               return (
                 <TouchableOpacity
                   key={p.value}
-                  onPress={() => updateSetting({ 'app.background.aurora.preset': p.value })}
+                  onPress={() => {
+                    updateSetting({ 'app.background.aurora.preset': p.value })
+                    try {
+                      const { debugLog } = require('@/utils/log')
+                      debugLog('AuroraDebug', 'user set preset=' + p.value)
+                    } catch {}
+                  }}
                   style={[styles.chip, active && { backgroundColor: theme['c-primary'] }]}
                 >
                   <Text size={11} color={active ? '#fff' : theme['c-font']}>{p.label}</Text>

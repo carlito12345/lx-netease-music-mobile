@@ -13,8 +13,7 @@ import { useStatusbarHeight } from '@/store/common/hook'
 import Btn from './Btn'
 import TimeoutExitBtn from './TimeoutExitBtn'
 import Marquee from './Marquee'
-import ShinyText from '@/components/common/ShinyText'
-import { useSettingValue } from '@/store/setting/hook'
+import ShinyTitle from '@/components/common/ShinyTitle'
 import StatusBar from '@/components/common/StatusBar'
 
 export const HEADER_HEIGHT = scaleSizeH(_HEADER_HEIGHT)
@@ -23,7 +22,6 @@ const Title = () => {
   const theme = useTheme()
   const playMusicInfo = usePlayMusicInfo()
   const musicInfo = playMusicInfo.musicInfo ? ('progress' in playMusicInfo.musicInfo ? playMusicInfo.musicInfo.metadata.musicInfo : playMusicInfo.musicInfo) : null
-  const shinyTextEnabled = useSettingValue('playDetail.effect.shinyText.enabled')
 
   const handleArtistPress = useCallback((artist: { id: string | number, name: string }) => {
     if (!musicInfo || musicInfo.source !== 'wy' || !artist.id) return
@@ -82,19 +80,14 @@ const Title = () => {
     <View style={styles.titleContent}>
       {musicInfo ? (
         <>
-          {shinyTextEnabled ? (
-            <ShinyText
-              text={musicInfo.name || ''}
-              color={theme['c-font']}
-              style={styles.title}
-              enabled={shinyTextEnabled}
-            />
-          ) : (
-            <Marquee style={styles.title} size={16}>
-              {musicInfo.name}
-              {musicInfo.alias ? <Text color={theme['c-font-label']}> ({musicInfo.alias})</Text> : null}
-            </Marquee>
-          )}
+          <ShinyTitle
+            text={musicInfo.name || ''}
+            alias={musicInfo.alias}
+            color={theme['c-font']}
+            aliasColor={theme['c-font-label']}
+            style={styles.title}
+            size={16}
+          />
           {singerRender}
         </>
       ) : null}

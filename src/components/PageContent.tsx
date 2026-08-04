@@ -5,12 +5,11 @@ import ImageBackground from '@/components/common/ImageBackground'
 import { useWindowSize } from '@/utils/hooks'
 import { useMemo } from 'react'
 import { scaleSizeAbsHR } from '@/utils/pixelRatio'
-import { defaultHeaders } from './common/Image'
 import SizeView from './SizeView'
 import { useBgPic } from '@/store/common/hook'
 
 import { useSettingValue } from '@/store/setting/hook'
-import AuroraBackground, { AURORA_PRESETS } from '@/components/common/AuroraBackground'
+import PageBackground from '@/components/common/PageBackground'
 interface Props {
   children: React.ReactNode
 }
@@ -25,11 +24,6 @@ export default ({ children }: Props) => {
   const pic = customBgPicPath || dynamicPic;
   const picOpacity = useSettingValue('theme.picOpacity');
   const blur = useSettingValue('theme.blur');
-  const auroraEnabled = useSettingValue('app.background.aurora.enabled');
-  const auroraPreset = useSettingValue('app.background.aurora.preset');
-  const auroraIntensity = useSettingValue('app.background.aurora.intensity');
-  // 无动态背景图时,用极光做全局背景
-  const showAurora = auroraEnabled && !pic;
   // const BLUR_RADIUS = Math.max(scaleSizeAbsHR(blur), 10)
   const BLUR_RADIUS = blur
   // const [wh, setWH] = useState<{ width: number | string, height: number | string }>({ width: '100%', height: Dimensions.get('screen').height })
@@ -55,49 +49,18 @@ export default ({ children }: Props) => {
   const contentComponent = useMemo(() => {
     return (
       <View style={{ flex: 1, overflow: 'hidden' }}>
-        {showAurora ? (
-          <AuroraBackground
-            colors={AURORA_PRESETS[auroraPreset] || AURORA_PRESETS.aurora}
-            intensity={auroraIntensity || 1}
-          />
-        ) : (
-          <ImageBackground
-            style={{
-              position: 'absolute',
-              left: 0,
-              top: 0,
-              height: windowSize.height,
-              width: windowSize.width,
-              backgroundColor: theme['c-content-background'],
-            }}
-            source={pic ? { uri: pic, headers: defaultHeaders } : theme['bg-image']}
-            resizeMode="cover"
-            blurRadius={pic ? BLUR_RADIUS : undefined}
-          >
-            {pic ? (
-              <View
-                style={{
-                  flex: 1,
-                  flexDirection: 'column',
-                  backgroundColor: theme['c-content-background'],
-                  opacity: picOpacity / 100,
-                }}
-              ></View>
-            ) : null}
-          </ImageBackground>
-        )}
+        <PageBackground pic={pic} />
         <View
           style={{
             flex: 1,
             flexDirection: 'column',
-            backgroundColor: pic ? undefined : theme['c-main-background'],
           }}
         >
           {children}
         </View>
       </View>
     );
-  }, [children, pic, theme, windowSize.height, windowSize.width, BLUR_RADIUS, picOpacity, showAurora, auroraPreset, auroraIntensity]);
+  }, [children, pic, theme, windowSize.height, windowSize.width, BLUR_RADIUS, picOpacity]);
 
   return (
     <>

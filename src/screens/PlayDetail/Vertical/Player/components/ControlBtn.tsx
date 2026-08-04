@@ -8,47 +8,38 @@ import { createStyle } from '@/utils/tools'
 import { useWindowSize } from '@/utils/hooks'
 import { BTN_WIDTH } from './MoreBtn/Btn'
 import { useMemo } from 'react'
-import MagicRings from '@/components/common/MagicRings'
-import { useSettingValue } from '@/store/setting/hook'
+import EffectControlButton from '@/components/common/EffectControlButton'
 
 const PrevBtn = ({ size }: { size: number }) => {
   const theme = useTheme()
   const activeColor = theme.isDark ? theme['c-font'] : theme['c-primary'];
-  const magicRings = useSettingValue('playDetail.effect.magicRings.enabled')
   const handlePlayPrev = () => {
     void playPrev()
   }
   return (
-    <MagicRings
-      enabled={magicRings}
+    <EffectControlButton
+      icon="prevMusic"
+      size={size}
       color={activeColor}
-      radius={size * 0.55}
       onPress={handlePlayPrev}
-      style={{ ...styles.cotrolBtn, width: size, height: size }}
-      activeOpacity={0.5}
-    >
-      <Icon name="prevMusic" color={activeColor} rawSize={size * 0.7} />
-    </MagicRings>
+      style={styles.cotrolBtn}
+    />
   )
 }
 const NextBtn = ({ size }: { size: number }) => {
   const theme = useTheme()
   const activeColor = theme.isDark ? theme['c-font'] : theme['c-primary'];
-  const magicRings = useSettingValue('playDetail.effect.magicRings.enabled')
   const handlePlayNext = () => {
     void playNext()
   }
   return (
-    <MagicRings
-      enabled={magicRings}
+    <EffectControlButton
+      icon="nextMusic"
+      size={size}
       color={activeColor}
-      radius={size * 0.55}
       onPress={handlePlayNext}
-      style={{ ...styles.cotrolBtn, width: size, height: size }}
-      activeOpacity={0.5}
-    >
-      <Icon name="nextMusic" color={activeColor} rawSize={size * 0.7} />
-    </MagicRings>
+      style={styles.cotrolBtn}
+    />
   )
 }
 
@@ -56,18 +47,14 @@ const TogglePlayBtn = ({ size }: { size: number }) => {
   const theme = useTheme()
   const activeColor = theme.isDark ? theme['c-font'] : theme['c-primary'];
   const isPlay = useIsPlay()
-  const magicRings = useSettingValue('playDetail.effect.magicRings.enabled')
   return (
-    <MagicRings
-      enabled={magicRings}
+    <EffectControlButton
+      icon={isPlay ? 'pause' : 'play'}
+      size={size}
       color={activeColor}
-      radius={size * 0.55}
       onPress={togglePlay}
-      style={{ ...styles.cotrolBtn, width: size, height: size }}
-      activeOpacity={0.5}
-    >
-      <Icon name={isPlay ? 'pause' : 'play'} color={activeColor} rawSize={size * 0.7} />
-    </MagicRings>
+      style={styles.cotrolBtn}
+    />
   )
 }
 
