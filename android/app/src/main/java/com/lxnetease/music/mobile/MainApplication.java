@@ -15,6 +15,8 @@ import com.lxnetease.music.mobile.lyric.LyricPackage;
 import com.lxnetease.music.mobile.userApi.UserApiPackage;
 import com.lxnetease.music.mobile.utils.UtilsPackage;
 import com.lxnetease.music.mobile.widget.WidgetPackage;
+import com.lxnetease.music.mobile.logger.NativeLoggerPackage;
+import com.lxnetease.music.mobile.permission.PermissionPackage;
 
 public class MainApplication extends NavigationApplication {
 
@@ -37,6 +39,8 @@ public class MainApplication extends NavigationApplication {
           packages.add(new CryptoPackage());
           packages.add(new UserApiPackage());
           packages.add(new WidgetPackage());
+          packages.add(new NativeLoggerPackage());
+          packages.add(new PermissionPackage());
           return packages;
         }
 

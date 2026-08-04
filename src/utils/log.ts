@@ -8,6 +8,25 @@ import {
   readFile,
 } from '@/utils/fs'
 
+// NativeLogger 原生日志桥(增强: 原生写文件, 支持大文件和分享)
+let nativeLogger: any = null
+const getNativeLogger = () => {
+  if (nativeLogger != null) return nativeLogger
+  try {
+    const { NativeModules } = require('react-native')
+    nativeLogger = NativeModules.NativeLogger ?? null
+  } catch { nativeLogger = null }
+  return nativeLogger
+}
+// 通过 JS 写文件共享的原生日志路径
+export const getNativeLogPath = async (): Promise<string | null> => {
+  try {
+    const logger = getNativeLogger()
+    if (!logger) return null
+    return await logger.getLogPath()
+  } catch { return null }
+}
+
 const logPath = temporaryDirectoryPath + '/error.log'
 
 const logTools = {
@@ -82,6 +101,11 @@ export const log = {
     } else {
       logTools.writeLog(`${time} ERROR ${msg}`)
     }
+    // 增强: 错误日志同步写入原生文件(可分享/持久)
+    try {
+      const logger = getNativeLogger()
+      if (logger?.write) logger.write('LX-Netease', 'ERROR', msg)
+    } catch {}
   },
 }
 /*

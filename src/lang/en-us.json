@@ -601,5 +601,17 @@
   "album_detail": "Album Detail",
   "nav_my_playlist": "My Playlists",
   "exit_app_tip_double_press": "Press back again to exit",
-  "setting_basic_nav_menu": "Menu Display Settings"
+  "setting_basic_nav_menu": "Menu Display Settings",
+  "setting_other_permission": "Permissions",
+  "setting_other_permission_overlay": "Overlay permission",
+  "setting_other_permission_overlay_desc": "Required for mini player and desktop lyrics",
+  "setting_other_permission_storage": "All files access",
+  "setting_other_permission_storage_desc": "Required for local music folder and downloads",
+  "setting_other_permission_notification": "Notification permission",
+  "setting_other_permission_notification_desc": "Required for background playback control",
+  "setting_other_permission_battery": "Battery optimization",
+  "setting_other_permission_battery_desc": "Disable to keep background playback",
+  "setting_other_permission_granted": "Granted",
+  "setting_other_permission_denied": "Denied",
+  "setting_other_log_btn_share": "Share logs"
 }

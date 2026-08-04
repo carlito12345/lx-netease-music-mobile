@@ -93,7 +93,8 @@ def reactNativeArchitectures() {
 
 // Get version number
 def getNpmPackageJson() {
-    def inputFile = new File("../package.json")
+    // 用 rootProject 定位项目根目录,避免工作目录导致的路径错误
+    def inputFile = new File(rootProject.projectDir.parentFile, "package.json")
     def packageJson = new JsonSlurper().parseText(inputFile.text)
     return packageJson
 }

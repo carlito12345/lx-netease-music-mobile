@@ -1,6 +1,7 @@
 import { memo, useRef, useState, useEffect } from 'react'
 import { View } from 'react-native'
-import { getLogs, clearLogs } from '@/utils/log'
+import { Share } from 'react-native'
+import { getLogs, clearLogs, getNativeLogPath } from '@/utils/log'
 // import { gzip, ungzip } from 'pako'
 
 import SubTitle from '../../components/SubTitle'
@@ -32,6 +33,20 @@ export default memo(() => {
   const openLogModal = () => {
     getErrorLog()
     alertRef.current?.setVisible(true)
+  }
+
+  const handleShareLog = () => {
+    void getNativeLogPath().then((path) => {
+      if (!path) {
+        toast(t('setting_other_log_tip_null'))
+        return
+      }
+      void Share.share({
+        title: 'LX-Netease Log',
+        message: `日志文件: ${path}\n(原生日志: 下载目录/LXMusic_Logs/ 下)`,
+        url: 'file://' + path,
+      }).catch(() => {})
+    })
   }
 
   const handleCleanLog = () => {
@@ -75,6 +90,7 @@ export default memo(() => {
         </View>
         <View style={styles.btn}>
           <Button onPress={openLogModal}>{t('setting_other_log_btn_show')}</Button>
+          <Button onPress={handleShareLog}>{t('setting_other_log_btn_share')}</Button>
         </View>
       </SubTitle>
       <ConfirmAlert

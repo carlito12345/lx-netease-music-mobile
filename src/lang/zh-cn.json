@@ -606,5 +606,17 @@
   "album_detail": "专辑详情",
   "nav_my_playlist": "我的歌单",
   "exit_app_tip_double_press": "再按一次退出应用",
-  "setting_basic_nav_menu": "菜单显示设置"
+  "setting_basic_nav_menu": "菜单显示设置",
+  "setting_other_permission": "权限管理",
+  "setting_other_permission_overlay": "悬浮窗权限",
+  "setting_other_permission_overlay_desc": "迷你播放器、桌面歌词显示需要",
+  "setting_other_permission_storage": "所有文件访问权限",
+  "setting_other_permission_storage_desc": "选择本地音乐目录、下载歌曲到任意位置需要",
+  "setting_other_permission_notification": "通知权限",
+  "setting_other_permission_notification_desc": "后台播放控制、通知栏歌曲信息需要",
+  "setting_other_permission_battery": "电池优化(后台运行)",
+  "setting_other_permission_battery_desc": "关闭优化,保证后台持续播放",
+  "setting_other_permission_granted": "已授权",
+  "setting_other_permission_denied": "未授权",
+  "setting_other_log_btn_share": "分享日志"
 }
