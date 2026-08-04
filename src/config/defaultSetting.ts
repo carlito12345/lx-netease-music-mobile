@@ -166,6 +166,18 @@ const defaultSetting: LX.AppSetting = {
   'playDetail.cover.effect.particles': false,
   'playDetail.cover.effect.rotate': false,
   'playDetail.cover.effect.swipe': false,
+
+  // 迷你播放器
+  'miniPlayer.followBgColor': true,
+  'miniPlayer.customWidth': 500,
+  'miniPlayer.customHeight': 900,
+  'miniPlayer.lyricLines': 3,
+  'miniPlayer.lyricFontSize': 15,
+  'miniPlayer.lyricLineSpacing': 6,
+  'miniPlayer.lyricOffsetMs': 0,
+  'miniPlayer.lyricHighlightColor': '#ffffff',
+  'miniPlayer.coverStyle': 'follow',
+  'miniPlayer.enableParticles': false,
 }
 
 // 使用新年皮肤

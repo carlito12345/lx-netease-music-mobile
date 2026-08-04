@@ -1,14 +1,12 @@
 /**
- * Icon - 全局图标组件(Material Design)
- * 将现有 IcoMoon 图标名映射到 MaterialIcons, 调用方无需改动
+ * MaterialIcon - Material Design 图标组件
+ * 将现有 IcoMoon 图标名映射到 MaterialIcons
  */
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { scaleSizeW } from '@/utils/pixelRatio'
 import { memo, type ComponentProps } from 'react'
 import { useTextShadow, useTheme } from '@/store/theme/hook'
 import { StyleSheet, type StyleProp, type TextStyle } from 'react-native'
-import { isGrayColor, getTextColorByMode } from '@/utils/adaptiveTextColor'
-import { useBackgroundColor } from '@/store/backgroundColor'
 
 // IcoMoon 图标名 → MaterialIcons 图标名 映射
 const ICON_MAP: Record<string, string> = {
@@ -22,7 +20,7 @@ const ICON_MAP: Record<string, string> = {
   'minus-box': 'indeterminate-check-box',
   'home': 'home',
   'menu': 'menu',
-  'chevron-left': 'arrow-back',
+  'chevron-left': 'chevron-left',
   'chevron-right': 'chevron-right',
   'back-2': 'arrow-back',
   'remove': 'remove',
@@ -40,7 +38,7 @@ const ICON_MAP: Record<string, string> = {
   'volume-higt': 'volume-up',
   'eraser': 'auto-fix-normal',
   'available_updates': 'system-update',
-  'music_time': 'history',
+  'music_time': 'music-note',
   'list-loop': 'repeat',
   'list-random': 'shuffle',
   'list-order': 'queue-music',
@@ -65,24 +63,18 @@ const ICON_MAP: Record<string, string> = {
   'leaderboard': 'leaderboard',
   'album': 'album',
   'search-2': 'search',
-  'calendar': 'event',
-  'artist': 'person',
-  'album-disc': 'album',
-  'onedrive': 'cloud',
 }
 
-type IconType = typeof MaterialIcons
+type MaterialIconType = typeof MaterialIcons
 
-interface IconProps extends Omit<ComponentProps<IconType>, 'style'> {
+interface IconProps extends Omit<ComponentProps<MaterialIconType>, 'style'> {
   style?: StyleProp<TextStyle>
   rawSize?: number
 }
 
-export const Icon = memo(({ size = 15, rawSize, color, style, name, ...props }: IconProps) => {
+export const MaterialIcon = memo(({ size = 15, rawSize, color, style, name, ...props }: IconProps) => {
   const theme = useTheme()
   const textShadow = useTextShadow()
-  const { textColorMode } = useBackgroundColor()
-  const adaptiveColor = getTextColorByMode(textColorMode, theme.isDark)
   const materialName = ICON_MAP[name as string] || name
   const newStyle = textShadow
     ? StyleSheet.compose(
@@ -98,9 +90,7 @@ export const Icon = memo(({ size = 15, rawSize, color, style, name, ...props }: 
     <MaterialIcons
       name={materialName}
       size={rawSize ?? scaleSizeW(size)}
-      color={color == null
-        ? adaptiveColor
-        : (typeof color === 'string' && isGrayColor(color) ? adaptiveColor : color)}
+      color={color ?? theme['c-font']}
       style={newStyle as any}
       {...props}
     />

@@ -6,6 +6,7 @@ import { Icon } from '@/components/common/Icon'
 import { useKeyboard } from '@/utils/hooks'
 import { createStyle } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
+import { BackgroundColorProvider } from '@/store/backgroundColor'
 import Text from './Text'
 import { useStatusbarHeight } from '@/store/common/hook'
 
@@ -195,6 +196,7 @@ export default forwardRef<PopupType, PopupProps>(
             paddingBottom: keyboardShown ? keyboardHeight : 0,
           }}
         >
+          <BackgroundColorProvider>
           <View
             style={{
               ...styles.modalView,
@@ -211,6 +213,7 @@ export default forwardRef<PopupType, PopupProps>(
             </View>
             {children}
           </View>
+          </BackgroundColorProvider>
         </View>
       </Modal>
     )

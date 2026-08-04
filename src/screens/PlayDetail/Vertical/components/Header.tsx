@@ -12,6 +12,7 @@ import SettingPopup, { type SettingPopupType } from '../../components/SettingPop
 import { useStatusbarHeight } from '@/store/common/hook'
 import Btn from './Btn'
 import TimeoutExitBtn from './TimeoutExitBtn'
+import MiniPlayerButton from './MiniPlayerButton'
 import Marquee from './Marquee'
 import ShinyTitle from '@/components/common/ShinyTitle'
 import StatusBar from '@/components/common/StatusBar'
@@ -120,6 +121,7 @@ export default memo(({ hideTitle = false }: HeaderProps = {}) => {
         <Btn icon="chevron-left" onPress={back} />
         {hideTitle ? <View style={styles.titleContent} /> : <Title />}
         <TimeoutExitBtn />
+        <MiniPlayerButton />
         <Btn icon="slider" onPress={showSetting} />
       </View>
       <SettingPopup ref={popupRef} direction="vertical" />

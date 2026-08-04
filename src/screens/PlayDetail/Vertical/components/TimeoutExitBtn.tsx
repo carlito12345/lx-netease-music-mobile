@@ -19,7 +19,7 @@ export default memo(() => {
   return (
     <>
       <Btn
-        icon="music_time"
+        icon="timer"
         color={timeInfo.active ? theme['c-primary-font-active'] : theme['c-font']}
         onPress={handleShow}
       />

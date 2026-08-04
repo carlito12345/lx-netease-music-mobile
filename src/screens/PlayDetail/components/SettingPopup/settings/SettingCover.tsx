@@ -32,18 +32,24 @@ export default memo(() => {
   const coverStyle = useSettingValue('playDetail.cover.style')
   const effectGlow = useSettingValue('playDetail.cover.effect.glow')
   const effectParticles = useSettingValue('playDetail.cover.effect.particles')
-  const effectRotate = useSettingValue('playDetail.cover.effect.rotate')
   const effectSwipe = useSettingValue('playDetail.cover.effect.swipe')
+  // 旋转复用原有功能(以 App 原有为准)
+  const coverSpin = useSettingValue('playDetail.isCoverSpin')
 
-  const effects = { glow: effectGlow, particles: effectParticles, rotate: effectRotate, swipe: effectSwipe }
+  const effects = { glow: effectGlow, particles: effectParticles, rotate: coverSpin, swipe: effectSwipe }
 
   const handleStyleChange = useCallback((style: string) => {
     updateSetting({ 'playDetail.cover.style': style })
   }, [])
 
   const handleEffectToggle = useCallback((key: string) => {
+    if (key === 'rotate') {
+      // 复用原有封面旋转开关
+      updateSetting({ 'playDetail.isCoverSpin': !coverSpin })
+      return
+    }
     updateSetting({ [`playDetail.cover.effect.${key}`]: !effects[key as keyof typeof effects] })
-  }, [effects])
+  }, [effects, coverSpin])
 
   return (
     <View style={styles.container}>

@@ -18,6 +18,7 @@ import { StarfieldBackground } from '@/components/starfield/StarfieldBackground'
 import { SpectrumBars } from '@/components/echo/SpectrumBars'
 import { WallpaperView } from '@/components/wallpaper/WallpaperView'
 import { SlideshowBg } from '@/components/slideshow/SlideshowBg'
+import { PlayDetailBackground } from '@/components/common/PlayDetailBackground'
 // import { useTheme } from '@/store/theme/hook'
 
 const LyricPage = ({ activeIndex }: { activeIndex: number }) => {
@@ -105,7 +106,9 @@ export default memo(({ componentId }: { componentId: string }) => {
   }
 
   return (
-    <>
+    <View style={{ flex: 1 }}>
+      {/* 背景模式(最外层, 覆盖 Header) */}
+      <PlayDetailBackground />
       <Header />
       <View style={styles.container}>
         {/* 特效层(绝对定位背景) */}
@@ -138,7 +141,7 @@ export default memo(({ componentId }: { componentId: string }) => {
         </View> */}
         <Player componentId={componentId} />
       </View>
-    </>
+    </View>
   )
 })
 

@@ -4,7 +4,8 @@
  * 零新依赖: RN Animated (useNativeDriver)
  */
 import { memo, useEffect, useRef, useState } from 'react'
-import { Animated, Easing, View, Text, StyleSheet, type LayoutChangeEvent, type TextStyle } from 'react-native'
+import { Animated, Easing, View, StyleSheet, type LayoutChangeEvent, type TextStyle } from 'react-native'
+import Text from '@/components/common/Text'
 
 interface ShinyTextProps {
   text: string
@@ -69,7 +70,7 @@ const ShinyText = memo(({
   return (
     <View onLayout={onLayout} style={styles.container}>
       <Text
-        style={[{ color }, style]}
+        style={style}
         numberOfLines={1}
       >
         {text}

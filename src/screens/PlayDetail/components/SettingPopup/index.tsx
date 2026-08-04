@@ -14,6 +14,7 @@ import SettingLayout from "@/screens/PlayDetail/components/SettingPopup/settings
 import SettingVisualEffects from "@/screens/PlayDetail/components/SettingPopup/settings/SettingVisualEffects.tsx";
 import SettingBackground from "@/screens/PlayDetail/components/SettingPopup/settings/SettingBackground.tsx";
 import SettingCover from "@/screens/PlayDetail/components/SettingPopup/settings/SettingCover.tsx";
+import SettingMiniPlayer from "@/screens/PlayDetail/components/SettingPopup/settings/SettingMiniPlayer.tsx";
 
 export interface SettingPopupProps extends Omit<PopupProps, 'children'> {
   direction: 'vertical' | 'horizontal'
@@ -54,6 +55,7 @@ export default forwardRef<SettingPopupType, SettingPopupProps>(({ direction, ...
           <SettingLayout />
           <SettingBackground />
           <SettingCover />
+          <SettingMiniPlayer />
           <SettingVisualEffects />
           <SettingEffects />
         </View>

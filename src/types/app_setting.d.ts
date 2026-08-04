@@ -164,6 +164,18 @@ declare global {
       'playDetail.cover.effect.rotate': boolean
       'playDetail.cover.effect.swipe': boolean
 
+      /** 迷你播放器 */
+      'miniPlayer.followBgColor': boolean
+      'miniPlayer.customWidth': number
+      'miniPlayer.customHeight': number
+      'miniPlayer.lyricLines': number
+      'miniPlayer.lyricFontSize': number
+      'miniPlayer.lyricLineSpacing': number
+      'miniPlayer.lyricOffsetMs': number
+      'miniPlayer.lyricHighlightColor': string
+      'miniPlayer.coverStyle': string
+      'miniPlayer.enableParticles': boolean
+
       /**
        * 字体阴影
        */

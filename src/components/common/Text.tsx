@@ -3,6 +3,8 @@ import { Text, type TextProps as _TextProps, StyleSheet, Animated, type ColorVal
 import { useTextShadow, useTheme } from '@/store/theme/hook'
 import { setSpText } from '@/utils/pixelRatio'
 import { useAnimateColor } from '@/utils/hooks/useAnimateColor'
+import { isGrayColor, getTextColorByMode } from '@/utils/adaptiveTextColor'
+import { useBackgroundColor } from '@/store/backgroundColor'
 import { DEFAULT_DURATION, useAnimateNumber } from '@/utils/hooks/useAnimateNumber'
 // import { AppColors } from '@/theme'
 
@@ -32,17 +34,23 @@ export interface TextProps extends _TextProps {
 export default memo(({ style, size = 15, color, children, ...props }: TextProps) => {
   const theme = useTheme()
   const textShadow = useTextShadow()
+  const { textColorMode } = useBackgroundColor()
+  // 文字色: 根据背景模式针对性
+  const adaptiveColor = getTextColorByMode(textColorMode, theme.isDark)
+  const resolvedColor = color == null
+    ? adaptiveColor
+    : (typeof color === 'string' && isGrayColor(color) ? adaptiveColor : color)
   style = StyleSheet.compose(textShadow ? {
     // fontFamily: 'System',
     textShadowColor: theme['c-primary-dark-300-alpha-800'],
     textShadowOffset: { width: 0.2, height: 0.2 },
     textShadowRadius: 2,
     fontSize: setSpText(size),
-    color: color ?? theme['c-font'],
+    color: resolvedColor,
   } : {
     // fontFamily: 'System',
     fontSize: setSpText(size),
-    color: color ?? theme['c-font'],
+    color: resolvedColor,
   }, style)
 
   return (
@@ -101,8 +109,14 @@ export interface AnimatedColorTextProps extends _AnimatedTextProps {
 export const AnimatedColorText = ({ style, size = 15, opacity: _opacity, color: _color, children, ...props }: AnimatedColorTextProps) => {
   const theme = useTheme()
   const textShadow = useTextShadow()
+  const { textColorMode } = useBackgroundColor()
 
-  const [color] = useAnimateColor(_color ?? theme['c-font'])
+  // 文字色: 根据背景模式针对性
+  const adaptiveColor = getTextColorByMode(textColorMode, theme.isDark)
+  const resolvedColor = _color == null
+    ? adaptiveColor
+    : (typeof _color === 'string' && isGrayColor(_color) ? adaptiveColor : _color)
+  const [color] = useAnimateColor(resolvedColor)
   const [opacity] = useAnimateNumber(_opacity ?? 1, DEFAULT_DURATION, false)
 
   style = StyleSheet.compose(textShadow ? {
