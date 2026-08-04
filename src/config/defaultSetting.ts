@@ -134,6 +134,16 @@ const defaultSetting: LX.AppSetting = {
   'playDetail.effect.shinyText.enabled': false,
   'playDetail.effect.magicRings.enabled': false,
   'playDetail.effect.magicRings.radius': 34,
+
+  // 粒子/回声/频谱特效
+  'playDetail.effect.starfield.enabled': false,
+  'playDetail.effect.starfield.particleCount': 40,
+  'playDetail.effect.starfield.particleSize': 2,
+  'playDetail.effect.starfield.speed': 1,
+  'playDetail.effect.starfield.pattern': 'random',
+  'playDetail.effect.echo.enabled': false,
+  'playDetail.effect.echo.color': '',
+  'playDetail.effect.spectrum.enabled': false,
 }
 
 // 使用新年皮肤

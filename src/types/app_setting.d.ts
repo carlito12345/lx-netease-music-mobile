@@ -132,6 +132,16 @@ declare global {
       'playDetail.effect.magicRings.enabled': boolean
       'playDetail.effect.magicRings.radius': number
 
+      /** 粒子/回声/频谱特效 */
+      'playDetail.effect.starfield.enabled': boolean
+      'playDetail.effect.starfield.particleCount': number
+      'playDetail.effect.starfield.particleSize': number
+      'playDetail.effect.starfield.speed': number
+      'playDetail.effect.starfield.pattern': string
+      'playDetail.effect.echo.enabled': boolean
+      'playDetail.effect.echo.color': string
+      'playDetail.effect.spectrum.enabled': boolean
+
       /**
        * 字体阴影
        */
