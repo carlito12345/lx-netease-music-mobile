@@ -90,7 +90,7 @@ export default memo(({ componentId }: { componentId: string }) => {
     return {
       width: imgWidth,
       height: imgWidth,
-      borderRadius: isCoverSpin ? imgWidth / 2 : borderRadius,
+      borderRadius: coverStyle === 'circle' && isCoverSpin ? imgWidth / 2 : borderRadius,
       elevation: 3,
       opacity: coverStyle === 'hidden' ? 0 : 1,
     };

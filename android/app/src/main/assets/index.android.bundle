@@ -298923,7 +298923,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       return {
         width: imgWidth,
         height: imgWidth,
-        borderRadius: isCoverSpin ? imgWidth / 2 : borderRadius,
+        borderRadius: coverStyle === 'circle' && isCoverSpin ? imgWidth / 2 : borderRadius,
         elevation: 3,
         opacity: coverStyle === 'hidden' ? 0 : 1
       };
