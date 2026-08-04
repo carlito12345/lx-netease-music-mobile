@@ -30,6 +30,20 @@ const LyricPage = ({ activeIndex }: { activeIndex: number }) => {
 
 // global.iskeep = false
 export default memo(({ componentId }: { componentId: string }) => {
+  // MF 布局切换(完整组件,不干扰默认布局)
+  const [layoutVer, setLayoutVer] = useState(0)
+  useEffect(() => {
+    try {
+      const lm = require('@/plugins/layoutManager')
+      return lm.onLayoutChange(() => setLayoutVer(v => v + 1))
+    } catch {}
+  }, [])
+  const layoutType = (() => { try { return require('@/plugins/layoutManager').getLayout() } catch { return 'default' } })()
+  if (layoutType === 'musicfree') {
+    const MFL = require('./layouts/MusicFree').default
+    return <MFL key={'m' + layoutVer} componentId={componentId} />
+  }
+
   // const theme = useTheme()
   const [pageIndex, setPageIndex] = useState(0)
   const pagerViewRef = useRef<PagerView>(null);
