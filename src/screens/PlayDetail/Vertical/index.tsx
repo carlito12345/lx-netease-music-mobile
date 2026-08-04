@@ -30,7 +30,12 @@ const LyricPage = ({ activeIndex }: { activeIndex: number }) => {
 
 // global.iskeep = false
 export default memo(({ componentId }: { componentId: string }) => {
-  // MF 布局切换(完整组件,不干扰默认布局)
+  // const theme = useTheme()
+  const [pageIndex, setPageIndex] = useState(0)
+  const pagerViewRef = useRef<PagerView>(null);
+  const showLyricRef = useRef(false)
+
+  // MF 布局订阅(必须放在 Hook 区: 切换布局时强制重渲染, 且 Hook 数量稳定)
   const [layoutVer, setLayoutVer] = useState(0)
   useEffect(() => {
     try {
@@ -38,16 +43,6 @@ export default memo(({ componentId }: { componentId: string }) => {
       return lm.onLayoutChange(() => setLayoutVer(v => v + 1))
     } catch {}
   }, [])
-  const layoutType = (() => { try { return require('@/plugins/layoutManager').getLayout() } catch { return 'default' } })()
-  if (layoutType === 'musicfree') {
-    const MFL = require('./layouts/MusicFree').default
-    return <MFL key={'m' + layoutVer} componentId={componentId} />
-  }
-
-  // const theme = useTheme()
-  const [pageIndex, setPageIndex] = useState(0)
-  const pagerViewRef = useRef<PagerView>(null);
-  const showLyricRef = useRef(false)
 
   const onPageSelected = ({ nativeEvent }: PagerViewOnPageSelectedEvent) => {
     setPageIndex(nativeEvent.position)
@@ -88,6 +83,13 @@ export default memo(({ componentId }: { componentId: string }) => {
       screenUnkeepAwake()
     }
   }, [])
+
+  // MF 布局切换(完整组件) - 放在所有 Hook 之后, 避免 Rendered fewer hooks
+  const layoutType = (() => { try { return require('@/plugins/layoutManager').getLayout() } catch { return 'default' } })()
+  if (layoutType === 'musicfree') {
+    const MFL = require('./layouts/MusicFree').default
+    return <MFL key={'mf-' + layoutVer} componentId={componentId} />
+  }
 
   return (
     <>

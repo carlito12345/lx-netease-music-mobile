@@ -295115,11 +295115,19 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   // global.iskeep = false
   var _default = exports.default = (0, _react.memo)(function (_ref2) {
     var componentId = _ref2.componentId;
-    // MF 布局切换(完整组件,不干扰默认布局)
+    // const theme = useTheme()
     var _useState = (0, _react.useState)(0),
       _useState2 = (0, _slicedToArray2.default)(_useState, 2),
-      layoutVer = _useState2[0],
-      setLayoutVer = _useState2[1];
+      pageIndex = _useState2[0],
+      setPageIndex = _useState2[1];
+    var pagerViewRef = (0, _react.useRef)(null);
+    var showLyricRef = (0, _react.useRef)(false);
+
+    // MF 布局订阅(必须放在 Hook 区: 切换布局时强制重渲染, 且 Hook 数量稳定)
+    var _useState3 = (0, _react.useState)(0),
+      _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
+      layoutVer = _useState4[0],
+      setLayoutVer = _useState4[1];
     (0, _react.useEffect)(function () {
       try {
         var lm = _$$_REQUIRE(_dependencyMap[12], "../../../plugins/layoutManager");
@@ -295130,35 +295138,14 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         });
       } catch (_unused) {}
     }, []);
-    var layoutType = function () {
-      try {
-        return _$$_REQUIRE(_dependencyMap[12], "../../../plugins/layoutManager").getLayout();
-      } catch (_unused2) {
-        return 'default';
-      }
-    }();
-    if (layoutType === 'musicfree') {
-      var MFL = _$$_REQUIRE(_dependencyMap[13], "./layouts/MusicFree").default;
-      return /*#__PURE__*/(0, _jsxRuntime.jsx)(MFL, {
-        componentId: componentId
-      }, 'm' + layoutVer);
-    }
-
-    // const theme = useTheme()
-    var _useState3 = (0, _react.useState)(0),
-      _useState4 = (0, _slicedToArray2.default)(_useState3, 2),
-      pageIndex = _useState4[0],
-      setPageIndex = _useState4[1];
-    var pagerViewRef = (0, _react.useRef)(null);
-    var showLyricRef = (0, _react.useRef)(false);
     var onPageSelected = function onPageSelected(_ref3) {
       var nativeEvent = _ref3.nativeEvent;
       setPageIndex(nativeEvent.position);
       showLyricRef.current = nativeEvent.position == 1;
       if (showLyricRef.current) {
-        (0, _$$_REQUIRE(_dependencyMap[14], "../../../utils/nativeModules/utils").screenkeepAwake)();
+        (0, _$$_REQUIRE(_dependencyMap[13], "../../../utils/nativeModules/utils").screenkeepAwake)();
       } else {
-        (0, _$$_REQUIRE(_dependencyMap[14], "../../../utils/nativeModules/utils").screenUnkeepAwake)();
+        (0, _$$_REQUIRE(_dependencyMap[13], "../../../utils/nativeModules/utils").screenUnkeepAwake)();
       }
     };
     var handleSwitchToLyricPage = (0, _react.useCallback)(function () {
@@ -295169,23 +295156,38 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       var appstateListener = _reactNative.AppState.addEventListener('change', function (state) {
         switch (state) {
           case 'active':
-            if (showLyricRef.current && !_state.default.componentIds.comment) (0, _$$_REQUIRE(_dependencyMap[14], "../../../utils/nativeModules/utils").screenkeepAwake)();
+            if (showLyricRef.current && !_state.default.componentIds.comment) (0, _$$_REQUIRE(_dependencyMap[13], "../../../utils/nativeModules/utils").screenkeepAwake)();
             break;
           case 'background':
-            (0, _$$_REQUIRE(_dependencyMap[14], "../../../utils/nativeModules/utils").screenUnkeepAwake)();
+            (0, _$$_REQUIRE(_dependencyMap[13], "../../../utils/nativeModules/utils").screenUnkeepAwake)();
             break;
         }
       });
       var handleComponentIdsChange = function handleComponentIdsChange(ids) {
-        if (ids.comment) (0, _$$_REQUIRE(_dependencyMap[14], "../../../utils/nativeModules/utils").screenUnkeepAwake)();else if (_reactNative.AppState.currentState == 'active') (0, _$$_REQUIRE(_dependencyMap[14], "../../../utils/nativeModules/utils").screenkeepAwake)();
+        if (ids.comment) (0, _$$_REQUIRE(_dependencyMap[13], "../../../utils/nativeModules/utils").screenUnkeepAwake)();else if (_reactNative.AppState.currentState == 'active') (0, _$$_REQUIRE(_dependencyMap[13], "../../../utils/nativeModules/utils").screenkeepAwake)();
       };
       global.state_event.on('componentIdsUpdated', handleComponentIdsChange);
       return function () {
         global.state_event.off('componentIdsUpdated', handleComponentIdsChange);
         appstateListener.remove();
-        (0, _$$_REQUIRE(_dependencyMap[14], "../../../utils/nativeModules/utils").screenUnkeepAwake)();
+        (0, _$$_REQUIRE(_dependencyMap[13], "../../../utils/nativeModules/utils").screenUnkeepAwake)();
       };
     }, []);
+
+    // MF 布局切换(完整组件) - 放在所有 Hook 之后, 避免 Rendered fewer hooks
+    var layoutType = function () {
+      try {
+        return _$$_REQUIRE(_dependencyMap[12], "../../../plugins/layoutManager").getLayout();
+      } catch (_unused2) {
+        return 'default';
+      }
+    }();
+    if (layoutType === 'musicfree') {
+      var MFL = _$$_REQUIRE(_dependencyMap[14], "./layouts/MusicFree").default;
+      return /*#__PURE__*/(0, _jsxRuntime.jsx)(MFL, {
+        componentId: componentId
+      }, 'mf-' + layoutVer);
+    }
     return /*#__PURE__*/(0, _jsxRuntime.jsxs)(_jsxRuntime.Fragment, {
       children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_Header.default, {}), /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
         style: styles.container,
@@ -295254,7 +295256,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     //   borderRadius: 2,
     // },
   });
-},1705,[6,7,65,15,1706,1725,1726,1629,1741,1742,725,106,1718,1744,734,543],"src/screens/PlayDetail/Vertical/index.tsx");
+},1705,[6,7,65,15,1706,1725,1726,1629,1741,1742,725,106,1718,734,1744,543],"src/screens/PlayDetail/Vertical/index.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
