@@ -119,6 +119,20 @@ declare global {
       'theme.customBgPicPath': string
 
       /**
+       * 极光背景
+       */
+      'app.background.aurora.enabled': boolean
+      'app.background.aurora.preset': string
+      'app.background.aurora.intensity': number
+
+      /**
+       * 播放页特效
+       */
+      'playDetail.effect.shinyText.enabled': boolean
+      'playDetail.effect.magicRings.enabled': boolean
+      'playDetail.effect.magicRings.radius': number
+
+      /**
        * 字体阴影
        */
       'theme.fontShadow': boolean

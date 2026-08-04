@@ -124,6 +124,16 @@ const defaultSetting: LX.AppSetting = {
   'theme.fontShadow': false,
   'theme.customBgPicPath': '',
   'theme.picOpacity': 76,
+
+  // 极光背景
+  'app.background.aurora.enabled': false,
+  'app.background.aurora.preset': 'aurora',
+  'app.background.aurora.intensity': 1,
+
+  // 播放页特效
+  'playDetail.effect.shinyText.enabled': false,
+  'playDetail.effect.magicRings.enabled': false,
+  'playDetail.effect.magicRings.radius': 34,
 }
 
 // 使用新年皮肤
