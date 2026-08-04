@@ -13,6 +13,7 @@ import { type Line, useLrcPlay, useLrcSet } from '@/plugins/lyric'
 import { createStyle } from '@/utils/tools'
 import { updateSetting } from '@/core/common'
 import { useTheme } from '@/store/theme/hook'
+import GradientText from '@/components/common/GradientText'
 import { useSettingValue } from '@/store/setting/hook'
 import { AnimatedColorText } from '@/components/common/Text'
 import { setSpText } from '@/utils/pixelRatio'
@@ -78,6 +79,8 @@ const LrcLine = memo(
     const size = lrcFontSize / 10
     const lineHeight = setSpText(size) * 1.3
 
+    const gradientEnabled = useSettingValue('playDetail.effect.lyricGradient.enabled')
+    const gradientPreset = useSettingValue('playDetail.effect.lyricGradient.preset')
     const colors = useMemo(() => {
       const active = activeLine == lineNum
       return active
@@ -98,19 +101,29 @@ const LrcLine = memo(
     return (
       <TouchableOpacity activeOpacity={0.7} onPress={handlePress}>
         <View style={styles.line} onLayout={handleLayout}>
-          <AnimatedColorText
-            style={{
-              ...styles.lineText,
-              textAlign,
-              lineHeight,
-            }}
-            textBreakStrategy="simple"
-            color={colors[0]}
-            opacity={colors[2]}
-            size={size}
-          >
-            {line.text}
-          </AnimatedColorText>
+          {activeLine == lineNum && gradientEnabled ? (
+            <GradientText
+              text={line.text}
+              preset={gradientPreset}
+              size={size}
+              lineHeight={lineHeight}
+              textAlign={textAlign}
+            />
+          ) : (
+            <AnimatedColorText
+              style={{
+                ...styles.lineText,
+                textAlign,
+                lineHeight,
+              }}
+              textBreakStrategy="simple"
+              color={colors[0]}
+              opacity={colors[2]}
+              size={size}
+            >
+              {line.text}
+            </AnimatedColorText>
+          )}
           {line.extendedLyrics.map((lrc, index) => {
             return (
               <AnimatedColorText

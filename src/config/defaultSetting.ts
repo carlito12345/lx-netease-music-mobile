@@ -141,9 +141,14 @@ const defaultSetting: LX.AppSetting = {
   'playDetail.effect.starfield.particleSize': 2,
   'playDetail.effect.starfield.speed': 1,
   'playDetail.effect.starfield.pattern': 'random',
-  'playDetail.effect.echo.enabled': false,
-  'playDetail.effect.echo.color': '',
+  'playDetail.effect.wallpaper.enabled': false,
+  'playDetail.effect.wallpaper.color': '',
+  'playDetail.effect.slideshow.enabled': false,
   'playDetail.effect.spectrum.enabled': false,
+
+  // 歌词渐变色
+  'playDetail.effect.lyricGradient.enabled': false,
+  'playDetail.effect.lyricGradient.preset': 'aurora',
 }
 
 // 使用新年皮肤

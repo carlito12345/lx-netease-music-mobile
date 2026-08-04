@@ -12,6 +12,12 @@ import Lyric from './Lyric'
 import { screenkeepAwake, screenUnkeepAwake } from '@/utils/nativeModules/utils'
 import commonState, { type InitState as CommonState } from '@/store/common/state'
 import { createStyle } from '@/utils/tools'
+import { useSettingValue } from '@/store/setting/hook'
+import { useTheme } from '@/store/theme/hook'
+import { StarfieldBackground } from '@/components/starfield/StarfieldBackground'
+import { SpectrumBars } from '@/components/echo/SpectrumBars'
+import { WallpaperView } from '@/components/wallpaper/WallpaperView'
+import { SlideshowBg } from '@/components/slideshow/SlideshowBg'
 // import { useTheme } from '@/store/theme/hook'
 
 const LyricPage = ({ activeIndex }: { activeIndex: number }) => {
@@ -34,6 +40,13 @@ export default memo(({ componentId }: { componentId: string }) => {
   const [pageIndex, setPageIndex] = useState(0)
   const pagerViewRef = useRef<PagerView>(null);
   const showLyricRef = useRef(false)
+
+  // 特效设置读取(Hook 区)
+  const theme = useTheme()
+  const starfieldEnabled = useSettingValue('playDetail.effect.starfield.enabled')
+  const spectrumEnabled = useSettingValue('playDetail.effect.spectrum.enabled')
+  const wallpaperEnabled = useSettingValue('playDetail.effect.wallpaper.enabled')
+  const slideshowEnabled = useSettingValue('playDetail.effect.slideshow.enabled')
 
   // MF 布局订阅(必须放在 Hook 区: 切换布局时强制重渲染, 且 Hook 数量稳定)
   const [layoutVer, setLayoutVer] = useState(0)
@@ -95,6 +108,11 @@ export default memo(({ componentId }: { componentId: string }) => {
     <>
       <Header />
       <View style={styles.container}>
+        {/* 特效层(绝对定位背景) */}
+        {starfieldEnabled && <StarfieldBackground />}
+        {spectrumEnabled && <SpectrumBars primaryColor={theme['c-primary']} />}
+        {wallpaperEnabled && <WallpaperView />}
+        {slideshowEnabled && <SlideshowBg />}
         <PagerView
           onPageSelected={onPageSelected}
           // onPageScrollStateChanged={onPageScrollStateChanged}

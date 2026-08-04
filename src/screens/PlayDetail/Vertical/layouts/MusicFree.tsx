@@ -17,8 +17,9 @@ import Lyric from '../Lyric'
 import MusicFreePlayer from './MusicFreePlayer'
 import { playNext, playPrev } from '@/core/player/player'
 import { StarfieldBackground } from '@/components/starfield/StarfieldBackground'
-import { AudioEchoWallpaper } from '@/components/echo/AudioEchoWallpaper'
 import { SpectrumBars } from '@/components/echo/SpectrumBars'
+import { WallpaperView } from '@/components/wallpaper/WallpaperView'
+import { SlideshowBg } from '@/components/slideshow/SlideshowBg'
 
 const { width: SW, height: SH } = Dimensions.get('window')
 const COVER_SIZE = Math.min(SW * 0.6, SH * 0.35)
@@ -53,8 +54,9 @@ export default memo(({ componentId }: Props) => {
   const artist = (mi as any)?.singer || ''
   const bgColor = theme['c-app-background']
   const starfieldEnabled = useSettingValue('playDetail.effect.starfield.enabled')
-  const echoEnabled = useSettingValue('playDetail.effect.echo.enabled')
   const spectrumEnabled = useSettingValue('playDetail.effect.spectrum.enabled')
+  const wallpaperEnabled = useSettingValue('playDetail.effect.wallpaper.enabled')
+  const slideshowEnabled = useSettingValue('playDetail.effect.slideshow.enabled')
 
   // 左右滑动切歌
   const swipeRef = useRef({ startX: 0 }).current
@@ -93,8 +95,9 @@ export default memo(({ componentId }: Props) => {
 
       {/* 特效层(独立组件, 各自读取设置开关) */}
       {starfieldEnabled && <StarfieldBackground />}
-      {echoEnabled && <AudioEchoWallpaper />}
       {spectrumEnabled && <SpectrumBars primaryColor={theme['c-primary']} />}
+      {wallpaperEnabled && <WallpaperView />}
+      {slideshowEnabled && <SlideshowBg />}
 
       {/* Header */}
       <Header hideTitle />

@@ -21,17 +21,21 @@ export default memo(() => {
     <View style={styles.content}>
       <Text size={13} color={theme['c-primary']} style={styles.sectionTitle}>特效</Text>
 
-      <CheckBoxItem
-        check={shinyText}
-        label="✨ 歌名闪光"
-        onChange={(v) => updateSetting({ 'playDetail.effect.shinyText.enabled': v })}
-      />
+      <View style={styles.listContainer}>
+        <CheckBoxItem
+          check={shinyText}
+          label="歌名闪光"
+          onChange={(v) => updateSetting({ 'playDetail.effect.shinyText.enabled': v })}
+        />
+      </View>
 
-      <CheckBoxItem
-        check={magicRings}
-        label="💫 点击涟漪"
-        onChange={(v) => updateSetting({ 'playDetail.effect.magicRings.enabled': v })}
-      />
+      <View style={styles.listContainer}>
+        <CheckBoxItem
+          check={magicRings}
+          label="点击涟漪"
+          onChange={(v) => updateSetting({ 'playDetail.effect.magicRings.enabled': v })}
+        />
+      </View>
       {magicRings ? (
         <View style={styles.radiusRow}>
           <Text size={12} color={theme['c-font-label']}>涟漪大小</Text>
@@ -60,23 +64,30 @@ export default memo(() => {
 
 const styles = createStyle({
   content: {
-    marginTop: 5,
+    marginTop: 8,
+    paddingLeft: 0,
+    paddingRight: 20,
   },
   sectionTitle: {
-    marginBottom: 8,
+    marginBottom: 10,
+    paddingLeft: 20,
+  },
+  listContainer: {
+    paddingTop: 5,
+    paddingLeft: 0,
+    marginBottom: 6,
   },
   radiusRow: {
-    marginTop: 6,
-    paddingLeft: 4,
+    marginTop: 8,
   },
   radiusOptions: {
     flexDirection: 'row',
-    gap: 8,
-    marginTop: 6,
+    gap: 10,
+    marginTop: 8,
   },
   radiusChip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
     borderRadius: 14,
   },
 })

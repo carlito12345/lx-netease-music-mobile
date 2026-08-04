@@ -12,15 +12,7 @@ import { updateSetting } from '@/core/common'
 import { useSettingValue } from '@/store/setting/hook'
 import CheckBoxItem from '@/screens/Home/Views/Setting/components/CheckBoxItem'
 import { setSpText } from '@/utils/pixelRatio'
-
-// 回声颜色选项(跟随主题 / 固定色)
-const ECHO_COLORS = [
-  { label: '跟随主题', value: '' },
-  { label: '紫色', value: '#7c3aed' },
-  { label: '青色', value: '#0891b2' },
-  { label: '粉色', value: '#db2777' },
-  { label: '金色', value: '#d97706' },
-]
+import { GRADIENT_PRESETS } from '@/components/common/GradientText'
 
 // 星空粒子数量选项
 const PARTICLE_COUNTS = [
@@ -33,9 +25,12 @@ export default memo(() => {
   const theme = useTheme()
   const starfield = useSettingValue('playDetail.effect.starfield.enabled')
   const starCount = useSettingValue('playDetail.effect.starfield.particleCount')
-  const echo = useSettingValue('playDetail.effect.echo.enabled')
-  const echoColor = useSettingValue('playDetail.effect.echo.color')
   const spectrum = useSettingValue('playDetail.effect.spectrum.enabled')
+  const wallpaper = useSettingValue('playDetail.effect.wallpaper.enabled')
+  const wallpaperColor = useSettingValue('playDetail.effect.wallpaper.color')
+  const slideshow = useSettingValue('playDetail.effect.slideshow.enabled')
+  const lyricGradient = useSettingValue('playDetail.effect.lyricGradient.enabled')
+  const lyricGradientPreset = useSettingValue('playDetail.effect.lyricGradient.preset')
 
   return (
     <View style={styles.container}>
@@ -44,11 +39,13 @@ export default memo(() => {
       </Text>
 
       {/* 粒子星空 */}
-      <CheckBoxItem
-        check={starfield}
-        label="粒子星空"
-        onChange={v => updateSetting({ 'playDetail.effect.starfield.enabled': v })}
-      />
+      <View style={styles.listContainer}>
+        <CheckBoxItem
+          check={starfield}
+          label="粒子星空"
+          onChange={v => updateSetting({ 'playDetail.effect.starfield.enabled': v })}
+        />
+      </View>
       {starfield ? (
         <View style={styles.subOptions}>
           <Text style={[styles.subLabel, { color: theme['c-font-label'], fontSize: setSpText(12) }]}>
@@ -73,24 +70,29 @@ export default memo(() => {
         </View>
       ) : null}
 
-      {/* 音域回声 */}
-      <CheckBoxItem
-        check={echo}
-        label="音域回声"
-        onChange={v => updateSetting({ 'playDetail.effect.echo.enabled': v })}
-      />
-      {echo ? (
+      {/* 粒子壁纸 */}
+      <View style={styles.listContainer}>
+        <CheckBoxItem
+          check={wallpaper}
+          label="粒子壁纸"
+          onChange={v => updateSetting({ 'playDetail.effect.wallpaper.enabled': v })}
+        />
+      </View>
+      {wallpaper ? (
         <View style={styles.subOptions}>
           <Text style={[styles.subLabel, { color: theme['c-font-label'], fontSize: setSpText(12) }]}>
             颜色
           </Text>
           <View style={styles.row}>
-            {ECHO_COLORS.map(item => {
-              const active = echoColor === item.value
+            {[
+              { label: '跟随主题', value: '' },
+              { label: '渐变', value: 'gradient' },
+            ].map(item => {
+              const active = wallpaperColor === item.value
               return (
                 <TouchableOpacity
                   key={item.value}
-                  onPress={() => updateSetting({ 'playDetail.effect.echo.color': item.value })}
+                  onPress={() => updateSetting({ 'playDetail.effect.wallpaper.color': item.value })}
                   style={[styles.chip, { backgroundColor: active ? theme['c-primary'] : theme['c-primary-alpha-900'] }]}
                 >
                   <Text style={{ fontSize: setSpText(12), color: active ? '#fff' : theme['c-font'] }}>
@@ -103,38 +105,91 @@ export default memo(() => {
         </View>
       ) : null}
 
+      {/* 幻灯片 */}
+      <View style={styles.listContainer}>
+        <CheckBoxItem
+          check={slideshow}
+          label="幻灯片"
+          onChange={v => updateSetting({ 'playDetail.effect.slideshow.enabled': v })}
+        />
+      </View>
+
       {/* 频谱柱 */}
-      <CheckBoxItem
-        check={spectrum}
-        label="频谱柱"
-        onChange={v => updateSetting({ 'playDetail.effect.spectrum.enabled': v })}
-      />
+      <View style={styles.listContainer}>
+        <CheckBoxItem
+          check={spectrum}
+          label="频谱柱"
+          onChange={v => updateSetting({ 'playDetail.effect.spectrum.enabled': v })}
+        />
+      </View>
+
+      {/* 歌词渐变色 */}
+      <View style={styles.listContainer}>
+        <CheckBoxItem
+          check={lyricGradient}
+          label="歌词渐变色"
+          onChange={v => updateSetting({ 'playDetail.effect.lyricGradient.enabled': v })}
+        />
+      </View>
+      {lyricGradient ? (
+        <View style={styles.subOptions}>
+          <Text style={[styles.subLabel, { color: theme['c-font-label'], fontSize: setSpText(12) }]}>
+            配色
+          </Text>
+          <View style={styles.row}>
+            {Object.entries(GRADIENT_PRESETS).map(([key, preset]) => {
+              const active = lyricGradientPreset === key
+              return (
+                <TouchableOpacity
+                  key={key}
+                  onPress={() => updateSetting({ 'playDetail.effect.lyricGradient.preset': key })}
+                  style={[styles.chip, { backgroundColor: active ? theme['c-primary'] : theme['c-primary-alpha-900'] }]}
+                >
+                  <Text style={{ fontSize: setSpText(12), color: active ? '#fff' : theme['c-font'] }}>
+                    {preset.name}
+                  </Text>
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+        </View>
+      ) : null}
     </View>
   )
 })
 
 const styles = createStyle({
   container: {
-    paddingTop: 4,
+    paddingTop: 8,
+    paddingLeft: 0,
+    paddingRight: 20,
+    paddingBottom: 12,
   },
   sectionTitle: {
-    paddingBottom: 6,
+    paddingBottom: 10,
+    paddingLeft: 20,
+  },
+  listContainer: {
+    paddingTop: 5,
+    paddingLeft: 0,
+    marginBottom: 6,
   },
   subOptions: {
-    paddingLeft: 4,
-    paddingBottom: 8,
+    paddingTop: 8,
+    paddingLeft: 20,
+    paddingBottom: 12,
   },
   subLabel: {
-    marginBottom: 6,
+    marginBottom: 8,
   },
   row: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
+    gap: 10,
   },
   chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 6,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 8,
   },
 })

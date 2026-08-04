@@ -138,9 +138,14 @@ declare global {
       'playDetail.effect.starfield.particleSize': number
       'playDetail.effect.starfield.speed': number
       'playDetail.effect.starfield.pattern': string
-      'playDetail.effect.echo.enabled': boolean
-      'playDetail.effect.echo.color': string
+      'playDetail.effect.wallpaper.enabled': boolean
+      'playDetail.effect.wallpaper.color': string
+      'playDetail.effect.slideshow.enabled': boolean
       'playDetail.effect.spectrum.enabled': boolean
+
+      /** 歌词渐变色 */
+      'playDetail.effect.lyricGradient.enabled': boolean
+      'playDetail.effect.lyricGradient.preset': string
 
       /**
        * 字体阴影

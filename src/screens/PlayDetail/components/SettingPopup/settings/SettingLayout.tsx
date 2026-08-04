@@ -44,8 +44,8 @@ export default memo(() => {
 })
 
 const styles = createStyle({
-  container: { paddingTop: 8, paddingBottom: 4 },
-  title: { paddingBottom: 6 },
-  row: { flexDirection: 'row', gap: 8 },
+  container: { paddingTop: 8, paddingLeft: 20, paddingRight: 20, paddingBottom: 12 },
+  title: { paddingBottom: 10 },
+  row: { flexDirection: 'row', gap: 10 },
   btn: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 },
 })

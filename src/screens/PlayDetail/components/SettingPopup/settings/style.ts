@@ -2,10 +2,10 @@ import { createStyle } from '@/utils/tools'
 
 export default createStyle({
   container: {
-    paddingTop: 5,
-    paddingLeft: 15,
-    paddingRight: 15,
-    paddingBottom: 15,
+    paddingTop: 8,
+    paddingLeft: 20,
+    paddingRight: 20,
+    paddingBottom: 12,
     alignItems: 'flex-start',
   },
   // title: {
@@ -23,10 +23,11 @@ export default createStyle({
     alignItems: 'center',
   },
   list: {
-    flexGrow: 0,
+    flexGrow: 1,
     flexShrink: 1,
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingTop: 5,
+    paddingTop: 8,
+    gap: 12,
   },
 })
