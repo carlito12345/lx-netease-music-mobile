@@ -27,6 +27,7 @@ const defaultSetting: LX.AppSetting = {
     nav_followed_artists: true,
     nav_subscribed_albums: true,
     nav_onedrive: true,
+    nav_local: true,
   },
 
   'player.startupAutoPlay': false,
@@ -166,6 +167,10 @@ const defaultSetting: LX.AppSetting = {
   'playDetail.cover.effect.particles': false,
   'playDetail.cover.effect.rotate': false,
   'playDetail.cover.effect.swipe': false,
+
+  // 本地音乐
+  'localMusic.folderPath': '',
+  'localMusic.listId': '',
 
   // 迷你播放器
   'miniPlayer.followBgColor': true,

@@ -175,7 +175,10 @@ export const setMusicUrl = (
       console.log(err)
       setStatusText(err.message as string)
       global.app_event.error()
-      // addDelayNextTimeout()
+      // 播放失败自动跳过下一首(断网/找不到源时不受影响)
+      if (!global.lx.isPlayedStop) {
+        void playNext(true)
+      }
     })
     .finally(() => {
       if (musicInfo === playerState.playMusicInfo.musicInfo) {

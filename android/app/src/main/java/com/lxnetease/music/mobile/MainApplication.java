@@ -17,6 +17,7 @@ import com.lxnetease.music.mobile.utils.UtilsPackage;
 import com.lxnetease.music.mobile.widget.WidgetPackage;
 import com.lxnetease.music.mobile.logger.NativeLoggerPackage;
 import com.lxnetease.music.mobile.miniplayer.MiniPlayerPackage;
+import com.lxnetease.music.mobile.usb.USBPackage;
 import com.lxnetease.music.mobile.permission.PermissionPackage;
 
 public class MainApplication extends NavigationApplication {
@@ -43,6 +44,7 @@ public class MainApplication extends NavigationApplication {
           packages.add(new NativeLoggerPackage());
           packages.add(new PermissionPackage());
           packages.add(new MiniPlayerPackage());
+          packages.add(new USBPackage());
           return packages;
         }
 

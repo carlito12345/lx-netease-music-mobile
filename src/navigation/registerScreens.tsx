@@ -9,6 +9,7 @@ import {
   Comment,
   ArtistDetail, AlbumDetail,
   SimilarSongs,
+  PlayQueue,
   // Setting,
 } from '@/screens'
 import { Provider } from '@/store/Provider'
@@ -25,6 +26,7 @@ import {
   SYNC_MODE_MODAL,
   ALBUM_DETAIL_SCREEN, DOWNLOAD_MANAGER_SCREEN,
   SIMILAR_SONGS_SCREEN,
+  PLAY_QUEUE_SCREEN,
   // SETTING_SCREEN,
 } from './screenNames'
 import VersionModal from './components/VersionModal'
@@ -57,6 +59,7 @@ export default () => {
   Navigation.registerComponent(SYNC_MODE_MODAL, () => WrappedComponent(SyncModeModal))
   Navigation.registerComponent(DOWNLOAD_MANAGER_SCREEN, () => WrappedComponent(DownloadManager))
   Navigation.registerComponent(SIMILAR_SONGS_SCREEN, () => WrappedComponent(SimilarSongs))
+  Navigation.registerComponent(PLAY_QUEUE_SCREEN, () => WrappedComponent(PlayQueue))
   // Navigation.registerComponent(SETTING_SCREEN, () => WrappedComponent(Setting))
 
   console.info('All screens have been registered...')

@@ -22,6 +22,7 @@ import {useSettingValue} from "@/store/setting/hook.ts";
 import PlayHistory from '../Views/PlayHistory'
 import { useTheme } from '@/store/theme/hook'
 import OneDrive from '../Views/OneDrive'
+import LocalMusic from '../Views/LocalMusic'
 
 const hideKeys = ['list.isShowAlbumName', 'list.isShowInterval', 'theme.fontShadow'] as Readonly<
   Array<keyof LX.AppSetting>
@@ -375,6 +376,25 @@ const OneDrivePage = () => {
   return visible ? component : null
 }
 
+const LocalMusicPage = () => {
+  const [visible, setVisible] = useState(commonState.navActiveId == 'nav_local')
+  const component = useMemo(() => <LocalMusic />, [])
+  useEffect(() => {
+    const handleNavIdUpdate = (id: CommonState['navActiveId']) => {
+      if (id == 'nav_local') {
+        requestAnimationFrame(() => {
+          setVisible(true)
+        })
+      }
+    }
+    global.state_event.on('navActiveIdUpdated', handleNavIdUpdate)
+    return () => {
+      global.state_event.off('navActiveIdUpdated', handleNavIdUpdate)
+    }
+  }, [])
+  return visible ? component : null
+}
+
 const SettingPage = () => {
   const [visible, setVisible] = useState(commonState.navActiveId == 'nav_setting')
   const component = useMemo(() => <Setting />, [])
@@ -473,6 +493,7 @@ const Main = () => {
       nav_subscribed_albums: <SubscribedAlbumsPage />,
       nav_my_playlist: <MyPlaylistPage />,
       nav_onedrive: <OneDrivePage />,
+      nav_local: <LocalMusicPage />,
       nav_setting: <SettingPage />,
     };
 

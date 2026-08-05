@@ -1,6 +1,7 @@
 import { memo, useEffect, useMemo, useRef, useCallback, useState } from 'react';
 import { View, Animated, Easing, TouchableWithoutFeedback } from 'react-native';
 import { useIsPlay, usePlayMusicInfo } from '@/store/player/hook';
+import playerState from '@/store/player/state';
 import { useWindowSize } from '@/utils/hooks';
 import { NAV_SHEAR_NATIVE_IDS } from '@/config/constant';
 import { HEADER_HEIGHT } from './components/Header';
@@ -194,7 +195,7 @@ export default memo(({ componentId }: { componentId: string }) => {
                 justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent',
               }}>
                 <Image
-                  url={(musicInfo.musicInfo as LX.Music.MusicInfo)?.meta?.picUrl}
+                  url={playerState.musicInfo.pic || (musicInfo.musicInfo as LX.Music.MusicInfo)?.meta?.picUrl}
                   nativeID={NAV_SHEAR_NATIVE_IDS.playDetail_pic}
                   style={imageStyle}
                 />

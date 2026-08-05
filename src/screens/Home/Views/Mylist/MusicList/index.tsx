@@ -32,6 +32,8 @@ import MetadataEditModal, {
   type MetadataEditProps,
 } from '@/components/MetadataEditModal'
 import MusicDownloadModal, { type MusicDownloadModalType } from './MusicDownloadModal'
+import BatchDownloadModal, { type BatchDownloadModalType } from '@/components/OnlineList/BatchDownloadModal'
+import { BackgroundColorProvider } from '@/store/backgroundColor'
 import MusicToggleModal, { type MusicToggleModalType } from './MusicToggleModal'
 import {handleShowAlbumDetail, handleShowArtistDetail} from "@/components/OnlineList/listAction.ts";
 import {useSettingValue} from "@/store/setting/hook.ts";
@@ -53,6 +55,7 @@ export default () => {
   if (settingState.setting['download.enable']) {
     musicDownloadModalRef = useRef<MusicDownloadModalType>(null)
   }
+  const batchDownloadModalRef = useRef<BatchDownloadModalType>(null)
   const metadataEditTypeRef = useRef<MetadataEditType>(null)
   const listMenuRef = useRef<ListMenuType>(null)
   const musicToggleModalRef = useRef<MusicToggleModalType>(null)
@@ -75,6 +78,12 @@ export default () => {
     multipleModeBarRef.current?.show()
     listRef.current?.setIsMultiSelectMode(true)
   }, [])
+  const handleBatchDownload = useCallback(() => {
+    const selectedList = listRef.current?.getSelectedList() ?? []
+    if (!selectedList.length) return
+    batchDownloadModalRef.current?.show(selectedList)
+  }, [])
+
   const hancelExitSelect = useCallback(() => {
     if (isShowSearchBarModeBar.current) {
       multipleModeBarRef.current?.setVisibleBar(true)
@@ -204,12 +213,15 @@ export default () => {
           showCover={showCover}
           onToggleView={handleToggleView}
         />
+        <BackgroundColorProvider>
         <MultipleModeBar
           ref={multipleModeBarRef}
           onSwitchMode={hancelSwitchSelectMode}
           onSelectAll={(isAll) => listRef.current?.selectAll(isAll)}
           onExitSelectMode={hancelExitSelect}
+          onBatchDownload={handleBatchDownload}
         />
+        </BackgroundColorProvider>
         <ListSearchBar
           ref={listSearchBarRef}
           onSearch={(keyword) =>
@@ -245,6 +257,7 @@ export default () => {
       {musicDownloadModalRef && (
         <MusicDownloadModal ref={musicDownloadModalRef} onDownloadInfo={(info) => {}} />
       )}
+      <BatchDownloadModal ref={batchDownloadModalRef} onConfirm={hancelExitSelect} />
       <ListMenu
         ref={listMenuRef}
         onPlay={(info) => {

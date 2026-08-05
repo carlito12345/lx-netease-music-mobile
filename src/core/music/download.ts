@@ -16,6 +16,12 @@ export const getMusicUrl = async ({
   onToggleSource?: (musicInfo?: LX.Music.MusicInfoOnline) => void
   allowToggleSource?: boolean
 }): Promise<string> => {
+  // 下载完成的歌曲: 优先用本地下载文件播放
+  if (musicInfo.isComplate && musicInfo.metadata.filePath) {
+    return musicInfo.metadata.filePath
+  }
+
+  // 未下载完成: 走在线获取 URL
   return getOnlineMusicUrl({
     musicInfo: musicInfo.metadata.musicInfo,
     isRefresh,

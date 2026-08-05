@@ -464,23 +464,22 @@ export const batchDownload = async (
   target: DownloadTarget = 'local'
 ) => {
   const cookie = settingState.setting['common.wy_cookie'];
+
+  if (!musicInfos.length) {
+    toast('未选择任何歌曲');
+    return;
+  }
+
+  // 不强制过滤音源, 所有歌曲都尝试下载
+  // 网易云歌曲有 cookie 用 cookie 高音质, 其他用普通方式
   if (!cookie) {
-    toast('请先在设置中配置网易云 Cookie');
-    return;
+    toast(`未配置 Cookie, 使用普通方式下载 ${musicInfos.length} 首歌曲`);
+  } else {
+    toast(`准备添加 ${musicInfos.length} 首歌曲到下载队列...`);
   }
-
-  const wyMusicInfos = musicInfos.filter(m => m.source === 'wy');
-  if (musicInfos.length > wyMusicInfos.length) {
-    toast('已自动过滤非网易云音源的歌曲');
-  }
-  if (!wyMusicInfos.length) {
-    toast('未选择任何网易云音源的歌曲');
-    return;
-  }
-
-  toast(`准备添加 ${wyMusicInfos.length} 首歌曲到下载队列...`);
-  for (const musicInfo of wyMusicInfos) {
-    addTask(musicInfo, quality, true, target);
+  for (const musicInfo of musicInfos) {
+    const useCookie = !!cookie && musicInfo.source === 'wy'
+    addTask(musicInfo, quality, useCookie, target);
     await new Promise(resolve => setTimeout(resolve, 1000));
   }
 };

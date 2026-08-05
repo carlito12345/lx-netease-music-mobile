@@ -13,6 +13,7 @@ export interface MultipleModeBarProps {
   onSwitchMode: (mode: SelectMode) => void
   onSelectAll: (isAll: boolean) => void
   onExitSelectMode: () => void
+  onBatchDownload: () => void
 }
 export interface MultipleModeBarType {
   show: () => void
@@ -23,7 +24,7 @@ export interface MultipleModeBarType {
 }
 
 export default forwardRef<MultipleModeBarType, MultipleModeBarProps>(
-  ({ onSelectAll, onSwitchMode, onExitSelectMode }, ref) => {
+  ({ onSelectAll, onSwitchMode, onExitSelectMode, onBatchDownload }, ref) => {
     // const isGetDetailFailedRef = useRef(false)
     const [visible, setVisible] = useState(false)
     const [animatePlayed, setAnimatPlayed] = useState(true)
@@ -99,10 +100,11 @@ export default forwardRef<MultipleModeBarType, MultipleModeBarProps>(
     const animaStyle = useMemo(
       () => ({
         ...styles.container,
-        // backgroundColor: theme['c-content-background'],
-        borderBottomColor: theme['c-border-background'],
-        opacity: visibleBar ? animFade : 0, // Bind opacity to animated value
+        backgroundColor: theme['c-content-background'] || '#1a1a2e',
+        borderBottomColor: theme['c-border-background'] || '#333333',
+        // 不用 opacity 动画(避免背景透明), 只用 translateY 控制进场
         transform: [{ translateY: animTranslateY }],
+        elevation: 4,
       }),
       [animFade, animTranslateY, theme, visibleBar]
     )
@@ -147,6 +149,9 @@ export default forwardRef<MultipleModeBarType, MultipleModeBarProps>(
               {global.i18n.t(isSelectAll ? 'list_select_unall' : 'list_select_all')}
             </Text>
           </TouchableOpacity>
+          <TouchableOpacity onPress={onBatchDownload} style={styles.btn}>
+            <Text color={theme['c-button-font']}>{global.i18n.t('list_select_download')}</Text>
+          </TouchableOpacity>
           <TouchableOpacity onPress={onExitSelectMode} style={styles.btn}>
             <Text color={theme['c-button-font']}>{global.i18n.t('list_select_cancel')}</Text>
           </TouchableOpacity>
@@ -160,6 +165,7 @@ export default forwardRef<MultipleModeBarType, MultipleModeBarProps>(
       isSelectAll,
       onExitSelectMode,
       onSwitchMode,
+      onBatchDownload,
     ])
 
     return !visible && animatePlayed ? null : component
@@ -168,14 +174,14 @@ export default forwardRef<MultipleModeBarType, MultipleModeBarProps>(
 
 const styles = createStyle({
   container: {
-    flex: 1,
     position: 'absolute',
     left: 0,
     top: 0,
     width: '100%',
-    height: '100%',
+    height: 56,
     flexDirection: 'row',
     borderBottomWidth: BorderWidths.normal,
+    backgroundColor: '#1a1a2e',
   },
   switchBtn: {
     flexDirection: 'row',

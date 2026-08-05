@@ -1,6 +1,7 @@
 import {createStyle, toast} from '@/utils/tools'
 import { View, TouchableOpacity } from 'react-native'
 import PlayModeBtn from './PlayModeBtn'
+import PlaylistBtn from './PlaylistBtn'
 import MusicAddBtn from './MusicAddBtn'
 import DesktopLyricBtn from './DesktopLyricBtn'
 import CommentBtn from './CommentBtn'
@@ -120,6 +121,7 @@ export default memo(({ componentId }: { componentId: string }) => {
   return (
     <>
       <View style={styles.container}>
+        <PlaylistBtn />
         <DesktopLyricBtn />
         <MusicAddBtn />
         <PlayModeBtn />

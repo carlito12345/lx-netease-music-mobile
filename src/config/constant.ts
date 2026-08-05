@@ -117,6 +117,7 @@ export const NAV_MENUS = [
   { id: 'nav_followed_artists', icon: 'artist' },
   { id: 'nav_subscribed_albums', icon: 'album-disc' },
   { id: 'nav_my_playlist', icon: 'album' },
+  { id: 'nav_local', icon: 'music-note' },
   { id: 'nav_onedrive', icon: 'onedrive' },
   // { id: 'download', icon: 'download-2' },
   { id: 'nav_setting', icon: 'setting' },

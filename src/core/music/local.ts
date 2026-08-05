@@ -111,37 +111,12 @@ export const getMusicUrl = async ({
   onToggleSource?: (musicInfo?: LX.Music.MusicInfoOnline) => void
   allowToggleSource?: boolean
 }): Promise<string> => {
-  if (!isRefresh) {
-    const path = await getLocalFilePath(musicInfo)
-    // console.log(path)
-    if (path) return path
-  }
+  // 本地歌曲: 直接用本地文件路径播放, 不走网络
+  const path = await getLocalFilePath(musicInfo)
+  if (path) return path
 
-  try {
-    return await getOnlineOtherSourceMusicUrlByLocal(musicInfo, isRefresh).then(
-      ({ url, quality, isFromCache }) => {
-        if (!isFromCache) void saveMusicUrl(musicInfo, quality, url)
-        return url
-      }
-    )
-  } catch {}
-
-  if (!allowToggleSource) throw new Error('failed')
-
-  onToggleSource()
-  return getOtherSourceByLocal(musicInfo, async (otherSource) => {
-    return getOnlineOtherSourceMusicUrl({
-      musicInfos: [...otherSource],
-      onToggleSource,
-      isRefresh,
-    }).then(({ url, quality: targetQuality, musicInfo: targetMusicInfo, isFromCache }) => {
-      // saveLyric(musicInfo, data.lyricInfo)
-      if (!isFromCache) void saveMusicUrl(targetMusicInfo, targetQuality, url)
-
-      // TODO: save url ?
-      return url
-    })
-  })
+  // 本地文件不存在: 直接失败, 不再尝试网络匹配
+  throw new Error('source not found')
 }
 
 export const getPicUrl = async ({
@@ -157,6 +132,7 @@ export const getPicUrl = async ({
   skipFilePic?: boolean
   onToggleSource?: (musicInfo?: LX.Music.MusicInfoOnline) => void
 }): Promise<string> => {
+  // 本地歌曲: 优先读文件内置封面, 无则返回空(不抛错)
   if (!isRefresh && !skipFilePic) {
     let pic = await readPic(musicInfo.meta.filePath).catch(() => null)
     if (pic) {
@@ -167,27 +143,8 @@ export const getPicUrl = async ({
     if (musicInfo.meta.picUrl) return musicInfo.meta.picUrl
   }
 
-  try {
-    return await getOnlineOtherSourcePicByLocal(musicInfo).then(({ url }) => {
-      return url
-    })
-  } catch {}
-
-  onToggleSource()
-  return getOtherSourceByLocal(musicInfo, async (otherSource) => {
-    return getOnlineOtherSourcePicUrl({
-      musicInfos: [...otherSource],
-      onToggleSource,
-      isRefresh,
-    }).then(({ url, musicInfo: targetMusicInfo, isFromCache }) => {
-      if (listId) {
-        musicInfo.meta.picUrl = url
-        void updateListMusics([{ id: listId, musicInfo }])
-      }
-
-      return url
-    })
-  })
+  // 网络搜索无果: 返回空, 不再尝试
+  return ''
 }
 
 const getMusicFileLyric = async (filePath: string) => {
@@ -223,28 +180,6 @@ export const getLyricInfo = async ({
     if (lyricInfo?.lyric) return buildLyricInfo(lyricInfo)
   }
 
-  try {
-    return await getOnlineOtherSourceLyricByLocal(musicInfo, isRefresh).then(
-      ({ lyricInfo, isFromCache }) => {
-        if (!isFromCache) void saveLyric(musicInfo, lyricInfo)
-        return buildLyricInfo(lyricInfo)
-      }
-    )
-  } catch {}
-
-  onToggleSource()
-  return getOtherSourceByLocal(musicInfo, async (otherSource) => {
-    return getOnlineOtherSourceLyricInfo({
-      musicInfos: [...otherSource],
-      onToggleSource,
-      isRefresh,
-    }).then(async ({ lyricInfo, musicInfo: targetMusicInfo, isFromCache }) => {
-      void saveLyric(musicInfo, lyricInfo)
-
-      if (isFromCache) return buildLyricInfo(lyricInfo)
-      void saveLyric(targetMusicInfo, lyricInfo)
-
-      return buildLyricInfo(lyricInfo)
-    })
-  })
+  // 网络搜索无果: 返回空歌词, 不再尝试
+  return buildLyricInfo({ lyric: '' })
 }

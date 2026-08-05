@@ -6,7 +6,7 @@ import {
   PLAY_DETAIL_SCREEN,
   SONGLIST_DETAIL_SCREEN,
   SIMILAR_SONGS_SCREEN,
-  COMMENT_SCREEN, ARTIST_DETAIL_SCREEN, ALBUM_DETAIL_SCREEN, DOWNLOAD_MANAGER_SCREEN,
+  COMMENT_SCREEN, ARTIST_DETAIL_SCREEN, ALBUM_DETAIL_SCREEN, DOWNLOAD_MANAGER_SCREEN, PLAY_QUEUE_SCREEN,
 } from './screenNames'
 
 import themeState from '@/store/theme/state'
@@ -690,6 +690,25 @@ export function pushAlbumDetailScreen(componentId: string, albumInfo: any) {
   })
 }
 
+
+export function pushPlayQueueScreen(componentId: string) {
+  import('@/utils/listManage').then(mod => {
+    const playerState = require('@/store/player/state').default
+    const listId = playerState.playInfo.playerListId || '__temp__'
+    const queueData = mod.getListMusicSync(listId) || []
+
+    Navigation.push(componentId, {
+      component: {
+        name: PLAY_QUEUE_SCREEN,
+        passProps: { initialQueue: queueData, listId },
+        options: {
+          topBar: { visible: false, drawBehind: true, animate: false },
+          layout: { backgroundColor: 'transparent', componentBackgroundColor: 'transparent' },
+        },
+      },
+    })
+  })
+}
 
 export function pushDownloadManagerScreen(componentId: string) {
   const theme = themeState.theme;

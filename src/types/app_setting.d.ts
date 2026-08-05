@@ -165,7 +165,11 @@ declare global {
       'playDetail.cover.effect.swipe': boolean
 
       /** 迷你播放器 */
-      'miniPlayer.followBgColor': boolean
+      /** 本地音乐 */
+  'localMusic.folderPath': string
+  'localMusic.listId': string
+
+  'miniPlayer.followBgColor': boolean
       'miniPlayer.customWidth': number
       'miniPlayer.customHeight': number
       'miniPlayer.lyricLines': number
