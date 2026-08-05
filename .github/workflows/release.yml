@@ -26,13 +26,18 @@ jobs:
       - name: Build Packages
         env:
           DISABLE_SVG: 1
+          MYAPP_KEYSTORE_BASE64: ${{ secrets.MYAPP_KEYSTORE_BASE64 }}
+          MYAPP_UPLOAD_STORE_FILE: ${{ secrets.MYAPP_UPLOAD_STORE_FILE }}
+          MYAPP_UPLOAD_KEY_ALIAS: ${{ secrets.MYAPP_UPLOAD_KEY_ALIAS }}
+          MYAPP_UPLOAD_STORE_PASSWORD: ${{ secrets.MYAPP_UPLOAD_STORE_PASSWORD }}
+          MYAPP_UPLOAD_KEY_PASSWORD: ${{ secrets.MYAPP_UPLOAD_KEY_PASSWORD }}
         shell: bash
         run: |
           cd android
-          echo ${{ secrets.MYAPP_KEYSTORE_BASE64 }} | base64 --decode > app/${{ secrets.MYAPP_UPLOAD_STORE_FILE }}
+          echo "$MYAPP_KEYSTORE_BASE64" | tr -d '\n' | base64 --decode > app/$MYAPP_UPLOAD_STORE_FILE
           chmod +x ./gradlew
-          ./gradlew assembleRelease -PMYAPP_UPLOAD_STORE_FILE='${{ secrets.MYAPP_UPLOAD_STORE_FILE }}' -PMYAPP_UPLOAD_KEY_ALIAS='${{ secrets.MYAPP_UPLOAD_KEY_ALIAS }}' -PMYAPP_UPLOAD_STORE_PASSWORD='${{ secrets.MYAPP_UPLOAD_STORE_PASSWORD }}' -PMYAPP_UPLOAD_KEY_PASSWORD='${{ secrets.MYAPP_UPLOAD_KEY_PASSWORD }}'
-          rm -f app/${{ secrets.MYAPP_UPLOAD_STORE_FILE }}
+          ./gradlew assembleRelease -PMYAPP_UPLOAD_STORE_FILE="$MYAPP_UPLOAD_STORE_FILE" -PMYAPP_UPLOAD_KEY_ALIAS="$MYAPP_UPLOAD_KEY_ALIAS" -PMYAPP_UPLOAD_STORE_PASSWORD="$MYAPP_UPLOAD_STORE_PASSWORD" -PMYAPP_UPLOAD_KEY_PASSWORD="$MYAPP_UPLOAD_KEY_PASSWORD"
+          rm -f app/$MYAPP_UPLOAD_STORE_FILE
 
       - name: Get package version
         id: package_version
