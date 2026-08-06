@@ -21,6 +21,8 @@ export const saveImageToPictures = async (url: string, name: string = 'image') =
   if (!(await RNFetchBlob.fs.exists(saveDir))) {
     try {
       await RNFetchBlob.fs.mkdir(saveDir)
+      // 隐藏目录, 避免系统相册搜刮
+      await RNFetchBlob.fs.writeFile(`${saveDir}/.nomedia`, '', 'utf8').catch(() => {})
     } catch (err) {
       // Fallback to the base pictures/download directory below.
     }

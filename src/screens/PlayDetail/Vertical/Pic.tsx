@@ -150,6 +150,8 @@ export default memo(({ componentId }: { componentId: string }) => {
               if (!exists) {
                 try {
                   await RNFetchBlob.fs.mkdir(downloadDir);
+                  // 隐藏目录, 系统相册不搜刮
+                  await RNFetchBlob.fs.writeFile(`${downloadDir}/.nomedia`, '', 'utf8').catch(() => {});
                 } catch (e) {
                   console.warn('mkdir failed');
                 }
