@@ -34,9 +34,18 @@ jobs:
         shell: bash
         run: |
           cd android
+          # GitHub Actions 免费 runner 仅 7GB 内存,release 全量编译 5 个 ABI 时
+          # Gradle daemon(-Xmx4096m) + Kotlin daemon + Metro 并行峰值会超限被 OOM 杀掉。
+          # 限制 daemon 堆/元空间、关闭并行、限制 worker 数,避免 JVM 崩溃。
+          echo '' >> gradle.properties
+          echo '# CI memory limit (GitHub Actions 7GB runner)' >> gradle.properties
+          echo 'org.gradle.jvmargs=-Xmx2560m -XX:MaxMetaspaceSize=1024m' >> gradle.properties
+          echo 'org.gradle.parallel=false' >> gradle.properties
+          echo 'org.gradle.workers.max=2' >> gradle.properties
+          echo 'kotlin.daemon.jvmargs=-Xmx1536m' >> gradle.properties
           echo "$MYAPP_KEYSTORE_BASE64" | tr -d '\n' | base64 --decode > app/$MYAPP_UPLOAD_STORE_FILE
           chmod +x ./gradlew
-          ./gradlew assembleRelease -PMYAPP_UPLOAD_STORE_FILE="$MYAPP_UPLOAD_STORE_FILE" -PMYAPP_UPLOAD_KEY_ALIAS="$MYAPP_UPLOAD_KEY_ALIAS" -PMYAPP_UPLOAD_STORE_PASSWORD="$MYAPP_UPLOAD_STORE_PASSWORD" -PMYAPP_UPLOAD_KEY_PASSWORD="$MYAPP_UPLOAD_KEY_PASSWORD"
+          ./gradlew assembleRelease --no-daemon -PMYAPP_UPLOAD_STORE_FILE="$MYAPP_UPLOAD_STORE_FILE" -PMYAPP_UPLOAD_KEY_ALIAS="$MYAPP_UPLOAD_KEY_ALIAS" -PMYAPP_UPLOAD_STORE_PASSWORD="$MYAPP_UPLOAD_STORE_PASSWORD" -PMYAPP_UPLOAD_KEY_PASSWORD="$MYAPP_UPLOAD_KEY_PASSWORD"
           rm -f app/$MYAPP_UPLOAD_STORE_FILE
 
       - name: Get package version
