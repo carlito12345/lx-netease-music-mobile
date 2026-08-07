@@ -30,6 +30,11 @@ apply plugin: "com.facebook.react.rootproject"
 
 // 强制所有子模块使用与根项目一致的 NDK 版本
 subprojects {
+    // 压制依赖库(如 react-native-local-media/audiotagger)产生的
+    // [dep-ann] deprecated item is not annotated with @Deprecated 编译警告
+    tasks.withType(JavaCompile).configureEach {
+        options.compilerArgs += ['-Xlint:-dep-ann']
+    }
     plugins.withId('com.android.library') { 
         android { 
             ndkVersion rootProject.ext.ndkVersion 
