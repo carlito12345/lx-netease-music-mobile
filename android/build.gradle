@@ -30,10 +30,11 @@ apply plugin: "com.facebook.react.rootproject"
 
 // 强制所有子模块使用与根项目一致的 NDK 版本
 subprojects {
-    // 压制依赖库(如 react-native-local-media/audiotagger)产生的
-    // [dep-ann] deprecated item is not annotated with @Deprecated 编译警告
+    // 压制依赖库产生的编译警告:
+    // - [dep-ann] deprecated item is not annotated with @Deprecated (audiotagger)
+    // - [removal] 使用标记为移除的 RN API (react-native-svg 的 com.facebook.react.common.StandardCharsets)
     tasks.withType(JavaCompile).configureEach {
-        options.compilerArgs += ['-Xlint:-dep-ann']
+        options.compilerArgs += ['-Xlint:-dep-ann', '-Xlint:-removal']
     }
     plugins.withId('com.android.library') { 
         android { 
