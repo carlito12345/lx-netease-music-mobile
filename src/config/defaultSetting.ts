@@ -16,7 +16,7 @@ const defaultSetting: LX.AppSetting = {
   'common.wy_cookie': '',
   'common.wy_serpapi_key': '',
   'common.yt_cookie': '',
-  'common.alwaysKeepStatusbarHeight': false,
+  'common.alwaysKeepStatusbarHeight': true,
 
   'common.navStatus': {
     nav_songlist: true,
