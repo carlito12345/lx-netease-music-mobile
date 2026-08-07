@@ -9,6 +9,7 @@ import Text from '@/components/common/Text';
 import { useTheme } from '@/store/theme/hook';
 import { toast } from '@/utils/tools';
 import wyApi from '@/utils/musicSdk/wy/user';
+import { setWyUid, setWySubscribedPlaylists } from '@/store/user/action';
 import { checkQrCode, clearQrWebSession, createQrCode, getQrKey, setQrWebSession } from '@/utils/musicSdk/wy/qrLogin';
 
 const POLL_INTERVAL = 2000;
@@ -137,8 +138,14 @@ export default forwardRef<WyQrLoginModalType>((_, ref) => {
         const nativeCookie = await getNativeMusicCookie();
         const cookie = mergeCookies(result.cookie || '', nativeCookie);
         if (!cookie.includes('MUSIC_U=')) throw new Error('登录成功但未获取到 MUSIC_U Cookie');
-        await wyApi.getUid(cookie);
+        const uid = await wyApi.getUid(cookie);
         if (!activeRef.current) return;
+        // 登录成功后必须写入 uid,否则“我的歌单”页面因 uid 为空而空白
+        setWyUid(uid);
+        // 后台刷新用户歌单,供“我的歌单”页面直接使用
+        wyApi.getUserPlaylists(uid, cookie)
+          .then(playlists => { setWySubscribedPlaylists(playlists); })
+          .catch(() => {});
         (global.app_event as any).emit('wy-cookie-set', cookie);
         toast('登录成功,已自动保存 Cookie!');
         close();

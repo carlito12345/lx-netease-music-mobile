@@ -4,7 +4,7 @@ import playerState from '@/store/player/state'
 import { prefetch } from '@/components/common/ImageBackground'
 import { setBgPic } from '@/core/common'
 import wyUserApi from '@/utils/musicSdk/wy/user';
-import { setWyFollowedArtists, setWyLikedSongs, setWySubscribedAlbums } from '@/store/user/action';
+import { setWyFollowedArtists, setWyLikedSongs, setWySubscribedAlbums, setWySubscribedPlaylists, setWyUid } from '@/store/user/action';
 import { toast } from '@/utils/tools';
 
 // const handleUpdateSourceNmaes = () => {
@@ -77,15 +77,21 @@ export default async (setting: LX.AppSetting) => {
     if (cookie) {
       console.log('正在刷新网易云数据...');
       wyUserApi.getUid(cookie)
-        .then(uid => Promise.all([
-          wyUserApi.getLikedSongList(uid, cookie),
-          wyUserApi.getAllSublist(),
-          wyUserApi.getAllSubAlbumList(),
-        ]))
-        .then(([likedIds, followedArtists, subscribedAlbums]) => {
+        .then(uid => {
+          // 登录后必须写入 uid,否则“我的歌单”页面因 uid 为空而空白
+          setWyUid(uid);
+          return Promise.all([
+            wyUserApi.getLikedSongList(uid, cookie),
+            wyUserApi.getAllSublist(),
+            wyUserApi.getAllSubAlbumList(),
+            wyUserApi.getUserPlaylists(uid, cookie),
+          ]);
+        })
+        .then(([likedIds, followedArtists, subscribedAlbums, playlists]) => {
           setWyLikedSongs(likedIds);
           setWyFollowedArtists(followedArtists);
           setWySubscribedAlbums(subscribedAlbums);
+          setWySubscribedPlaylists(playlists);
         })
         .catch((err: any) => {
           toast(`网易云数据获取失败: ${err.message}`);

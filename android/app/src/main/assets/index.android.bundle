@@ -292418,13 +292418,14 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         if (!cookie || !cookie.includes('S_INFO=')) return;
         isCheckingRef.current = true;
         try {
-          // 使用 getUid 接口验证 Cookie 有效性
-          yield _user.default.getUid(cookie);
+          // 使用 getUid 接口验证 Cookie 有效性,并写入 uid 供“我的歌单”等页面使用
+          var uid = yield _user.default.getUid(cookie);
+          (0, _$$_REQUIRE(_dependencyMap[13], "../store/user/action").setWyUid)(uid);
 
           // 验证成功
           loggedInRef.current = true;
           global.app_event.emit('wy-cookie-set', cookie);
-          (0, _$$_REQUIRE(_dependencyMap[13], "../utils/tools").toast)('登录成功，已自动获取Cookie！');
+          (0, _$$_REQUIRE(_dependencyMap[14], "../utils/tools").toast)('登录成功，已自动获取Cookie！');
           handleClose();
         } catch (error) {
           // Cookie 无效，静默处理，等待用户后续操作
@@ -292544,7 +292545,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       width: 40
     }
   });
-},1668,[11,18,65,20,1350,1669,986,1370,1535,106,985,1309,1034,543],"src/components/WebLoginModal.tsx");
+},1668,[11,18,65,20,1350,1669,986,1370,1535,106,985,1309,1034,1371,543],"src/components/WebLoginModal.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -293456,10 +293457,16 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
           var nativeCookie = yield getNativeMusicCookie();
           var cookie = mergeCookies(result.cookie || '', nativeCookie);
           if (!cookie.includes('MUSIC_U=')) throw new Error('登录成功但未获取到 MUSIC_U Cookie');
-          yield _user.default.getUid(cookie);
+          var uid = yield _user.default.getUid(cookie);
           if (!activeRef.current) return;
+          // 登录成功后必须写入 uid,否则“我的歌单”页面因 uid 为空而空白
+          (0, _$$_REQUIRE(_dependencyMap[15], "../store/user/action").setWyUid)(uid);
+          // 后台刷新用户歌单,供“我的歌单”页面直接使用
+          _user.default.getUserPlaylists(uid, cookie).then(function (playlists) {
+            (0, _$$_REQUIRE(_dependencyMap[15], "../store/user/action").setWySubscribedPlaylists)(playlists);
+          }).catch(function () {});
           global.app_event.emit('wy-cookie-set', cookie);
-          (0, _$$_REQUIRE(_dependencyMap[15], "../utils/tools").toast)('登录成功,已自动保存 Cookie!');
+          (0, _$$_REQUIRE(_dependencyMap[16], "../utils/tools").toast)('登录成功,已自动保存 Cookie!');
           close();
           return;
         }
@@ -293616,7 +293623,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       flexDirection: 'row'
     }
   });
-},1676,[11,18,12,65,20,1669,1535,1677,1350,1459,986,1370,106,985,1709,543],"src/components/WyQrLoginModal.tsx");
+},1676,[11,18,12,65,20,1669,1535,1677,1350,1459,986,1370,106,985,1709,1371,543],"src/components/WyQrLoginModal.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -320305,15 +320312,19 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         if (cookie) {
           console.log('正在刷新网易云数据...');
           _user.default.getUid(cookie).then(function (uid) {
-            return Promise.all([_user.default.getLikedSongList(uid, cookie), _user.default.getAllSublist(), _user.default.getAllSubAlbumList()]);
+            // 登录后必须写入 uid,否则“我的歌单”页面因 uid 为空而空白
+            (0, _$$_REQUIRE(_dependencyMap[7], "../../store/user/action").setWyUid)(uid);
+            return Promise.all([_user.default.getLikedSongList(uid, cookie), _user.default.getAllSublist(), _user.default.getAllSubAlbumList(), _user.default.getUserPlaylists(uid, cookie)]);
           }).then(function (_ref2) {
-            var _ref3 = (0, _slicedToArray2.default)(_ref2, 3),
+            var _ref3 = (0, _slicedToArray2.default)(_ref2, 4),
               likedIds = _ref3[0],
               followedArtists = _ref3[1],
-              subscribedAlbums = _ref3[2];
+              subscribedAlbums = _ref3[2],
+              playlists = _ref3[3];
             (0, _$$_REQUIRE(_dependencyMap[7], "../../store/user/action").setWyLikedSongs)(likedIds);
             (0, _$$_REQUIRE(_dependencyMap[7], "../../store/user/action").setWyFollowedArtists)(followedArtists);
             (0, _$$_REQUIRE(_dependencyMap[7], "../../store/user/action").setWySubscribedAlbums)(subscribedAlbums);
+            (0, _$$_REQUIRE(_dependencyMap[7], "../../store/user/action").setWySubscribedPlaylists)(playlists);
           }).catch(function (err) {
             (0, _$$_REQUIRE(_dependencyMap[8], "../../utils/tools").toast)(`网易云数据获取失败: ${err.message}`);
           });

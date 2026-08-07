@@ -8,6 +8,7 @@ import { Icon } from '@/components/common/Icon';
 import Text from '@/components/common/Text';
 import { toast } from '@/utils/tools';
 import wyApi from '@/utils/musicSdk/wy/user';
+import { setWyUid } from '@/store/user/action';
 import CookieManager from '@react-native-cookies/cookies';
 
 
@@ -83,8 +84,9 @@ export default forwardRef<WebLoginModalType, {}>((props, ref) => {
 
     isCheckingRef.current = true;
     try {
-      // 使用 getUid 接口验证 Cookie 有效性
-      await wyApi.getUid(cookie);
+      // 使用 getUid 接口验证 Cookie 有效性,并写入 uid 供“我的歌单”等页面使用
+      const uid = await wyApi.getUid(cookie);
+      setWyUid(uid);
 
       // 验证成功
       loggedInRef.current = true;
