@@ -30,7 +30,7 @@ const defaultSetting: LX.AppSetting = {
     nav_local: true,
   },
 
-  'player.startupAutoPlay': false,
+  'player.startupAutoPlay': true,
   'player.startupPushPlayDetailScreen': false,
   'player.togglePlayMethod': 'listLoop',
   'player.playQuality': '320k',
@@ -116,7 +116,7 @@ const defaultSetting: LX.AppSetting = {
   'sync.webdav.path': '/LX_Music/',
   'sync.webdav.lastSyncTimeLists': 0,
 
-  'theme.id': 'green',
+  'theme.id': 'aurora',
   'theme.lightId': 'green',
   'theme.darkId': 'black',
   'theme.hideBgDark': false,

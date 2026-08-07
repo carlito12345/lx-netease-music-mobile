@@ -6,6 +6,26 @@ const { createThemeColors } = require('./utils')
 
 const defaultThemes = [
   {
+    // Material Design 3 风格默认主题: 紫罗兰主色 + 暖白 Surface + 浅紫背景混搭
+    id: 'aurora',
+    name: '星澜 · Material',
+    isDark: false,
+    config: {
+      primary: 'rgb(103, 80, 164)',
+      font: 'rgb(28, 27, 31)',
+      'c-app-background': 'var(c-primary-light-600-alpha-600)',
+      'c-main-background': 'rgba(255, 251, 254, 1)',
+      'bg-image': '',
+      'bg-image-position': 'center',
+      'bg-image-size': 'cover',
+
+      'c-badge-primary': 'var(c-primary)',
+      'c-badge-secondary': '#625b71',
+      'c-badge-tertiary': '#7d5260',
+      'c-liked': '#ef4444',
+    },
+  },
+  {
     id: 'green',
     name: '绿意盎然',
     isDark: false,
