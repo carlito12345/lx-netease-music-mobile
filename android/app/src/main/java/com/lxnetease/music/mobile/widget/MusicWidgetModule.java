@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 
@@ -81,7 +82,14 @@ public class MusicWidgetModule extends ReactContextBaseJavaModule {
         filter.addAction(MusicWidgetProvider.INTERNAL_ACTION_PLAY_PAUSE);
         filter.addAction(MusicWidgetProvider.INTERNAL_ACTION_PREV);
         filter.addAction(MusicWidgetProvider.INTERNAL_ACTION_NEXT);
-        reactContext.registerReceiver(widgetActionReceiver, filter);
+        // Android 12+ (API 31+) 要求动态注册广播必须显式指定导出标志,
+        // 否则主线程抛 IllegalArgumentException 导致应用启动崩溃。
+        // 该 receiver 只接收本应用(WidgetProvider)定向发送的内部广播, 无需导出。
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+            reactContext.registerReceiver(widgetActionReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
+        } else {
+            reactContext.registerReceiver(widgetActionReceiver, filter);
+        }
     }
 
     @Override
