@@ -20,7 +20,7 @@ export default {
       }
 
       const csrfToken = (cookie.match(/_csrf=([^(;|$)]+)/) || [])[1];
-      const request = httpFetch('https://music.163.com/weapi/nuser/account/get', {
+      const request = httpFetch('https://music.163.com/weapi/w/nuser/account/get', {
         method: 'post',
         headers: {
           'User-Agent':

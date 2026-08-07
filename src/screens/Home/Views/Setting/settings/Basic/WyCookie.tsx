@@ -10,32 +10,62 @@ import CookieManager from '@react-native-cookies/cookies';
 
 
 
+const COOKIE_ATTRIBUTES = new Set([
+  'path', 'domain', 'expires', 'max-age', 'httponly', 'secure',
+  'samesite', 'priority', 'partitioned',
+]);
+
+// 将 Cookie 字符串解析为纯 name=value 列表,丢弃 Set-Cookie 属性
+// 和 Android HttpCookie 无法接受的条目(value 含空格/逗号/分号)。
+const parseCookieEntries = (cookie: string): Array<{ name: string; value: string }> => {
+  const seen = new Map<string, string>();
+  for (let part of cookie.split(';')) {
+    part = part.trim();
+    if (!part) continue;
+    const eq = part.indexOf('=');
+    if (eq <= 0) continue;
+    const name = part.slice(0, eq).trim();
+    const value = part.slice(eq + 1).trim();
+    if (!name || !value) continue;
+    if (COOKIE_ATTRIBUTES.has(name.toLowerCase())) continue;
+    // HttpCookie 不允许 name/value 含空格、逗号、分号
+    if (/[,\s;]/.test(name) || /[,\s;]/.test(value)) continue;
+    seen.set(name, value);
+  }
+  return Array.from(seen, ([name, value]) => ({ name, value }));
+};
+
 const syncCookieToNative = async (cookie: string) => {
   const domain = 'https://music.163.com';
+  const entries = parseCookieEntries(cookie);
+  let failed = 0;
   try {
-    // 1. 关键步骤：清除该域名的所有原生Cookie，`true` 表示使用共享存储
+    // 1. 关键步骤:清除该域名的所有原生Cookie,`true` 表示使用共享存储
     await CookieManager.clearAll(true);
 
-    if (cookie) {
-      // 2. 将新的Cookie字符串拆分并逐个设置回原生Cookie Jar
-      // 这样可以确保原生层也使用最新的Cookie
-      const cookiePairs = cookie.split(';').map(pair => pair.trim());
-      for (const pair of cookiePairs) {
-        const [name, ...valueParts] = pair.split('=');
-        if (name && valueParts.length > 0) {
-          await CookieManager.set(domain, {
-            name: name.trim(),
-            value: valueParts.join('=').trim(),
-            domain: '.music.163.com',
-            path: '/',
-          });
-        }
+    // 2. 将新的Cookie逐条设置回原生Cookie Jar;单条失败只跳过该条,
+    //    不中断整体同步,避免清空旧 Cookie 后无法恢复。
+    for (const { name, value } of entries) {
+      try {
+        await CookieManager.set(domain, {
+          name,
+          value,
+          domain: 'music.163.com',
+          path: '/',
+        });
+      } catch (err) {
+        failed += 1;
+        console.warn(`Failed to sync native cookie: ${name}`, err);
       }
     }
-    console.log('Native cookie synchronized successfully.');
+    if (failed > 0) {
+      console.warn(`Cookie sync finished with ${failed}/${entries.length} failures`);
+    } else {
+      console.log('Native cookie synchronized successfully.');
+    }
   } catch (error) {
     console.error('Failed to sync native cookie:', error);
-    toast('Cookie 同步失败，部分请求可能异常', 'long');
+    toast('Cookie 同步失败,部分请求可能异常', 'long');
   }
 };
 
@@ -62,9 +92,12 @@ export default memo(() => {
     updateSetting({ 'common.wy_serpapi_key': text.trim() });
   };
 
+  const handleShowQrLoginModal = () => {
+    (global.app_event as any).emit('showWyQrLogin');
+  };
+
   const handleShowLoginModal = () => {
-    // 触发全局事件
-    global.app_event.emit('showWebLogin');
+    (global.app_event as any).emit('showWebLogin');
   };
 
   useEffect(() => {
@@ -72,9 +105,9 @@ export default memo(() => {
       setCookie(cookie);
     };
 
-    global.app_event.on('wy-cookie-set', handleCookieSet);
+    (global.app_event as any).on('wy-cookie-set', handleCookieSet);
     return () => {
-      global.app_event.off('wy-cookie-set', handleCookieSet);
+      (global.app_event as any).off('wy-cookie-set', handleCookieSet);
     };
   }, []);
 
@@ -93,6 +126,7 @@ export default memo(() => {
         placeholder="用于网易云搜索补充 Google 搜索结果"
       />
       <View style={styles.btnContainer}>
+        <Button onPress={handleShowQrLoginModal}>扫码登录</Button>
         <Button onPress={handleShowLoginModal}>网页登录</Button>
       </View>
     </View>

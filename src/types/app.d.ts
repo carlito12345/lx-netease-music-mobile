@@ -73,6 +73,7 @@ declare global {
     'wy-cookie-set': (cookie: string) => void
     'yt-cookie-set': (cookie: string) => void
     showWebLogin: () => void
+    showWyQrLogin: () => void
     showYouTubeLogin: () => void
     showVideoPlayer: (url: string) => void
   }

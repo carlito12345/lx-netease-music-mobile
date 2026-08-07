@@ -111,7 +111,7 @@ const handleRequestData = async (
     },
     headers
   )
-  if (url.includes('music.163.com')) {
+  if (url.includes('music.163.com') && !headers.cookie) {
     headers.cookie = settingState.setting['common.wy_cookie']
   }
   options.cache = cache
