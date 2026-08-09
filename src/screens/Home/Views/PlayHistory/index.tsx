@@ -2,6 +2,7 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
 import PagerView, { type PagerViewOnPageSelectedEvent } from 'react-native-pager-view'
 import OnlineList, { type OnlineListType } from '@/components/OnlineList'
+import BubbleListItem from '@/components/BubbleListItem'
 import Text from '@/components/common/Text'
 import Popup, { type PopupType } from '@/components/common/Popup'
 import { Icon } from '@/components/common/Icon'
@@ -243,7 +244,18 @@ export default memo(() => {
             onRefresh={loadHistory}
             onLoadMore={() => {}}
             checkHomePagerIdle
-          />
+                         renderItem={({ item, index, onPress, onLongPress, onShowMenu, selectedList, playingId: pid }) => (
+                           <BubbleListItem
+                             item={item}
+                             index={index}
+                             onPress={onPress}
+                             onLongPress={onLongPress}
+                             onShowMenu={onShowMenu}
+                             selectedList={selectedList}
+                             playingId={pid}
+                           />
+                         )}
+ />
         </View>
         <View key="next-day" collapsable={false} style={styles.historyPage}>
           <View style={styles.swipePlaceholder}>

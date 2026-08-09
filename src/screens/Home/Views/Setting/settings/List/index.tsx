@@ -15,7 +15,7 @@ export default memo(() => {
   const t = useI18n()
 
   return (
-    <Section title={t('setting_list')}>
+    <Section title={t('setting_list')} bgColor='#2F293A'>
       <IsClickPlayList />
       <IsShowAlbumName />
       <IsShowInterval />

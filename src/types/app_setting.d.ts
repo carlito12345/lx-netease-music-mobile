@@ -150,6 +150,7 @@ declare global {
       /** 歌词舞台/聚焦 */
       'playDetail.effect.lyricStage.enabled': boolean
       'playDetail.effect.lyricProximity.enabled': boolean
+      'playDetail.effect.lyricWheel.enabled': boolean
 
       /** 背景模式 */
       'playDetail.background.type': string

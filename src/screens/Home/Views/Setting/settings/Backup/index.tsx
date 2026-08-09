@@ -9,7 +9,7 @@ export default memo(() => {
   const t = useI18n()
 
   return (
-    <Section title={t('setting_backup')}>
+    <Section title={t('setting_backup')} bgColor='#2F293A'>
       <Part />
       {/* <MaxCache /> */}
     </Section>

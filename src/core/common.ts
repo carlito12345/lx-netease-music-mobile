@@ -13,15 +13,10 @@ import commonState, { type InitState as CommonStateType } from '@/store/common/s
 import { storageDataPrefix } from '@/config/constant'
 import { saveData } from '@/plugins/storage'
 import { throttle } from '@/utils/common'
-import {
-  getSelectedManagedFolder,
-  saveFontSize,
-  saveViewPrevState,
-  setSelectedManagedFolder,
-} from '@/utils/data'
+import { saveFontSize, saveViewPrevState } from '@/utils/data'
 import { showPactModal as handleShowPactModal } from '@/navigation'
 import { hideDesktopLyricView } from '@/utils/nativeModules/lyricDesktop'
-import { getPersistedUriList, selectManagedFolder } from '@/utils/fs'
+import { checkStoragePermissions, requestStoragePermission } from '@/utils/tools'
 const throttleSaveSetting = throttle(() => {
   void saveData(storageDataPrefix.setting, settingState.setting)
 })
@@ -97,22 +92,8 @@ export const showPactModal = () => {
   handleShowPactModal()
 }
 
-export const checkStoragePermissions = async () => {
-  const selectedManagedFolder = await getSelectedManagedFolder()
-  if (selectedManagedFolder)
-    return (await getPersistedUriList()).some((uri) => selectedManagedFolder.startsWith(uri))
-  return false
-}
-
-export const requestStoragePermission = async () => {
-  const isGranted = await checkStoragePermissions()
-  if (isGranted) return isGranted
-
-  const uri = await selectManagedFolder()
-  if (!uri.isDirectory) return false
-  await setSelectedManagedFolder(uri.path)
-  return true
-}
+// 统一走 MANAGE_EXTERNAL_STORAGE(所有文件访问)流程, 见 @/utils/tools
+export { checkStoragePermissions, requestStoragePermission }
 
 export const setBgPic = (pic: string | null) => {
   commonActions.setBgPic(pic)

@@ -3,6 +3,7 @@ import { View } from 'react-native';
 import PageContent from '@/components/PageContent';
 import Header from './Header';
 import OnlineList, { type OnlineListType } from '@/components/OnlineList';
+import BubbleListItem from '@/components/BubbleListItem'
 import { toast, createStyle } from '@/utils/tools';
 import { setComponentId } from '@/core/common';
 import PlayerBar from '@/components/player/PlayerBar';
@@ -69,7 +70,18 @@ export default memo(({ componentId, similarSongs: initialSimilarSongs }: { compo
           onLoadMore={() => {}}
           onRefresh={() => {}}
           onListUpdate={handleListUpdate}
-        />
+                       renderItem={({ item, index, onPress, onLongPress, onShowMenu, selectedList, playingId: pid }) => (
+                         <BubbleListItem
+                           item={item}
+                           index={index}
+                           onPress={onPress}
+                           onLongPress={onLongPress}
+                           onShowMenu={onShowMenu}
+                           selectedList={selectedList}
+                           playingId={pid}
+                         />
+                       )}
+ />
         <PlayerBar componentId={componentId} />
       </View>
     </PageContent>

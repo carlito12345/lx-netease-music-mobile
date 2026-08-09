@@ -273,6 +273,8 @@ declare global {
         'c-primary-input-background': string
         'c-button-font': string
         'c-button-font-selected': string
+        /** primary 背景上的文字色(黑白主题=黑,其他=白) */
+        'c-primary-font-on-primary': string
         'c-button-background': string
         'c-button-background-selected': string
         'c-button-background-hover': string
@@ -298,6 +300,10 @@ declare global {
           'bg-image-position': string
           'bg-image-size': string
 
+          /** 可覆盖内容/卡片背景(纯黑主题用) */
+          'c-content-background'?: string
+          /** 可覆盖边框背景 */
+          'c-border-background'?: string
           'c-liked'?: string
           // 徽章颜色
           'c-badge-primary': string

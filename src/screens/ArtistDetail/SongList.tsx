@@ -1,6 +1,7 @@
 import {forwardRef, memo, useCallback, useEffect, useImperativeHandle, useRef} from 'react'
 import { View, TouchableOpacity } from 'react-native'
 import OnlineList from '@/components/OnlineList'
+import BubbleListItem from '@/components/BubbleListItem'
 import AlbumList from './AlbumList'
 import Text from '@/components/common/Text'
 import { useTheme } from '@/store/theme/hook'
@@ -154,7 +155,18 @@ const SongList = forwardRef<SongListRef, SongListProps>(({
             onLoadMore={onLoadMoreSongs}
             onListUpdate={onSongListUpdate}
             playingId={playingId}
-          />
+                         renderItem={({ item, index, onPress, onLongPress, onShowMenu, selectedList, playingId: pid }) => (
+                           <BubbleListItem
+                             item={item}
+                             index={index}
+                             onPress={onPress}
+                             onLongPress={onLongPress}
+                             onShowMenu={onShowMenu}
+                             selectedList={selectedList}
+                             playingId={pid}
+                           />
+                         )}
+ />
         </View>
         <View key="2" style={{ flex: 1 }}>
           <AlbumList

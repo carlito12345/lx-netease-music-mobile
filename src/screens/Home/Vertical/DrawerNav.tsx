@@ -13,6 +13,7 @@ import type { InitState } from '@/store/common/state'
 import { exitApp, setNavActiveId } from '@/core/common'
 import Text from '@/components/common/Text'
 import { useSettingValue } from '@/store/setting/hook'
+import LineSidebar from '@/components/LineSidebar'
 import React, { useState, useRef, useCallback } from 'react';
 import { Animated, Easing } from 'react-native';
 import { useMyList } from '@/store/list/hook';
@@ -230,6 +231,8 @@ const MenuItem = ({
 
 export default memo(() => {
   const theme = useTheme()
+  const t = useI18n()
+  const activeNavId = useNavActiveId()
   // console.log('render drawer nav')
   const showBackBtn = useSettingValue('common.showBackBtn')
   const showExitBtn = useSettingValue('common.showExitBtn')
@@ -273,16 +276,22 @@ export default memo(() => {
     <View style={{ ...styles.container, backgroundColor: theme['c-content-background'] }}>
       <Header />
       <ScrollView style={styles.menus}>
-        <View style={styles.list}>
-          {filteredNavMenus.map((menu) => {
-            if (menu.id === 'nav_love') {
-              return isShowMyListSubMenu
-                ? <CollapsibleMyListItem key={menu.id} />
-                : <MenuItem key={menu.id} id={menu.id} icon={menu.icon} onPress={handlePress} />;
-            }
-            return <MenuItem key={menu.id} id={menu.id} icon={menu.icon} onPress={handlePress} />;
-          })}
-        </View>
+        {isShowMyListSubMenu && filteredNavMenus.some(m => m.id === 'nav_love') ? (
+          <>
+            <CollapsibleMyListItem />
+            <LineSidebar
+              items={filteredNavMenus.filter(m => m.id !== 'nav_love').map(m => ({ id: m.id, label: t(m.id), icon: m.icon }))}
+              activeId={activeNavId}
+              onPress={(id) => handlePress(id as IdType)}
+            />
+          </>
+        ) : (
+          <LineSidebar
+            items={filteredNavMenus.map(m => ({ id: m.id, label: t(m.id), icon: m.icon }))}
+            activeId={activeNavId}
+            onPress={(id) => handlePress(id as IdType)}
+          />
+        )}
       </ScrollView>
 
       <View style={styles.footer}>

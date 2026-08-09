@@ -1,6 +1,7 @@
 /**
- * IsGlobalAurora - 全局极光背景(完整组件)
+ * IsGlobalAurora - 全局极光背景(标准 section 布局)
  * 开关 + 8种配色 + 4档强度,自包含无外部依赖
+ * 与其他设置项一致: 由外层 Section 包裹, 内部标准 CheckBoxItem 项
  */
 import { memo } from 'react'
 import { View, TouchableOpacity } from 'react-native'
@@ -35,10 +36,6 @@ export default memo(() => {
         label="全局极光背景"
         onChange={(v) => {
           updateSetting({ 'app.background.aurora.enabled': v })
-          try {
-            const { debugLog } = require('@/utils/log')
-            debugLog('AuroraDebug', 'user toggled enabled=' + v)
-          } catch {}
         }}
       />
       {enabled ? (
@@ -52,14 +49,10 @@ export default memo(() => {
                   key={p.value}
                   onPress={() => {
                     updateSetting({ 'app.background.aurora.preset': p.value })
-                    try {
-                      const { debugLog } = require('@/utils/log')
-                      debugLog('AuroraDebug', 'user set preset=' + p.value)
-                    } catch {}
                   }}
                   style={[styles.chip, active && { backgroundColor: theme['c-primary'] }]}
                 >
-                  <Text size={11} color={active ? '#fff' : theme['c-font']}>{p.label}</Text>
+                  <Text size={11} color={active ? theme['c-primary-font-on-primary'] : theme['c-font']}>{p.label}</Text>
                 </TouchableOpacity>
               )
             })}
@@ -74,7 +67,7 @@ export default memo(() => {
                   onPress={() => updateSetting({ 'app.background.aurora.intensity': v })}
                   style={[styles.chip, active && { backgroundColor: theme['c-primary'] }]}
                 >
-                  <Text size={11} color={active ? '#fff' : theme['c-font']}>{v}x</Text>
+                  <Text size={11} color={active ? theme['c-primary-font-on-primary'] : theme['c-font']}>{v}x</Text>
                 </TouchableOpacity>
               )
             })}
@@ -91,21 +84,23 @@ const styles = createStyle({
   },
   options: {
     marginTop: 8,
-    paddingHorizontal: 4,
+    paddingHorizontal: 20,
   },
   optionLabel: {
-    marginBottom: 6,
+    marginBottom: 8,
   },
   row: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 6,
-    marginBottom: 8,
+    gap: 8,
+    marginBottom: 10,
   },
   chip: {
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 14,
-    backgroundColor: 'rgba(128,128,128,0.15)',
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(128,128,128,0.15)',
+    backgroundColor: 'rgba(128,128,128,0.12)',
   },
 })

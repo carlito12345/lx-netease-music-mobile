@@ -31,6 +31,7 @@ export default ({ pic }: Props) => {
     debugLog('AuroraDebug', 'enabled=' + auroraEnabled + ' preset=' + auroraPreset + ' intensity=' + auroraIntensity + ' pic=' + pic + ' show=' + showAurora)
   } catch {}
 
+
   if (showAurora) {
     return (
       <View
@@ -50,7 +51,9 @@ export default ({ pic }: Props) => {
       </View>
     )
   }
+
   return (
+    <>
       <ImageBackground
         style={{
           position: 'absolute',
@@ -75,5 +78,6 @@ export default ({ pic }: Props) => {
           ></View>
         ) : null}
       </ImageBackground>
-    )
+    </>
+  )
 }

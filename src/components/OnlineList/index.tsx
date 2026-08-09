@@ -48,6 +48,8 @@ export interface OnlineListProps {
   onListUpdate?: ListProps['onListUpdate']
   isCreator?: boolean
   componentId?: string
+  /** 自定义 item 渲染(默认用内置 ListItem) */
+  renderItem?: ListProps['renderItem']
 }
 
 export interface OnlineListType {
@@ -74,6 +76,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(
       onListUpdate,
       isCreator = false,
       componentId: componentId_raw,
+      renderItem,
     },
     ref,
   ) => {
@@ -220,6 +223,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(
             playingId={playingId}
             forcePlayList={forcePlayList}
             onListUpdate={onListUpdate}
+            renderItem={renderItem}
           />
           <MultipleModeBar
             ref={multipleModeBarRef}

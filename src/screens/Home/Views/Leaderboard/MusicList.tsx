@@ -1,5 +1,6 @@
 import {forwardRef, useCallback, useEffect, useImperativeHandle, useRef} from 'react'
 import OnlineList, { type OnlineListType, type OnlineListProps } from '@/components/OnlineList'
+import BubbleListItem from '@/components/BubbleListItem'
 import {
   clearListDetail,
   getListDetail,
@@ -118,6 +119,17 @@ export default forwardRef<MusicListType, {}>((props, ref) => {
       onListUpdate={handleListUpdate}
       checkHomePagerIdle
       rowType="medium"
-    />
+                   renderItem={({ item, index, onPress, onLongPress, onShowMenu, selectedList, playingId: pid }) => (
+                     <BubbleListItem
+                       item={item}
+                       index={index}
+                       onPress={onPress}
+                       onLongPress={onLongPress}
+                       onShowMenu={onShowMenu}
+                       selectedList={selectedList}
+                       playingId={pid}
+                     />
+                   )}
+ />
   )
 })

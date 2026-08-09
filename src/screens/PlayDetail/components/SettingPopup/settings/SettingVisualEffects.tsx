@@ -36,7 +36,7 @@ export default memo(() => {
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.sectionTitle, { color: theme['c-primary'], fontSize: setSpText(13) }]}>
+      <Text style={styles.sectionTitle} size={13} color={theme['c-primary']}>
         视觉特效
       </Text>
 
@@ -50,7 +50,7 @@ export default memo(() => {
       </View>
       {starfield ? (
         <View style={styles.subOptions}>
-          <Text style={[styles.subLabel, { color: theme['c-font-label'], fontSize: setSpText(12) }]}>
+          <Text style={styles.subLabel} size={12} color={theme['c-font-label']}>
             粒子数量
           </Text>
           <View style={styles.row}>
@@ -62,7 +62,7 @@ export default memo(() => {
                   onPress={() => updateSetting({ 'playDetail.effect.starfield.particleCount': item.value })}
                   style={[styles.chip, { backgroundColor: active ? theme['c-primary'] : theme['c-primary-alpha-900'] }]}
                 >
-                  <Text style={{ fontSize: setSpText(12), color: active ? '#fff' : theme['c-font'] }}>
+                  <Text size={12} color={active ? theme['c-primary-font-on-primary'] : theme['c-font']}>
                     {item.label}
                   </Text>
                 </TouchableOpacity>
@@ -82,7 +82,7 @@ export default memo(() => {
       </View>
       {wallpaper ? (
         <View style={styles.subOptions}>
-          <Text style={[styles.subLabel, { color: theme['c-font-label'], fontSize: setSpText(12) }]}>
+          <Text style={styles.subLabel} size={12} color={theme['c-font-label']}>
             颜色
           </Text>
           <View style={styles.row}>
@@ -97,7 +97,7 @@ export default memo(() => {
                   onPress={() => updateSetting({ 'playDetail.effect.wallpaper.color': item.value })}
                   style={[styles.chip, { backgroundColor: active ? theme['c-primary'] : theme['c-primary-alpha-900'] }]}
                 >
-                  <Text style={{ fontSize: setSpText(12), color: active ? '#fff' : theme['c-font'] }}>
+                  <Text size={12} color={active ? theme['c-primary-font-on-primary'] : theme['c-font']}>
                     {item.label}
                   </Text>
                 </TouchableOpacity>
@@ -135,7 +135,7 @@ export default memo(() => {
       </View>
       {lyricGradient ? (
         <View style={styles.subOptions}>
-          <Text style={[styles.subLabel, { color: theme['c-font-label'], fontSize: setSpText(12) }]}>
+          <Text style={styles.subLabel} size={12} color={theme['c-font-label']}>
             配色
           </Text>
           <View style={styles.row}>
@@ -147,7 +147,7 @@ export default memo(() => {
                   onPress={() => updateSetting({ 'playDetail.effect.lyricGradient.preset': key })}
                   style={[styles.chip, { backgroundColor: active ? theme['c-primary'] : theme['c-primary-alpha-900'] }]}
                 >
-                  <Text style={{ fontSize: setSpText(12), color: active ? '#fff' : theme['c-font'] }}>
+                  <Text size={12} color={active ? theme['c-primary-font-on-primary'] : theme['c-font']}>
                     {preset.name}
                   </Text>
                 </TouchableOpacity>

@@ -1,8 +1,6 @@
 import { useRef, useState, useMemo, forwardRef, useImperativeHandle } from 'react'
-import {FlatList, View, RefreshControl, type FlatListProps, Keyboard} from 'react-native'
+import {View, RefreshControl, Keyboard} from 'react-native'
 
-import ListItem from './ListItem'
-// import { navigations } from '@/navigation'
 import { type ListInfoItem } from '@/store/songlist/state'
 import { useLayout } from '@/utils/hooks'
 import { useTheme } from '@/store/theme/hook'
@@ -10,8 +8,10 @@ import { useI18n } from '@/lang'
 import { scaleSizeW } from '@/utils/pixelRatio'
 import { createStyle } from '@/utils/tools'
 import Text from '@/components/common/Text'
+import ChromaGrid, { type ChromaGridItem } from '@/components/ChromaGrid'
 
-type FlatListType = FlatListProps<ListInfoItem>
+/** 原版 ChromaGrid demo 卡片边框色板 */
+const BORDER_PALETTE = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4']
 
 // const MAX_WIDTH = scaleSizeW(110)
 const MIN_WIDTH = scaleSizeW(110)
@@ -30,7 +30,6 @@ export interface ListType {
 }
 
 export default forwardRef<ListType, ListProps>(({ onRefresh, onLoadMore, onOpenDetail }, ref) => {
-  const flatListRef = useRef<FlatList>(null)
   const [currentList, setList] = useState<ListInfoItem[]>([])
   const [showSource, setShowSource] = useState(false)
   const [status, setStatus] = useState<Status>('idle')
@@ -54,19 +53,6 @@ export default forwardRef<ListType, ListProps>(({ onRefresh, onLoadMore, onOpenD
     onLoadMore()
   }
 
-  const renderItem: FlatListType['renderItem'] = ({ item, index }) => (
-    <ListItem
-      item={item}
-      index={index}
-      width={rowInfo.width}
-      showSource={showSource}
-      onPress={onOpenDetail}
-    />
-  )
-  const getkey: FlatListType['keyExtractor'] = (item) => item.id
-  // const getItemLayout: FlatListType['getItemLayout'] = (data, index) => {
-  //   return { length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index }
-  // }
   const refreshControl = useMemo(
     () => (
       <RefreshControl
@@ -103,18 +89,7 @@ export default forwardRef<ListType, ListProps>(({ onRefresh, onLoadMore, onOpenD
     )
   }, [onLoadMore, status])
 
-  // const itemWidth = useMemo(() => {
-  //   let itemWidth = Math.max(Math.trunc(width * 0.125), MAX_WIDTH)
-  //   // if (itemWidth < )
-  // }, [width])
-  // const computedItemWidth = useMemo(() => {
-  //   let w = width - GAP
-  //   let n = width / (MIN_WIDTH + GAP)
-  //   if (n > 10) n = 10
-  //   return Math.floor(w / n)
-  // }, [width])
-  // console.log(Math.trunc(width * 0.125), itemWidth)
-  // console.log(itemWidth, MIN_WIDTH, GAP, width)
+  // 动态计算列数与卡片宽度(大屏适配)
   const rowInfo = useMemo(() => {
     let w = width - GAP
     let n = width / (MIN_WIDTH + GAP)
@@ -126,52 +101,41 @@ export default forwardRef<ListType, ListProps>(({ onRefresh, onLoadMore, onOpenD
       width: (width - GAP) / num,
     }
   }, [width])
-  // console.log(rowNum)
-  const list = useMemo(() => {
-    const list = [...currentList]
-    let whiteItemNum = list.length % rowInfo.num
-    if (whiteItemNum > 0) whiteItemNum = rowInfo.num - whiteItemNum
-    for (let i = 0; i < whiteItemNum; i++) {
-      list.push({
-        id: `white__${i}`,
-        play_count: '',
-        author: '',
-        name: '',
-        img: '',
-        desc: '',
-        // @ts-expect-error
-        source: '',
-      })
-    }
-    return list
-  }, [currentList, rowInfo])
-  // console.log(listInfo.list.map((item) => item.id))
+
+  // 映射为 ChromaGridItem(白色占位项不再需要,ChromaGrid 自带 flex-start 布局)
+  const gridItems = useMemo<ChromaGridItem[]>(() => {
+    return currentList
+      .filter(item => item.source)
+      .map((item, i: number) => ({
+        key: item.id,
+        image: item.img,
+        title: item.name,
+        subtitle: item.play_count || undefined,
+        badge: showSource ? item.source : undefined,
+        borderColor: BORDER_PALETTE[i % BORDER_PALETTE.length],
+        onPress: () => onOpenDetail(item, i),
+      }))
+  }, [currentList, showSource, onOpenDetail])
 
   return (
     <View style={styles.container} onLayout={onLayout}>
       {width == 0 ? null : (
-        <FlatList
-          key={String(rowInfo.num)}
-          ref={flatListRef}
-          style={styles.list}
-          columnWrapperStyle={{ justifyContent: 'space-evenly' }}
-          numColumns={rowInfo.num}
-          data={list}
-          maxToRenderPerBatch={4}
+        <ChromaGrid
+          listKey={String(rowInfo.num)}
+          items={gridItems}
+          columns={rowInfo.num}
+          containerWidth={width}
+          gap={scaleSizeW(15)}
+          borderRadius={12}
+          refreshing={status == 'refreshing'}
+          onRefresh={onRefresh}
           onScrollBeginDrag={Keyboard.dismiss}
-          // updateCellsBatchingPeriod={80}
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.6}
+          ListFooterComponent={footerComponent}
+          maxToRenderPerBatch={4}
           windowSize={8}
           removeClippedSubviews={true}
-          // initialNumToRender={12}
-          renderItem={renderItem}
-          keyExtractor={getkey}
-          // getItemLayout={getItemLayout}
-          // onRefresh={onRefresh}
-          // refreshing={refreshing}
-          onEndReachedThreshold={0.6}
-          onEndReached={handleLoadMore}
-          refreshControl={refreshControl}
-          ListFooterComponent={footerComponent}
         />
       )}
     </View>
@@ -199,11 +163,6 @@ const styles = createStyle({
   container: {
     flex: 1,
     overflow: 'hidden',
-  },
-  list: {
-    flex: 1,
-    paddingLeft: 10,
-    paddingRight: 10,
   },
   footer: {
     textAlign: 'center',

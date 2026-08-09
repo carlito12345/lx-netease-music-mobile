@@ -1,6 +1,11 @@
 import '@/utils/errorHandle'
 import { init as initLog } from '@/utils/log'
 import { bootLog, getBootLog } from '@/utils/bootLog'
+import { initCrashLog, crashLog } from '@/utils/crashLog'
+
+// 崩溃日志:启动最早处初始化,闪退时可在 MT2/mcp/LXMUSIC-test/crash.log 查看
+initCrashLog()
+crashLog('app.ts loaded')
 import '@/config/globalData'
 import { toast } from '@/utils/tools'
 import { getFontSize } from '@/utils/data'

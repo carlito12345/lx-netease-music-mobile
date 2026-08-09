@@ -17,7 +17,7 @@ export default memo(() => {
   const t = useI18n()
 
   return (
-    <Section title={t('setting_download')}>
+    <Section title={t('setting_download')} bgColor='#2F293A'>
       {/*<IsEnable />*/}
       <DownloadPath />
       <SubTitle title={t('setting_download_options_title')}>

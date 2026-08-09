@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef, type ReactNode } from 'react'
-import {Keyboard, View} from 'react-native'
+import {Keyboard, View, Animated, Dimensions} from 'react-native'
 import Search from '../Views/Search'
 import SongList from '../Views/SongList'
 import Mylist from '../Views/Mylist'
@@ -419,6 +419,9 @@ const Main = () => {
   const pagerViewRef = useRef<ComponentRef<typeof PagerView>>(null);
   const [activeNavId, setActiveNavIdState] = useState(commonState.navActiveId)
   const navStatus = useSettingValue('common.navStatus'); // 获取菜单显示状态
+  // Carousel 3D 转场: 基于横向滚动位置驱动每页 rotateY/scale
+  const scrollX = useRef(new Animated.Value(0)).current
+  const pageWidth = useRef(Dimensions.get('window').width).current
 
   // 根据 navStatus 动态生成可见的菜单项、viewMap 和 indexMap
   const visibleNavs = useMemo(() => {
@@ -446,6 +449,11 @@ const Main = () => {
       setNavActiveId(selectedId);
     }
   }, [indexMap, viewMap]);
+
+  const onPageScroll = useCallback((e: { nativeEvent: { position: number, offset: number } }) => {
+    const { position, offset } = e.nativeEvent
+    scrollX.setValue(position * pageWidth + offset * pageWidth)
+  }, [scrollX, pageWidth])
 
   const onPageScrollStateChanged = useCallback(
     ({ nativeEvent }: PageScrollStateChangedNativeEvent) => {
@@ -497,12 +505,33 @@ const Main = () => {
       nav_setting: <SettingPage />,
     };
 
-    return visibleNavs.map(nav => (
-      <View collapsable={false} key={nav.id} style={styles.pageStyle}>
-        {pageComponents[nav.id] ?? null}
-      </View>
-    ));
-  }, [visibleNavs]);
+    return visibleNavs.map((nav, index) => {
+      // Carousel 3D: 当前页正视,两侧页旋转/缩小
+      const inputRange = [(index - 1) * pageWidth, index * pageWidth, (index + 1) * pageWidth]
+      const rotateY = scrollX.interpolate({
+        inputRange,
+        outputRange: ['45deg', '0deg', '-45deg'],
+        extrapolate: 'clamp',
+      })
+      const scale = scrollX.interpolate({
+        inputRange,
+        outputRange: [0.92, 1, 0.92],
+        extrapolate: 'clamp',
+      })
+      return (
+        <View collapsable={false} key={nav.id} style={styles.pageStyle}>
+          <Animated.View
+            style={{
+              flex: 1,
+              transform: [{ perspective: 1200 }, { rotateY }, { scale }],
+            }}
+          >
+            {pageComponents[nav.id] ?? null}
+          </Animated.View>
+        </View>
+      )
+    });
+  }, [visibleNavs, scrollX, pageWidth]);
 
   return (
     <View style={styles.container}>
@@ -511,6 +540,7 @@ const Main = () => {
         initialPage={activeIndexRef.current}
         offscreenPageLimit={1}
         onPageSelected={onPageSelected}
+        onPageScroll={onPageScroll}
         onPageScrollStateChanged={onPageScrollStateChanged}
         scrollEnabled={settingState.setting['common.homePageScroll'] && activeNavId !== 'nav_play_history'}
         style={styles.pagerView}

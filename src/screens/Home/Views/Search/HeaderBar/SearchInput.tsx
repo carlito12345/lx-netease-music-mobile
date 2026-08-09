@@ -1,6 +1,5 @@
 import { useCallback, useRef, forwardRef, useImperativeHandle, useState } from 'react'
-// import { StyleSheet } from 'react-native'
-import Input, { type InputType, type InputProps } from '@/components/common/Input'
+import BubbleSearch, { type BubbleSearchType } from '@/components/BubbleSearch'
 
 export interface SearchInputProps {
   onChangeText: (text: string) => void
@@ -18,9 +17,8 @@ export interface SearchInputType {
 
 export default forwardRef<SearchInputType, SearchInputProps>(
   ({ onChangeText, onSubmit, onBlur, onTouchStart }, ref) => {
-    // const theme = useTheme()
     const [text, setText] = useState('')
-    const inputRef = useRef<InputType>(null)
+    const inputRef = useRef<BubbleSearchType>(null)
 
     useImperativeHandle(ref, () => ({
       // getText() {
@@ -48,25 +46,21 @@ export default forwardRef<SearchInputType, SearchInputProps>(
       onSubmit('')
     }, [onChangeText, onSubmit])
 
-    const handleSubmit = useCallback<NonNullable<InputProps['onSubmitEditing']>>(
-      ({ nativeEvent: { text } }) => {
-        onSubmit(text)
-      },
-      [onSubmit]
-    )
+    const handleSubmit = useCallback((text: string) => {
+      onSubmit(text)
+    }, [onSubmit])
 
     return (
-      <Input
+      <BubbleSearch
         ref={inputRef}
         placeholder="Search for something..."
         value={text}
         onChangeText={handleChangeText}
-        // style={{ ...styles.input, backgroundColor: theme['c-primary-input-background'] }}
         onBlur={onBlur}
-        onSubmitEditing={handleSubmit}
+        onSubmit={handleSubmit}
         onClearText={handleClearText}
         onTouchStart={onTouchStart}
-        clearBtn
+        height={30}
       />
     )
   }

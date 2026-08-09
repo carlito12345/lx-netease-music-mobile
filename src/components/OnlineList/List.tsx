@@ -32,6 +32,16 @@ export interface ListProps {
   playingId?: string | null
   listId?: string
   onListUpdate?: (list: LX.Music.MusicInfoOnline[]) => void
+  /** 自定义 item 渲染(默认用内置 ListItem) */
+  renderItem?: (info: {
+    item: LX.Music.MusicInfoOnline
+    index: number
+    onPress: (item: LX.Music.MusicInfoOnline, index: number) => void
+    onLongPress: (item: LX.Music.MusicInfoOnline, index: number) => void
+    onShowMenu: (item: LX.Music.MusicInfoOnline, index: number, position: Position) => void
+    selectedList: LX.Music.MusicInfoOnline[]
+    playingId?: string | null
+  }) => React.ReactElement
 }
 
 export interface ListType {
@@ -65,6 +75,7 @@ const List = forwardRef<ListType, ListProps>(
       forcePlayList,
       playingId,
       onListUpdate,
+      renderItem: customRenderItem,
     },
     ref,
   ) => {
@@ -218,22 +229,35 @@ const List = forwardRef<ListType, ListProps>(
       onLoadMore()
     }
 
-    const renderItem: FlatListType['renderItem'] = ({ item, index }) => (
-      <ListItem
-        item={item}
-        index={index}
-        listId={listId}
-        showSource={showSource}
-        onPress={handlePress}
-        onLongPress={handleLongPress}
-        onShowMenu={onShowMenu}
-        selectedList={selectedList}
-        playingId={playingId}
-        rowInfo={rowInfo.current}
-        isShowAlbumName={isShowAlbumName}
-        isShowInterval={isShowInterval}
-      />
-    )
+    const renderItem: FlatListType['renderItem'] = ({ item, index }) => {
+      if (customRenderItem) {
+        return customRenderItem({
+          item,
+          index,
+          onPress: handlePress,
+          onLongPress: handleLongPress,
+          onShowMenu,
+          selectedList,
+          playingId,
+        })
+      }
+      return (
+        <ListItem
+          item={item}
+          index={index}
+          listId={listId}
+          showSource={showSource}
+          onPress={handlePress}
+          onLongPress={handleLongPress}
+          onShowMenu={onShowMenu}
+          selectedList={selectedList}
+          playingId={playingId}
+          rowInfo={rowInfo.current}
+          isShowAlbumName={isShowAlbumName}
+          isShowInterval={isShowInterval}
+        />
+      )
+    }
     const getkey: FlatListType['keyExtractor'] = (item) => (item as any).playHistoryId ?? item.id
     const getItemLayout: FlatListType['getItemLayout'] = (data, index) => {
       return { length: ITEM_HEIGHT, offset: ITEM_HEIGHT * index, index }

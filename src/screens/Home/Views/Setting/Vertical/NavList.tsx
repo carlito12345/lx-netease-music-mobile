@@ -29,13 +29,18 @@ const ListItem = memo(
 
     return (
       <View
-        style={{
-          ...styles.listItem,
-          backgroundColor: active ? theme['c-primary-background-active'] : 'transparent',
-        }}
+        style={[
+          styles.listItem,
+          {
+            backgroundColor: active ? theme['c-primary'] : 'transparent',
+            borderColor: active ? theme['c-primary'] : theme['c-border-background'],
+            borderWidth: 1,
+            borderRadius: 15,
+          },
+        ]}
       >
         <TouchableOpacity style={styles.listName} onPress={handlePress}>
-          <Text numberOfLines={1} color={active ? theme['c-primary-font'] : theme['c-font']}>
+          <Text numberOfLines={1} color={active ? theme['c-primary-font-on-primary'] : theme['c-font']}>
             {t(`setting_${id}`)}
           </Text>
         </TouchableOpacity>

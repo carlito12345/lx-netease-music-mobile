@@ -8,7 +8,6 @@ import Language from './Language'
 import FontSize from './FontSize'
 import ShareType from './ShareType'
 import IsStartupAutoPlay from './IsStartupAutoPlay'
-import IsStartupPushPlayDetailScreen from './IsStartupPushPlayDetailScreen'
 import IsAutoHidePlayBar from './IsAutoHidePlayBar'
 import IsHomePageScroll from './IsHomePageScroll'
 import IsShowBackBtn from './IsShowBackBtn'
@@ -24,27 +23,51 @@ export default memo(() => {
   const t = useI18n()
 
   return (
-    <Section title={t('setting_basic')}>
-      <IsStartupAutoPlay />
-      {/*<IsStartupPushPlayDetailScreen />*/}
-      {global.lx.isCarMode ? (
-        <>
-          <IsShowBackBtn />
-          <IsShowExitBtn />
-        </>
-      ) : null}
-      <IsHomePageScroll />
-      <IsUseSystemFileSelector />
-      <IsAlwaysKeepStatusbarHeight />
+    <>
+      {/* 启动与首页 */}
+      <Section title={t('setting_basic')} bgColor='#1B1722'>
+        <IsStartupAutoPlay />
+        {global.lx.isCarMode ? (
+          <>
+            <IsShowBackBtn />
+            <IsShowExitBtn />
+          </>
+        ) : null}
+        <IsHomePageScroll />
+        <IsUseSystemFileSelector />
+        <IsAlwaysKeepStatusbarHeight />
+      </Section>
+
+      {/* 主题: Theme/index 内部已含 极光+主题 两个标准 section */}
       <Theme />
-      <DrawerLayoutPosition />
-      <NavMenu />
-      <Language />
-      <FontSize />
-      <ShareType />
-      <Source />
-      <SourceName />
-      <WyCookie />
-    </Section>
+
+      {/* 导航 */}
+      <Section title={t('setting_basic_nav')} bgColor='#2F293A'>
+        <DrawerLayoutPosition />
+        <NavMenu />
+      </Section>
+
+      {/* 语言与字体 */}
+      <Section title={t('setting_basic_lang_font')} bgColor='#2F293A'>
+        <Language />
+        <FontSize />
+      </Section>
+
+      {/* 分享 */}
+      <Section title={t('setting_basic_share')} bgColor='#2F293A'>
+        <ShareType />
+      </Section>
+
+      {/* 音源 */}
+      <Section title={t('setting_basic_source_section')} bgColor='#2F293A'>
+        <Source />
+        <SourceName />
+      </Section>
+
+      {/* 账号 */}
+      <Section title={t('setting_basic_account')} bgColor='#2F293A'>
+        <WyCookie />
+      </Section>
+    </>
   )
 })

@@ -529,6 +529,7 @@
   "theme_naruto": "木叶之村",
   "theme_orange": "橙黄橘绿",
   "theme_pink": "粉装玉琢",
+  "theme_pure_black": "纯黑 · 黑白对撞",
   "theme_purple": "重斤球紫",
   "theme_red": "热情似火",
   "timeout_exit_btn_cancel": "取消定时",
@@ -634,5 +635,17 @@
   "setting_localMusic_list_name": "本地音乐",
   "setting_localMusic_scan_failed": "失败 {failed} 首",
   "setting_local_music": "本地音乐",
-  "nav_local": "本地音乐"
+  "nav_local": "本地音乐",
+  "setting_basic_nav": "导航",
+  "setting_basic_lang_font": "语言与字体",
+  "setting_basic_share": "分享",
+  "setting_basic_source_section": "音源",
+  "setting_basic_account": "账号",
+  "setting_player_audio": "音频",
+  "setting_player_lyric": "歌词",
+  "setting_player_cache_quality": "缓存与音质",
+  "play_detail_setting_basic": "基础设置",
+  "play_detail_setting_appearance": "外观",
+  "play_detail_setting_effects": "特效",
+  "setting_basic_theme_aurora": "全局极光"
 }

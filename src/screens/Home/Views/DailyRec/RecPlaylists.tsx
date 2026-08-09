@@ -1,18 +1,19 @@
-import { memo, useEffect, useState, useCallback } from 'react'
-import { View, FlatList, RefreshControl, Keyboard } from 'react-native'
+import { memo, useEffect, useState, useCallback, useMemo } from 'react'
+import { View, Keyboard } from 'react-native'
 import { useSettingValue } from '@/store/setting/hook'
 import { toast } from '@/utils/tools'
-import { useTheme } from '@/store/theme/hook'
 import wyApi from '@/utils/musicSdk/wy/dailyRec'
 import wy from '@/utils/musicSdk/wy/index'
-import ListItem from '../MyPlaylist/ListItem'
+import ChromaGrid, { type ChromaGridItem } from '@/components/ChromaGrid'
 import { getDailyRecPlaylistsCache, setDailyRecPlaylistsCache, clearDailyRecPlaylistsCache } from '@/core/cache'
+
+/** 原版 ChromaGrid demo 卡片边框色板 */
+const BORDER_PALETTE = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4']
 
 export default memo(({ onOpenDetail }: { onOpenDetail: (info: any) => void }) => {
   const [playlists, setPlaylists] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const cookie = useSettingValue('common.wy_cookie')
-  const theme = useTheme()
 
   const loadPlaylists = useCallback((isRefresh = false) => {
     if (!cookie) {
@@ -83,20 +84,25 @@ export default memo(({ onOpenDetail }: { onOpenDetail: (info: any) => void }) =>
     loadPlaylists(true)
   }
 
+  const gridItems = useMemo<ChromaGridItem[]>(() => {
+    return playlists.map((item, i: number) => ({
+      key: String(item.id),
+      image: item.coverImgUrl,
+      title: item.name,
+      subtitle: item.trackCount > 0 ? `${item.trackCount} 首` : undefined,
+      borderColor: BORDER_PALETTE[i % BORDER_PALETTE.length],
+      onPress: () => handleItemPress(item),
+    }))
+  }, [playlists])
+
   return (
     <View style={{ flex: 1 }}>
-      <FlatList
-        onScrollBeginDrag={Keyboard.dismiss}
-        data={playlists}
-        renderItem={({ item }) => <ListItem item={item} onPress={handleItemPress} />}
-        keyExtractor={item => String(item.id)}
-        refreshControl={
-          <RefreshControl
-            colors={[theme['c-primary']]}
-            refreshing={loading}
-            onRefresh={handleRefresh}
-          />
-        }
+      <ChromaGrid
+        items={gridItems}
+        columns={2}
+        refreshing={loading}
+        onRefresh={handleRefresh}
+        onScrollBeginDrag={() => Keyboard.dismiss()}
       />
     </View>
   )

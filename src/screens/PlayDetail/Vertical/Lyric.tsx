@@ -94,6 +94,16 @@ const LrcLine = memo(
         useNativeDriver: true,
       }).start()
     }, [activeLine, lineNum, proximityEnabled])
+    // 歌词滚轮(option-wheel): 当前行居中,上下行按距离弯曲/缩放/变暗
+    const wheelEnabled = useSettingValue('playDetail.effect.lyricWheel.enabled')
+    const wheelDist = Math.abs(activeLine - lineNum)
+    const wheelTransform = wheelEnabled ? [
+      { perspective: 900 },
+      { rotateX: `${Math.min(wheelDist * 10, 28)}deg` },
+      { translateY: wheelDist * 8 },
+    ] : []
+    const wheelOpacity = wheelEnabled ? 1 - Math.min(wheelDist * 0.22, 0.6) : 1
+    const wheelScale = wheelEnabled ? 1 - Math.min(wheelDist * 0.06, 0.22) : 1
     // 歌词舞台: 当前行发光
     const stageEnabled = useSettingValue('playDetail.effect.lyricStage.enabled')
     const stageStyle = useMemo(() => {
@@ -123,7 +133,16 @@ const LrcLine = memo(
     // https://stackoverflow.com/a/72822360
     return (
       <TouchableOpacity activeOpacity={0.7} onPress={handlePress}>
-        <Animated.View style={[styles.line, { transform: [{ scale }] }]} onLayout={handleLayout}>
+        <Animated.View
+          style={[
+            styles.line,
+            {
+              transform: [{ scale: Animated.multiply(scale, wheelScale) }, ...wheelTransform],
+              opacity: Animated.multiply(wheelOpacity, scale),
+            } as any,
+          ]}
+          onLayout={handleLayout}
+        >
           {activeLine == lineNum && gradientEnabled ? (
             <GradientText
               text={line.text}

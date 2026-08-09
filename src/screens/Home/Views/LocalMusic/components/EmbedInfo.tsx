@@ -132,7 +132,7 @@ export default memo(({ files, onComplete }: Props) => {
         disabled={processing}
         activeOpacity={0.7}
       >
-        <Text style={{ fontSize: 14, color: processing ? theme['c-font-label'] : '#fff' }}>
+        <Text style={{ fontSize: 14, color: processing ? theme['c-font-label'] : theme['c-primary-font-on-primary'] }}>
           {processing
             ? `嵌入中 ${progress.current}/${progress.total}`
             : '一键下载嵌入封面/歌词/标签'}

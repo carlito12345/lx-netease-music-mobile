@@ -524,6 +524,7 @@
   "theme_naruto": "Naruto",
   "theme_orange": "Orange",
   "theme_pink": "Pink",
+  "theme_pure_black": "Pure Black",
   "theme_purple": "Purple",
   "theme_red": "Red",
   "timeout_exit_btn_cancel": "Cancel timing",
@@ -629,5 +630,17 @@
   "setting_localMusic_empty": "No audio files in folder",
   "setting_localMusic_list_name": "Local Music",
   "setting_local_music": "Local Music",
-  "nav_local": "Local Music"
+  "nav_local": "Local Music",
+  "setting_basic_nav": "Navigation",
+  "setting_basic_lang_font": "Language & Font",
+  "setting_basic_share": "Share",
+  "setting_basic_source_section": "Sources",
+  "setting_basic_account": "Account",
+  "setting_player_audio": "Audio",
+  "setting_player_lyric": "Lyrics",
+  "setting_player_cache_quality": "Cache & Quality",
+  "play_detail_setting_basic": "Basic",
+  "play_detail_setting_appearance": "Appearance",
+  "play_detail_setting_effects": "Effects",
+  "setting_basic_theme_aurora": "Aurora"
 }

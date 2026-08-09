@@ -1,5 +1,6 @@
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import OnlineList, { type OnlineListType, type OnlineListProps } from '@/components/OnlineList'
+import BubbleListItem from '@/components/BubbleListItem'
 import { search } from '@/core/search/music'
 import searchMusicState, { type Source } from '@/store/search/music/state'
 
@@ -108,6 +109,17 @@ export default forwardRef<MusicListType, {}>((props, ref) => {
       onRefresh={handleRefresh}
       onLoadMore={handleLoadMore}
       checkHomePagerIdle
-    />
+                   renderItem={({ item, index, onPress, onLongPress, onShowMenu, selectedList, playingId: pid }) => (
+                     <BubbleListItem
+                       item={item}
+                       index={index}
+                       onPress={onPress}
+                       onLongPress={onLongPress}
+                       onShowMenu={onShowMenu}
+                       selectedList={selectedList}
+                       playingId={pid}
+                     />
+                   )}
+ />
   )
 })

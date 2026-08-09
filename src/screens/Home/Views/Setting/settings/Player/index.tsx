@@ -18,17 +18,33 @@ export default memo(() => {
   const t = useI18n()
 
   return (
-    <Section title={t('setting_player')}>
-      <IsSavePlayTime />
-      <IsAutoCleanPlayedList />
-      <IsHandleAudioFocus />
-      <IsEnableAudioOffload />
-      <IsShowBluetoothLyric />
-      <IsShowLyricTranslation />
-      <IsShowLyricRoma />
-      <IsS2T />
-      <MaxCache />
-      <PlayHighQuality />
-    </Section>
+    <>
+      {/* 播放行为 */}
+      <Section title={t('setting_player')} bgColor='#1B1722'>
+        <IsSavePlayTime />
+        <IsAutoCleanPlayedList />
+        <IsHandleAudioFocus />
+      </Section>
+
+      {/* 音频 */}
+      <Section title={t('setting_player_audio')} bgColor='#2F293A'>
+        <IsEnableAudioOffload />
+        <IsShowNotificationImage />
+      </Section>
+
+      {/* 歌词 */}
+      <Section title={t('setting_player_lyric')} bgColor='#2F293A'>
+        <IsShowBluetoothLyric />
+        <IsShowLyricTranslation />
+        <IsShowLyricRoma />
+        <IsS2T />
+      </Section>
+
+      {/* 缓存与音质 */}
+      <Section title={t('setting_player_cache_quality')} bgColor='#2F293A'>
+        <MaxCache />
+        <PlayHighQuality />
+      </Section>
+    </>
   )
 })

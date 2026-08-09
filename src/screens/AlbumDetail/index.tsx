@@ -3,6 +3,7 @@ import { View } from 'react-native'
 import PageContent from '@/components/PageContent'
 import Header from './Header'
 import OnlineList, { type OnlineListType } from '@/components/OnlineList'
+import BubbleListItem from '@/components/BubbleListItem'
 import wyApi from '@/utils/musicSdk/wy/album'
 import { toast } from '@/utils/tools'
 import { setComponentId } from '@/core/common'
@@ -87,7 +88,18 @@ export default memo(({ componentId, albumInfo }: { componentId: string; albumInf
           onRefresh={onRefresh}
           onListUpdate={handleListUpdate}
           playingId={playerMusicInfo.id}
-        />
+                       renderItem={({ item, index, onPress, onLongPress, onShowMenu, selectedList, playingId: pid }) => (
+                         <BubbleListItem
+                           item={item}
+                           index={index}
+                           onPress={onPress}
+                           onLongPress={onLongPress}
+                           onShowMenu={onShowMenu}
+                           selectedList={selectedList}
+                           playingId={pid}
+                         />
+                       )}
+ />
         <PlayerBar componentId={componentId} />
       </View>
     </PageContent>

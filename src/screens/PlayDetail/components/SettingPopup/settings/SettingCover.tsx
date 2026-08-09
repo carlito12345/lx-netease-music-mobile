@@ -53,7 +53,7 @@ export default memo(() => {
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.title, { color: theme['c-primary'], fontSize: setSpText(13) }]}>封面样式</Text>
+      <Text style={styles.title} size={13} color={theme['c-primary']}>封面样式</Text>
       <View style={styles.row}>
         {COVER_STYLES.map(s => (
           <TouchableOpacity
@@ -61,12 +61,12 @@ export default memo(() => {
             style={[styles.chip, coverStyle === s.id && { backgroundColor: theme['c-primary'] }]}
             onPress={() => handleStyleChange(s.id)}
           >
-            <Text style={{ fontSize: setSpText(12), color: coverStyle === s.id ? '#fff' : theme['c-font'] }}>{s.label}</Text>
+            <Text size={12} color={coverStyle === s.id ? theme['c-primary-font-on-primary'] : theme['c-font']}>{s.label}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
-      <Text style={[styles.title, { color: theme['c-primary'], fontSize: setSpText(13) }]}>特效开关</Text>
+      <Text style={styles.title} size={13} color={theme['c-primary']}>特效开关</Text>
       <View style={styles.row}>
         {EFFECTS.map(e => (
           <TouchableOpacity
@@ -74,7 +74,7 @@ export default memo(() => {
             style={[styles.chip, effects[e.key as keyof typeof effects] && { backgroundColor: theme['c-primary'] }]}
             onPress={() => handleEffectToggle(e.key)}
           >
-            <Text style={{ fontSize: setSpText(12), color: effects[e.key as keyof typeof effects] ? '#fff' : theme['c-font'] }}>{e.label}</Text>
+            <Text size={12} color={effects[e.key as keyof typeof effects] ? theme['c-primary-font-on-primary'] : theme['c-font']}>{e.label}</Text>
           </TouchableOpacity>
         ))}
       </View>

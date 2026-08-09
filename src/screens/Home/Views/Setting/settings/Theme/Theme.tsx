@@ -25,87 +25,44 @@ const ThemeItem = ({
   color,
   image,
   setTheme,
-  showAll,
 }: {
   id: string
   name: string
   color: string
-  showAll: boolean
   image?: ImageSourcePropType
   setTheme: (id: string) => void
 }) => {
   const theme = useTheme()
   const isActive = useActive(id)
 
-  return showAll || isActive ? (
+  return (
     <TouchableOpacity
-      style={{ ...styles.item, width: scaleSizeH(ITEM_HEIGHT) }}
-      activeOpacity={0.5}
+      style={[
+        styles.chip,
+        { backgroundColor: isActive ? theme['c-primary'] : 'rgba(128,128,128,0.12)' },
+      ]}
+      activeOpacity={0.6}
       onPress={() => {
         setTheme(id)
       }}
     >
+      {/* 色点 */}
       <View
         style={{
-          ...styles.colorContent,
-          width: scaleSizeH(COLOR_ITEM_HEIGHT),
-          borderColor: isActive ? color : 'transparent',
+          width: 14,
+          height: 14,
+          borderRadius: 7,
+          backgroundColor: color,
+          marginRight: 6,
         }}
-      >
-        {image ? (
-          <ImageBackground
-            style={{
-              ...styles.imageContent,
-              width: scaleSizeH(IMAGE_HEIGHT),
-              backgroundColor: color,
-            }}
-            imageStyle={{ borderRadius: 4 }}
-            source={image}
-          />
-        ) : (
-          <View
-            style={{
-              ...styles.imageContent,
-              width: scaleSizeH(IMAGE_HEIGHT),
-              backgroundColor: color,
-            }}
-          ></View>
-        )}
-      </View>
+      />
       <Text
-        style={styles.name}
-        size={12}
-        color={isActive ? color : theme['c-font']}
+        size={11}
+        color={isActive ? theme['c-primary-font-on-primary'] : theme['c-font']}
         numberOfLines={1}
       >
         {name}
       </Text>
-    </TouchableOpacity>
-  ) : null
-}
-
-const MoreBtn = ({
-  showAll,
-  setShowAll,
-}: {
-  showAll: boolean
-  setShowAll: (showAll: boolean) => void
-}) => {
-  const theme = useTheme()
-  const t = useI18n()
-
-  return showAll ? null : (
-    <TouchableOpacity
-      style={styles.moreBtn}
-      activeOpacity={0.5}
-      onPress={() => {
-        setShowAll(!showAll)
-      }}
-    >
-      <Text size={14} color={theme['c-primary-font']} numberOfLines={1}>
-        {t('setting_basic_theme_more_btn_show')}
-      </Text>
-      <Icon name="chevron-right" size={12} color={theme['c-primary-font']} />
     </TouchableOpacity>
   )
 }
@@ -117,8 +74,8 @@ interface ThemeInfo {
 }
 const initInfo: ThemeInfo = { themes: [], userThemes: [], dataPath: '' }
 export default memo(() => {
-  const [showAll, setShowAll] = useState(false)
   const t = useI18n()
+  const theme = useTheme()
   const [themeInfo, setThemeInfo] = useState(initInfo)
   const setThemeId = useCallback((id: string) => {
     requestAnimationFrame(() => {
@@ -131,7 +88,10 @@ export default memo(() => {
   }, [])
 
   return (
-    <SubTitle title={t('setting_basic_theme')}>
+    <View style={styles.container}>
+      <Text size={12} color={theme['c-font-label']} style={styles.optionLabel}>
+        {t('setting_basic_theme')}
+      </Text>
       <View style={styles.list}>
         {themeInfo.themes.map(({ id, config }) => {
           return (
@@ -139,7 +99,6 @@ export default memo(() => {
               key={id}
               color={config.themeColors['c-theme']}
               image={config.extInfo['bg-image'] ? BG_IMAGES[config.extInfo['bg-image']] : undefined}
-              showAll={showAll}
               id={id}
               name={t(`theme_${id}`)}
               setTheme={setThemeId}
@@ -152,56 +111,44 @@ export default memo(() => {
               key={id}
               color={config.themeColors['c-theme']}
               // image={undefined}
-              showAll={showAll}
               id={id}
               name={name}
               setTheme={setThemeId}
             />
           )
         })}
-        <MoreBtn showAll={showAll} setShowAll={setShowAll} />
       </View>
-    </SubTitle>
+    </View>
   )
 })
 
-const ITEM_HEIGHT = 62
-const COLOR_ITEM_HEIGHT = 36
-const IMAGE_HEIGHT = 29
 const styles = createStyle({
+  container: {
+    paddingHorizontal: 20,
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  optionLabel: {
+    marginBottom: 8,
+  },
   list: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: 10,
-    marginTop: 5,
+    gap: 8,
   },
-  item: {
-    // marginRight: 15,
-    alignItems: 'center',
-    // marginTop: 5,
-    // backgroundColor: 'rgba(0,0,0,0.2)',
-  },
-  colorContent: {
-    height: COLOR_ITEM_HEIGHT,
-    borderRadius: 4,
-    borderWidth: 1.6,
-    alignItems: 'center',
-    justifyContent: 'center',
-    // backgroundColor: 'rgba(0,0,0,0.2)',
-  },
-  imageContent: {
-    height: IMAGE_HEIGHT,
-    borderRadius: 4,
-    // elevation: 1,
-  },
-  name: {
-    marginTop: 2,
-  },
-  moreBtn: {
-    marginLeft: 10,
+  chip: {
     flexDirection: 'row',
     alignItems: 'center',
-    // justifyContent: 'center',
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: 'rgba(128,128,128,0.15)',
+  },
+  moreBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: 8,
+    paddingVertical: 8,
   },
 })

@@ -6,7 +6,6 @@ import {
   Dimensions,
   Alert,
   Appearance,
-  PermissionsAndroid,
   AppState,
   StyleSheet,
   type ScaledSize,
@@ -80,46 +79,42 @@ export const TEMP_FILE_PATH = temporaryDirectoryPath + '/tempFile'
 //   // return windowSize
 // }
 
-export const checkStoragePermissions = async () =>
-  PermissionsAndroid.check(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE)
+// targetSdk 34 下 Scoped Storage 强制生效:
+// WRITE_EXTERNAL_STORAGE 运行时权限在 Android 11+ 永远失效,
+// 必须检测/申请 MANAGE_EXTERNAL_STORAGE(所有文件访问)特殊权限,
+// 否则绝对路径不可用, 只能退化为 SAF content:// 路径。
+const { PermissionModule } = require('react-native').NativeModules as any
 
-export const requestStoragePermission = async () => {
-  const isGranted = await checkStoragePermissions()
-  if (isGranted) return isGranted
-
+export const checkStoragePermissions = async (): Promise<boolean> => {
+  if (!isAndroid) return true
   try {
-    const granted = await PermissionsAndroid.requestMultiple(
-      [
-        PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE,
-        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
-      ]
-      // {
-      //   title: '存储读写权限申请',
-      //   message:
-      //     '洛雪音乐助手需要使用存储读写权限才能下载歌曲.',
-      //   buttonNeutral: '一会再问我',
-      //   buttonNegative: '取消',
-      //   buttonPositive: '确定',
-      // },
-    )
-    console.log(granted)
-    console.log(Object.values(granted).every((r) => r === PermissionsAndroid.RESULTS.GRANTED))
-    console.log(PermissionsAndroid.RESULTS)
-    const granteds = Object.values(granted)
-    return granteds.every((r) => r === PermissionsAndroid.RESULTS.GRANTED)
-      ? true
-      : granteds.includes(PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN)
-        ? null
-        : false
-    // if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-    //   console.log('You can use the storage')
-    // } else {
-    //   console.log('Storage permission denied')
-    // }
-  } catch (err: any) {
-    // console.warn(err)
+    // Android 10 及以下无需此特殊权限(legacy storage 可用)
+    if (Number(Platform.Version) < 30) return true
+    return await PermissionModule.hasManageExternalStoragePermission()
+  } catch {
     return false
   }
+}
+
+export const requestStoragePermission = async (): Promise<boolean> => {
+  const isGranted = await checkStoragePermissions()
+  if (isGranted) return true
+
+  try {
+    await PermissionModule.openManageExternalStorageSettings()
+  } catch {
+    return false
+  }
+  // 跳转系统设置页, 等待用户返回 App 后重新检测
+  return new Promise<boolean>((resolve) => {
+    const subscription = AppState.addEventListener('change', (state) => {
+      if (state !== 'active') return
+      subscription.remove()
+      setTimeout(() => {
+        void checkStoragePermissions().then(resolve)
+      }, 1000)
+    })
+  })
 }
 
 /**

@@ -108,7 +108,7 @@ export default memo(() => {
             style={[styles.filterChip, { backgroundColor: minSizeKB === v ? theme['c-primary'] : theme['c-primary-alpha-900'] }]}
             onPress={() => setMinSizeKB(v)}
           >
-            <Text style={{ fontSize: 12, color: minSizeKB === v ? '#fff' : theme['c-font'] }}>{v}K</Text>
+            <Text style={{ fontSize: 12, color: minSizeKB === v ? theme['c-primary-font-on-primary'] : theme['c-font'] }}>{v}K</Text>
           </TouchableOpacity>
         ))}
         <Text style={{ fontSize: 12, color: theme['c-font-label'] }}>的音频</Text>

@@ -1,5 +1,6 @@
 import {forwardRef, useCallback, useEffect, useImperativeHandle, useRef} from 'react'
 import OnlineList, { type OnlineListType, type OnlineListProps } from '@/components/OnlineList'
+import BubbleListItem from '@/components/BubbleListItem'
 import { clearListDetail, getListDetail, setListDetail, setListDetailInfo } from '@/core/songlist'
 import songlistState from '@/store/songlist/state'
 import { handlePlay } from './listAction'
@@ -206,6 +207,17 @@ export default forwardRef<MusicListType, MusicListProps>(({componentId, isCreato
                 listId={`${info.source}__${info.id}`}
                 isCreator={isCreator}
                 playingId={playingId}
+                renderItem={({ item, index, onPress, onLongPress, onShowMenu, selectedList, playingId: pid }) => (
+                  <BubbleListItem
+                    item={item}
+                    index={index}
+                    onPress={onPress}
+                    onLongPress={onLongPress}
+                    onShowMenu={onShowMenu}
+                    selectedList={selectedList}
+                    playingId={pid}
+                  />
+                )}
     />
   )
 })

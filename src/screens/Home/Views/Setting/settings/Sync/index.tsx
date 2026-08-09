@@ -121,7 +121,7 @@ export default memo(() => {
   };
 
   return (
-    <Section title={t('setting_sync')}>
+    <Section title={t('setting_sync')} bgColor='#2F293A'>
       {/* WebDAV 设置部分 */}
       <SubTitle title="WebDAV 同步">
         <CheckBoxItem

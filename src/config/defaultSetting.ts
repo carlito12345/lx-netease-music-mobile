@@ -34,7 +34,7 @@ const defaultSetting: LX.AppSetting = {
   'player.startupPushPlayDetailScreen': false,
   'player.togglePlayMethod': 'listLoop',
   'player.playQuality': '320k',
-  'player.isSavePlayTime': false,
+  'player.isSavePlayTime': true,
   'player.volume': 1,
   'player.playbackRate': 1,
   'player.cacheSize': '1024',
@@ -116,9 +116,9 @@ const defaultSetting: LX.AppSetting = {
   'sync.webdav.path': '/LX_Music/',
   'sync.webdav.lastSyncTimeLists': 0,
 
-  'theme.id': 'aurora',
-  'theme.lightId': 'green',
-  'theme.darkId': 'black',
+  'theme.id': 'pure_black',
+  'theme.lightId': 'pure_black',
+  'theme.darkId': 'pure_black',
   'theme.hideBgDark': false,
   'theme.dynamicBg': true,
   'theme.blur': 18,
@@ -154,6 +154,7 @@ const defaultSetting: LX.AppSetting = {
   // 歌词舞台/聚焦
   'playDetail.effect.lyricStage.enabled': false,
   'playDetail.effect.lyricProximity.enabled': false,
+  'playDetail.effect.lyricWheel.enabled': false,
 
   // 背景模式
   'playDetail.background.type': 'theme',

@@ -2,6 +2,7 @@ import { useImperativeHandle, forwardRef, useMemo, useRef } from 'react'
 import { View, TouchableHighlight } from 'react-native'
 
 import Modal, { type ModalType } from './Modal'
+import { BackgroundColorProvider } from '@/store/backgroundColor'
 import { Icon } from '@/components/common/Icon'
 import { useKeyboard } from '@/utils/hooks'
 import { createStyle } from '@/utils/tools'
@@ -113,6 +114,7 @@ export default forwardRef<DialogType, DialogProps>(
         bgColor="rgba(50,50,50,.3)"
         ref={modalRef}
       >
+        <BackgroundColorProvider initialMode="theme">
         <View style={{ ...styles.centeredView, paddingBottom: keyboardShown ? keyboardHeight : 0 }}>
           <View
             style={{ ...styles.modalView, height, backgroundColor: theme['c-content-background'] }}
@@ -134,6 +136,7 @@ export default forwardRef<DialogType, DialogProps>(
             {children}
           </View>
         </View>
+        </BackgroundColorProvider>
       </Modal>
     )
   }

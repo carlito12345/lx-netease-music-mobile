@@ -1,6 +1,5 @@
-import { memo, useEffect, useState, useCallback, useRef } from 'react'
-import {View, FlatList, RefreshControl, BackHandler, StyleSheet, Keyboard} from 'react-native'
-import ListItem from './ListItem'
+import { memo, useEffect, useState, useCallback, useRef, useMemo } from 'react'
+import {View, BackHandler, StyleSheet, Keyboard} from 'react-native'
 import wyApi from '@/utils/musicSdk/wy/user'
 import wyDailyRecApi from '@/utils/musicSdk/wy/dailyRec'
 import wyMusicDetailApi from '@/utils/musicSdk/wy/musicDetail'
@@ -13,6 +12,7 @@ import { useSettingValue } from '@/store/setting/hook'
 import { toast } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
 import Text from '@/components/common/Text'
+import ChromaGrid, { type ChromaGridItem } from '@/components/ChromaGrid'
 import SonglistDetail from '../../../SonglistDetail'
 import { type ListInfoItem } from '@/store/songlist/state'
 import commonState from '@/store/common/state'
@@ -20,7 +20,11 @@ import playerState from '@/store/player/state'
 import { LIST_IDS } from '@/config/constant'
 import listState from '@/store/list/state'
 import {setWySubscribedPlaylists} from "@/store/user/action.ts"
+import { type SubscribedPlaylistInfo } from "@/store/user/state"
 import MusicInfoOnline = LX.Music.MusicInfoOnline;
+
+/** 原版 ChromaGrid demo 卡片边框色板 */
+const BORDER_PALETTE = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4']
 
 export default memo(() => {
   const playlists = useWySubscribedPlaylists()
@@ -110,25 +114,25 @@ export default memo(() => {
       })
   }, [cookie, uid])
 
-  // 处理物理返回键，仅在显示详情时触发
+  // 处理物理返回键,仅在显示详情时触发
   useEffect(() => {
     const onBackPress = () => {
       // 检查当前是否正在显示歌单详情页B
       if (selectedPlaylistRef.current) {
-        // 检查是否有其他原生屏幕（如歌手/专辑详情页C）在Home屏幕之上
-        // 当只有Home屏幕时，componentIds的长度为1。
-        // 当有其他屏幕被push时，长度会大于1。
+        // 检查是否有其他原生屏幕(如歌手/专辑详情页C)在Home屏幕之上
+        // 当只有Home屏幕时,componentIds的长度为1。
+        // 当有其他屏幕被push时,长度会大于1。
         if (commonState.componentIds.length > 1) {
-          // 有其他原生屏幕在顶部，让原生导航处理返回事件
+          // 有其他原生屏幕在顶部,让原生导航处理返回事件
           return false;
         }
 
-        // 如果没有其他原生屏幕，说明这个返回操作是针对歌单详情页B的
+        // 如果没有其他原生屏幕,说明这个返回操作是针对歌单详情页B的
         setSelectedPlaylist(null);
-        return true; // 消费事件，防止退出应用
+        return true; // 消费事件,防止退出应用
       }
 
-      // 如果不在歌单详情页，则不处理返回事件
+      // 如果不在歌单详情页,则不处理返回事件
       return false;
     };
 
@@ -175,6 +179,46 @@ export default memo(() => {
     }
   }, [cookie, uid])
 
+  const handleBack = useCallback(() => {
+    setSelectedPlaylist(null)
+    setScrollToMusicInfo(null)
+  }, [])
+
+  // 将歌单数据映射为 ChromaGridItem(色板轮转,还原原版每卡一色边框)
+  // SubscribedPlaylistInfo 类型缺少 creator/playCount,实际接口返回存在,做宽化断言
+  type WyPlaylist = SubscribedPlaylistInfo & { creator?: { nickname?: string }, playCount?: number }
+  const gridItems = useMemo<ChromaGridItem[]>(() => {
+    return playlists.map((playlist: WyPlaylist, i: number) => {
+      const playlistInfo: ListInfoItem = {
+        id: String(playlist.id),
+        name: playlist.name,
+        author: playlist.creator?.nickname ?? '',
+        img: playlist.coverImgUrl,
+        play_count: playlist.playCount != null ? String(playlist.playCount) : undefined,
+        desc: playlist.description,
+        source: 'wy',
+        userId: playlist.userId,
+        total: playlist.trackCount,
+      }
+      return {
+        key: String(playlist.id),
+        image: playlist.coverImgUrl,
+        title: playlist.name,
+        subtitle: playlist.trackCount > 0 ? `${playlist.trackCount} 首` : undefined,
+        borderColor: BORDER_PALETTE[i % BORDER_PALETTE.length],
+        onPress: () => handleItemPress(playlistInfo),
+        // 只有"喜欢的音乐"歌单显示心跳按钮
+        ...(playlist.name.endsWith('喜欢的音乐') ? {
+          action: {
+            name: 'heartbeat',
+            color: theme['c-primary'],
+            onPress: () => handleHeartbeatPress(playlistInfo),
+          },
+        } : {}),
+      }
+    })
+  }, [playlists, handleItemPress, handleHeartbeatPress, theme])
+
   if (!cookie) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
@@ -183,25 +227,15 @@ export default memo(() => {
     )
   }
 
-  const handleBack = useCallback(() => {
-    setSelectedPlaylist(null)
-    setScrollToMusicInfo(null)
-  }, [])
   return (
     <View style={{ flex: 1 }}>
       <View style={[{ flex: 1 }, selectedPlaylist ? { opacity: 0 } : null]} pointerEvents={selectedPlaylist ? 'none' : 'auto'}>
-        <FlatList
-          onScrollBeginDrag={Keyboard.dismiss}
-          data={playlists}
-          renderItem={({ item }) => <ListItem item={item} onPress={handleItemPress} onHeartbeatPress={handleHeartbeatPress} />}
-          keyExtractor={item => String(item.id)}
-          refreshControl={
-            <RefreshControl
-              colors={[theme['c-primary']]}
-              refreshing={loading}
-              onRefresh={onRefresh}
-            />
-          }
+        <ChromaGrid
+          items={gridItems}
+          columns={2}
+          refreshing={loading}
+          onRefresh={onRefresh}
+          onScrollBeginDrag={() => Keyboard.dismiss()}
         />
       </View>
       {selectedPlaylist && (

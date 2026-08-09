@@ -79,7 +79,7 @@ export default memo(() => {
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.title, { color: theme['c-primary'], fontSize: setSpText(13) }]}>背景模式</Text>
+      <Text style={styles.title} size={13} color={theme['c-primary']}>背景模式</Text>
       <View style={styles.row}>
         {BG_TYPES.map(type => (
           <TouchableOpacity
@@ -87,14 +87,14 @@ export default memo(() => {
             style={[styles.chip, activeMode === type.id && { backgroundColor: theme['c-primary'] }]}
             onPress={() => handleTypeChange(type.id)}
           >
-            <Text style={{ fontSize: setSpText(12), color: activeMode === type.id ? '#fff' : theme['c-font'] }}>{type.label}</Text>
+            <Text size={12} color={activeMode === type.id ? theme['c-primary-font-on-primary'] : theme['c-font']}>{type.label}</Text>
           </TouchableOpacity>
         ))}
       </View>
 
       {activeMode === 'wallpaper' && (
         <>
-          <Text style={[styles.subLabel, { color: theme['c-font-label'], fontSize: setSpText(12) }]}>壁纸颜色</Text>
+          <Text style={styles.subLabel} size={12} color={theme['c-font-label']}>壁纸颜色</Text>
           <View style={styles.row}>
             {WALLPAPER_COLORS.map(c => (
               <TouchableOpacity
@@ -102,7 +102,7 @@ export default memo(() => {
                 style={[styles.chip, wallpaperColor === c.value && { backgroundColor: theme['c-primary'] }]}
                 onPress={() => updateSetting({ 'playDetail.effect.wallpaper.color': c.value } as any)}
               >
-                <Text style={{ fontSize: setSpText(12), color: wallpaperColor === c.value ? '#fff' : theme['c-font'] }}>{c.label}</Text>
+                <Text size={12} color={wallpaperColor === c.value ? theme['c-primary-font-on-primary'] : theme['c-font']}>{c.label}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -111,7 +111,7 @@ export default memo(() => {
 
       {activeMode === 'solid' && (
         <>
-          <Text style={[styles.subLabel, { color: theme['c-font-label'], fontSize: setSpText(12) }]}>纯色背景</Text>
+          <Text style={styles.subLabel} size={12} color={theme['c-font-label']}>纯色背景</Text>
           <View style={styles.row}>
             {SOLID_COLORS.map(c => (
               <TouchableOpacity
@@ -119,7 +119,7 @@ export default memo(() => {
                 style={[styles.chip, solidColor === c.value && { backgroundColor: theme['c-primary'] }]}
                 onPress={() => updateSetting({ 'playDetail.background.solidColor': c.value } as any)}
               >
-                <Text style={{ fontSize: setSpText(12), color: solidColor === c.value ? '#fff' : theme['c-font'] }}>{c.label}</Text>
+                <Text size={12} color={solidColor === c.value ? theme['c-primary-font-on-primary'] : theme['c-font']}>{c.label}</Text>
               </TouchableOpacity>
             ))}
           </View>

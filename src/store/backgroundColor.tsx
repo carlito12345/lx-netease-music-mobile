@@ -19,8 +19,11 @@ const BackgroundColorContext = createContext<BgContextType>({
   setTextColorMode: () => {},
 })
 
-export const BackgroundColorProvider = ({ children }: { children: ReactNode }) => {
-  const [textColorMode, setTextColorMode] = useState<TextColorMode>('theme')
+export const BackgroundColorProvider = ({
+  children,
+  initialMode = 'theme',
+}: { children: ReactNode; initialMode?: TextColorMode }) => {
+  const [textColorMode, setTextColorMode] = useState<TextColorMode>(initialMode)
 
   const value = useMemo(() => ({ textColorMode, setTextColorMode }), [textColorMode])
 

@@ -287,23 +287,15 @@ public class UtilsModule extends ReactContextBaseJavaModule {
     }
   }
 
+  // 通知权限检查: 只看应用级通知总开关
+  // 修复: 移除 channel 级 IMPORTANCE_NONE 检查 —— 只要 app 存在任一静默 channel
+  // (如不重要的通知类型), 即使用户已开启通知也会被误判为"不允许"
   // https://stackoverflow.com/a/57769424
   @ReactMethod
   public void isNotificationsEnabled(final Promise promise) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
       NotificationManager manager = (NotificationManager) reactContext.getSystemService(Context.NOTIFICATION_SERVICE);
-      if (!manager.areNotificationsEnabled()) {
-        promise.resolve(false);
-        return;
-      }
-      List<NotificationChannel> channels = manager.getNotificationChannels();
-      for (NotificationChannel channel : channels) {
-        if (channel.getImportance() == NotificationManager.IMPORTANCE_NONE) {
-          promise.resolve(false);
-          return;
-        }
-      }
-      promise.resolve(true);
+      promise.resolve(manager.areNotificationsEnabled());
     } else {
       promise.resolve(NotificationManagerCompat.from(reactContext).areNotificationsEnabled());
     }

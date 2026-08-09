@@ -13,7 +13,7 @@ export default memo(() => {
   const t = useI18n()
 
   return (
-    <Section title={t('setting_other')}>
+    <Section title={t('setting_other')} bgColor='#2F293A'>
       <ResourceCache />
       <MetaCache />
       <DislikeList />

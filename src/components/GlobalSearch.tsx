@@ -1,14 +1,11 @@
 import { memo, useRef, useState } from 'react'
-import { View, TouchableOpacity } from 'react-native'
-import Input, { type InputType } from '@/components/common/Input'
-import { Icon } from '@/components/common/Icon'
+import { View } from 'react-native'
+import BubbleSearch, { type BubbleSearchType } from '@/components/BubbleSearch'
 import { createStyle } from '@/utils/tools'
-import { useTheme } from '@/store/theme/hook'
 
 const GlobalSearch = () => {
-  const theme = useTheme()
   const [text, setText] = useState('')
-  const inputRef = useRef<InputType>(null)
+  const inputRef = useRef<BubbleSearchType>(null)
 
   const handleSearch = () => {
     const searchText = text.trim()
@@ -22,17 +19,14 @@ const GlobalSearch = () => {
 
   return (
     <View style={styles.container}>
-      <Input
+      <BubbleSearch
         ref={inputRef}
         placeholder="搜索..."
         value={text}
         onChangeText={setText}
-        onSubmitEditing={handleSearch}
-        style={{ ...styles.input, backgroundColor: theme['c-primary-input-background'] }}
+        onSubmit={handleSearch}
+        height={32}
       />
-      <TouchableOpacity style={styles.searchBtn} onPress={handleSearch}>
-        <Icon name="search-2" color={theme['c-font-label']} size={18} />
-      </TouchableOpacity>
     </View>
   )
 }
@@ -45,18 +39,6 @@ const styles = createStyle({
     justifyContent: 'flex-end',
     paddingRight: 10,
     maxWidth: 220, // 限制最大宽度
-  },
-  input: {
-    height: 32,
-    paddingRight: 30, // 为按钮留出空间
-  },
-  searchBtn: {
-    position: 'absolute',
-    right: 15,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 5,
   },
 })
 

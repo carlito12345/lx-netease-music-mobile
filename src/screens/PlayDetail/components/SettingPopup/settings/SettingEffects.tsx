@@ -16,6 +16,7 @@ export default memo(() => {
   const shinyText = useSettingValue('playDetail.effect.shinyText.enabled')
   const magicRings = useSettingValue('playDetail.effect.magicRings.enabled')
   const magicRingsRadius = useSettingValue('playDetail.effect.magicRings.radius')
+  const lyricWheel = useSettingValue('playDetail.effect.lyricWheel.enabled')
 
   return (
     <View style={styles.content}>
@@ -26,6 +27,14 @@ export default memo(() => {
           check={shinyText}
           label="歌名闪光"
           onChange={(v) => updateSetting({ 'playDetail.effect.shinyText.enabled': v })}
+        />
+      </View>
+
+      <View style={styles.listContainer}>
+        <CheckBoxItem
+          check={lyricWheel}
+          label="歌词滚轮特效(3D弧面)"
+          onChange={(v) => updateSetting({ 'playDetail.effect.lyricWheel.enabled': v })}
         />
       </View>
 
@@ -49,7 +58,7 @@ export default memo(() => {
                 ]}>
                   <Text
                     size={11}
-                    color={active ? '#fff' : theme['c-font']}
+                    color={active ? theme['c-primary-font-on-primary'] : theme['c-font']}
                     onPress={() => updateSetting({ 'playDetail.effect.magicRings.radius': v })}
                   >{v}</Text>
                 </View>

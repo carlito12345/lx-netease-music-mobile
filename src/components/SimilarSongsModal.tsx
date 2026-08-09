@@ -3,6 +3,7 @@ import { View } from 'react-native'
 
 import Popup, { type PopupType } from '@/components/common/Popup'
 import OnlineList, { type OnlineListType } from '@/components/OnlineList'
+import BubbleListItem from '@/components/BubbleListItem'
 import { playOnlineList } from '@/core/list'
 import { usePlayerMusicInfo } from '@/store/player/hook'
 import { createStyle, toast } from '@/utils/tools'
@@ -138,7 +139,18 @@ export default forwardRef<SimilarSongsModalType, {}>((props, ref) => {
           onRefresh={handleRefresh}
           onLoadMore={handleLoadMore}
           rowType="single"
-        />
+                       renderItem={({ item, index, onPress, onLongPress, onShowMenu, selectedList, playingId: pid }) => (
+                         <BubbleListItem
+                           item={item}
+                           index={index}
+                           onPress={onPress}
+                           onLongPress={onLongPress}
+                           onShowMenu={onShowMenu}
+                           selectedList={selectedList}
+                           playingId={pid}
+                         />
+                       )}
+ />
       </View>
     </Popup>
   ) : null

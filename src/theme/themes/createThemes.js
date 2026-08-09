@@ -26,6 +26,30 @@ const defaultThemes = [
     },
   },
   {
+    id: 'pure_black',
+    name: '纯黑 · 黑白对撞',
+    isDark: true,
+    config: {
+      primary: 'rgb(255, 255, 255)',
+      font: 'rgb(255, 255, 255)',
+      'c-app-background': 'rgba(0, 0, 0, 1)',
+      'c-main-background': 'rgba(0, 0, 0, 1)',
+      // 覆盖生成器灰色阶:纯黑背景(light-1000/light-600-alpha 默认是灰)
+      'c-content-background': 'rgba(0, 0, 0, 1)',
+      'c-border-background': 'rgba(255, 255, 255, 0.2)',
+      'c-primary-light-1000': 'rgba(0, 0, 0, 1)',
+      'c-primary-light-600-alpha-600': 'rgba(0, 0, 0, 0.8)',
+      'bg-image': '',
+      'bg-image-position': 'center',
+      'bg-image-size': 'cover',
+
+      'c-badge-primary': 'var(c-primary)',
+      'c-badge-secondary': 'var(c-primary-dark-200)',
+      'c-badge-tertiary': 'var(c-primary-dark-300)',
+      'c-liked': '#ef4444',
+    },
+  },
+  {
     id: 'green',
     name: '绿意盎然',
     isDark: false,
