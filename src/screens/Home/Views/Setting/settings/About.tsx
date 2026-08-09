@@ -7,6 +7,7 @@ import { createStyle, openUrl } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
 import { useI18n } from '@/lang'
 import Text from '@/components/common/Text'
+import { DESIGN } from '@/theme/design'
 
 export default memo(() => {
   const theme = useTheme()
@@ -22,7 +23,7 @@ export default memo(() => {
   } as const
 
   return (
-    <Section title={t('setting_about')} bgColor='#2F293A'>
+    <Section title={t('setting_about')} bgColor={DESIGN.cardDark2}>
       <View style={styles.part}>
         <Text style={styles.text}>本软件(LX-Netease Music简称LX-N Music)完全免费，代码已开源。开源地址：</Text>
         <TouchableOpacity onPress={openHomePage}>

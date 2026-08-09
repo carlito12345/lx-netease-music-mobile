@@ -3,9 +3,10 @@
  * 经典 / MusicFree 风格 切换, 自包含无外部依赖
  */
 import { memo, useState, useEffect } from 'react'
-import { View, TouchableOpacity } from 'react-native'
+import { View } from 'react-native'
 import { createStyle, toast } from '@/utils/tools'
 import Text from '@/components/common/Text'
+import Chip from '@/components/common/Chip'
 
 const LAYOUTS = [
   { key: 'default', label: '经典' },
@@ -23,8 +24,11 @@ export default memo(() => {
       <Text size={14} style={styles.title}>播放器布局</Text>
       <View style={styles.row}>
         {LAYOUTS.map(layout => (
-          <TouchableOpacity
+          <Chip
             key={layout.key}
+            label={layout.label}
+            active={current === layout.key}
+            size={14}
             onPress={() => {
               try {
                 require('@/plugins/layoutManager').setLayout(layout.key)
@@ -32,11 +36,7 @@ export default memo(() => {
                 toast('切换到: ' + layout.label)
               } catch {}
             }}
-            style={[styles.btn, { backgroundColor: current === layout.key ? '#5B6ABF' : 'rgba(128,128,128,0.15)' }]}
-            activeOpacity={0.7}
-          >
-            <Text size={14} color={current === layout.key ? '#fff' : undefined}>{layout.label}</Text>
-          </TouchableOpacity>
+          />
         ))}
       </View>
     </View>
@@ -47,5 +47,4 @@ const styles = createStyle({
   container: { paddingTop: 8, paddingLeft: 20, paddingRight: 20, paddingBottom: 12 },
   title: { paddingBottom: 10 },
   row: { flexDirection: 'row', gap: 10 },
-  btn: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8 },
 })

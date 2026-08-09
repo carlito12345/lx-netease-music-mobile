@@ -4,11 +4,40 @@
  */
 import type { TextColorMode } from '@/store/backgroundColor'
 
+// hex -> {r,g,b}
+const hexToRgb = (hex: string) => {
+  const m = hex.replace('#', '')
+  if (m.length === 3) {
+    return {
+      r: parseInt(m[0] + m[0], 16),
+      g: parseInt(m[1] + m[1], 16),
+      b: parseInt(m[2] + m[2], 16),
+    }
+  }
+  if (m.length === 6) {
+    return {
+      r: parseInt(m.substring(0, 2), 16),
+      g: parseInt(m.substring(2, 4), 16),
+      b: parseInt(m.substring(4, 6), 16),
+    }
+  }
+  return null
+}
+
 // 判断颜色是否为灰色系(RGB 接近相等, 排除接近纯白/纯黑)
+// 支持 rgb()/rgba()/hex 格式
 export function isGrayColor(color: string): boolean {
+  let r: number, g: number, b: number
   const m = color.match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/)
-  if (!m) return false
-  const r = parseInt(m[1]), g = parseInt(m[2]), b = parseInt(m[3])
+  if (m) {
+    r = parseInt(m[1]); g = parseInt(m[2]); b = parseInt(m[3])
+  } else if (color.startsWith('#')) {
+    const rgb = hexToRgb(color)
+    if (!rgb) return false
+    ;({ r, g, b } = rgb)
+  } else {
+    return false
+  }
   // 排除接近纯白(>240)或纯黑(<15), 这些不算灰
   const maxVal = Math.max(r, g, b)
   const minVal = Math.min(r, g, b)

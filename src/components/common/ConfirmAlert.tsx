@@ -6,6 +6,7 @@ import { createStyle } from '@/utils/tools'
 import { useI18n } from '@/lang/index'
 import { useTheme } from '@/store/theme/hook'
 import Text from './Text'
+import { DESIGN } from '@/theme/design'
 
 const styles = createStyle({
   main: {
@@ -41,7 +42,7 @@ const styles = createStyle({
     paddingLeft: 10,
     paddingRight: 10,
     alignItems: 'center',
-    borderRadius: 4,
+    borderRadius: DESIGN.radius.md,
   },
   btnDirection: {
     marginRight: 15,

@@ -10,7 +10,7 @@ import songlistState from '@/store/songlist/state'
 import { useI18n } from '@/lang'
 import { useListInfo } from './state'
 
-export default memo(({ onBack }: { onBack: () => void }) => { // 确保接收 onBack prop
+export default memo(({ onBack, onMultiSelect }: { onBack: () => void, onMultiSelect?: () => void }) => { // 确保接收 onBack prop
   const theme = useTheme()
   const t = useI18n()
   const info = useListInfo()
@@ -40,6 +40,11 @@ export default memo(({ onBack }: { onBack: () => void }) => { // 确保接收 on
       <Button onPress={onBack} style={styles.controlBtn}>
         <Text style={{ ...styles.controlBtnText, color: theme['c-button-font'] }}>{t('back')}</Text>
       </Button>
+      {onMultiSelect ? (
+        <Button onPress={onMultiSelect} style={styles.controlBtn}>
+          <Text style={{ ...styles.controlBtnText, color: theme['c-button-font'] }}>{t('multi_select')}</Text>
+        </Button>
+      ) : null}
     </View>
   )
 })
@@ -54,7 +59,7 @@ const styles = createStyle({
   controlBtn: {
     flexGrow: 1,
     flexShrink: 1,
-    width: '33%',
+    width: '25%',
     paddingTop: 12,
     paddingBottom: 12,
     paddingLeft: 10,

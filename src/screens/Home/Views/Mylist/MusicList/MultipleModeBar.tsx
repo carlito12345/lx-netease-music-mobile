@@ -6,6 +6,7 @@ import Button from '@/components/common/Button'
 import { useTheme } from '@/store/theme/hook'
 import { createStyle } from '@/utils/tools'
 import { BorderWidths } from '@/theme'
+import { DESIGN } from '@/theme/design'
 
 export type SelectMode = 'single' | 'range'
 
@@ -181,7 +182,7 @@ const styles = createStyle({
     height: 56,
     flexDirection: 'row',
     borderBottomWidth: BorderWidths.normal,
-    backgroundColor: '#1a1a2e',
+    backgroundColor: DESIGN.background.solid.deepBlue,
   },
   switchBtn: {
     flexDirection: 'row',

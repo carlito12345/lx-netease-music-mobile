@@ -1,4 +1,4 @@
-import { View } from 'react-native'
+import { View, Animated, Easing } from 'react-native'
 import { Icon } from '@/components/common/Icon'
 import { useTheme } from '@/store/theme/hook'
 // import { useIsPlay } from '@/store/player/hook'
@@ -7,8 +7,10 @@ import { useIsPlay } from '@/store/player/hook'
 import { createStyle } from '@/utils/tools'
 import { useWindowSize } from '@/utils/hooks'
 import { BTN_WIDTH } from './MoreBtn/Btn'
-import { useMemo } from 'react'
+import { useMemo, useRef, useEffect } from 'react'
 import EffectControlButton from '@/components/common/EffectControlButton'
+import MagicRings from '@/components/common/MagicRings'
+import { useSettingValue } from '@/store/setting/hook'
 
 const PrevBtn = ({ size }: { size: number }) => {
   const theme = useTheme()
@@ -47,14 +49,35 @@ const TogglePlayBtn = ({ size }: { size: number }) => {
   const theme = useTheme()
   const activeColor = theme.isDark ? theme['c-font'] : theme['c-primary'];
   const isPlay = useIsPlay()
+  const magicRingsEnabled = useSettingValue('playDetail.effect.magicRings.enabled')
+  // 播放/暂停切换动画: 缩放回弹 + 切换瞬间旋转90度再回位(静止时图标方向始终正确)
+  const anim = useRef(new Animated.Value(1)).current
+  useEffect(() => {
+    anim.setValue(0)
+    Animated.timing(anim, {
+      toValue: 1,
+      duration: 260,
+      easing: Easing.out(Easing.back(1.6)),
+      useNativeDriver: true,
+    }).start()
+  }, [isPlay, anim])
+
+  const scale = anim.interpolate({ inputRange: [0, 0.4, 1], outputRange: [0.5, 1.15, 1] })
+  const rotate = anim.interpolate({ inputRange: [0, 0.3, 1], outputRange: ['0deg', '90deg', '0deg'] })
+
   return (
-    <EffectControlButton
-      icon={isPlay ? 'pause' : 'play'}
-      size={size}
+    <MagicRings
+      enabled={magicRingsEnabled}
       color={activeColor}
+      radius={size * 0.55}
       onPress={togglePlay}
-      style={styles.cotrolBtn}
-    />
+      style={{ ...styles.cotrolBtn, width: size, height: size }}
+      activeOpacity={0.5}
+    >
+      <Animated.View style={{ transform: [{ scale }, { rotate }] }}>
+        <Icon name={isPlay ? 'pause' : 'play'} color={activeColor} rawSize={size * 0.7} />
+      </Animated.View>
+    </MagicRings>
   )
 }
 

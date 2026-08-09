@@ -10,6 +10,8 @@
       tools:ignore="ScopedStorage" />
     <!-- 通知权限 (Android 13+) -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- 触觉反馈(进度条拖动震动) -->
+    <uses-permission android:name="android.permission.VIBRATE" />
     <!-- 开机自启动 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.INTERNET" />

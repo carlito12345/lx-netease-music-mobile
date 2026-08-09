@@ -11,6 +11,7 @@ import { useVersionDownloadProgressUpdated, useVersionInfo } from '@/store/versi
 import Text from '@/components/common/Text'
 import { checkUpdate, showModal } from '@/core/version'
 import IsAutoCheckUpdate from "@/screens/Home/Views/Setting/settings/Version/IsAutoCheckUpdate.tsx";
+import { DESIGN } from '@/theme/design'
 
 const currentVer = process.versions.app
 export default memo(() => {
@@ -69,7 +70,7 @@ export default memo(() => {
   }, [t, versionInfo, progress])
 
   return (
-    <Section title={t('setting_version')} bgColor='#2F293A'>
+    <Section title={t('setting_version')} bgColor={DESIGN.cardDark2}>
       <SubTitle title={title}>
         <View style={styles.desc}>
           <Text size={14}>

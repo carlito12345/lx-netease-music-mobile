@@ -99,9 +99,8 @@ export default forwardRef<MultipleModeBarType, MultipleModeBarProps>(
       () => ({
         ...styles.container,
         height: MULTI_SELECT_BAR_HEIGHT,
-        // backgroundColor: theme['c-content-background'],
+        backgroundColor: theme['c-content-background'],
         borderBottomColor: theme['c-border-background'],
-        opacity: animFade, // Bind opacity to animated value
         transform: [{ translateY: animTranslateY }],
       }),
       [animFade, animTranslateY, theme]

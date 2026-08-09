@@ -23,6 +23,7 @@ import {
   manualDownloadLists,
 } from '@/core/sync/webdavSync';
 import IsEnable from "@/screens/Home/Views/Setting/settings/Sync/IsEnable.tsx";
+import { DESIGN } from '@/theme/design'
 
 export default memo(() => {
   const t = useI18n();
@@ -121,7 +122,7 @@ export default memo(() => {
   };
 
   return (
-    <Section title={t('setting_sync')} bgColor='#2F293A'>
+    <Section title={t('setting_sync')} bgColor={DESIGN.cardDark2}>
       {/* WebDAV 设置部分 */}
       <SubTitle title="WebDAV 同步">
         <CheckBoxItem

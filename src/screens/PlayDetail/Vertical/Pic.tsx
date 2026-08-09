@@ -10,6 +10,8 @@ import { useStatusbarHeight } from '@/store/common/hook';
 import { useSettingValue } from '@/store/setting/hook';
 import { useTheme } from '@/store/theme/hook';
 import { CoverEffects } from '@/components/common/CoverEffects';
+import { VinylPlayer } from '@/components/common/VinylPlayer';
+import { VinylGrooves } from '@/components/common/VinylPlayer/Grooves';
 import { createStyle, toast, requestStoragePermission } from '@/utils/tools';
 import Menu, { type MenuType, type Menus } from '@/components/common/Menu';
 import { addTask } from '@/core/download';
@@ -188,23 +190,28 @@ export default memo(({ componentId }: { componentId: string }) => {
     <View style={styles.container}>
       <TouchableWithoutFeedback onLongPress={handleLongPress}>
         <View ref={coverRef} style={[styles.content, { opacity: coverStyle === 'hidden' ? 0 : 1 }]}>
-          <CoverEffects imgWidth={imgWidth}>
-            <Animated.View style={{ transform: [{ rotate: spin }] }}>
-              <View style={{
-                width: ringSize, height: ringSize, borderRadius: ringSize / 2,
-                borderWidth: coverStyle === 'vinyl' ? 3 : 1,
-                borderColor: coverStyle === 'vinyl' ? theme['c-primary-alpha-600'] : theme['c-primary-alpha-400'],
-                justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent',
-              }}>
-                <Image
-                  url={playerState.musicInfo.pic || (musicInfo.musicInfo as LX.Music.MusicInfo)?.meta?.picUrl}
-                  nativeID={NAV_SHEAR_NATIVE_IDS.playDetail_pic}
-                  style={imageStyle}
-                />
-                {vinylHole}
-              </View>
-            </Animated.View>
-          </CoverEffects>
+          <View style={{ position: 'relative' }}>
+            <CoverEffects imgWidth={imgWidth}>
+              <Animated.View style={{ transform: [{ rotate: spin }] }}>
+                <View style={{
+                  width: ringSize, height: ringSize, borderRadius: ringSize / 2,
+                  borderWidth: coverStyle === 'vinyl' ? 3 : 1,
+                  borderColor: coverStyle === 'vinyl' ? theme['c-primary-alpha-600'] : theme['c-primary-alpha-400'],
+                  justifyContent: 'center', alignItems: 'center', backgroundColor: 'transparent',
+                }}>
+                  <Image
+                    url={playerState.musicInfo.pic || (musicInfo.musicInfo as LX.Music.MusicInfo)?.meta?.picUrl}
+                    nativeID={NAV_SHEAR_NATIVE_IDS.playDetail_pic}
+                    style={imageStyle}
+                  />
+                  {coverStyle === 'vinyl' && <VinylGrooves size={imgWidth} />}
+                  {vinylHole}
+                </View>
+              </Animated.View>
+            </CoverEffects>
+            {/* 黑胶唱片机唱臂(仅黑胶样式) */}
+            <VinylPlayer discSize={ringSize} visible={coverStyle === 'vinyl'} />
+          </View>
         </View>
       </TouchableWithoutFeedback>
       {menuVisible && <Menu ref={menuRef} menus={menus} onPress={handleMenuPress} onHide={() => setMenuVisible(false)} />}

@@ -31,15 +31,47 @@ export interface TextProps extends _TextProps {
 //   }
 // }
 
+// 从 style 中提取 color(兼容对象/数组)
+const extractStyleColor = (style: any): string | undefined => {
+  if (Array.isArray(style)) {
+    for (const s of style) {
+      const c = extractStyleColor(s)
+      if (c) return c
+    }
+    return undefined
+  }
+  if (style && typeof style === 'object') {
+    return (style as TextStyle).color as string | undefined
+  }
+  return undefined
+}
+
 export default memo(({ style, size = 15, color, children, ...props }: TextProps) => {
   const theme = useTheme()
   const textShadow = useTextShadow()
   const { textColorMode } = useBackgroundColor()
   // 文字色: 根据背景模式针对性
   const adaptiveColor = getTextColorByMode(textColorMode, theme.isDark)
-  const resolvedColor = color == null
+  // 统一语言: style 内的灰色系 color 也做自适应替换(与 color prop 一致)
+  // 先移除 style 里的灰色系 color, 让下方 base 的自适应色生效
+  const needStripStyleColor = color == null && (() => {
+    const styleColor = extractStyleColor(style)
+    return typeof styleColor === 'string' && isGrayColor(styleColor)
+  })()
+  let resolvedColor = color == null
     ? adaptiveColor
     : (typeof color === 'string' && isGrayColor(color) ? adaptiveColor : color)
+  if (needStripStyleColor) {
+    const stripColor = (st: any): any => {
+      if (Array.isArray(st)) return st.map(stripColor).filter(Boolean)
+      if (st && typeof st === 'object') {
+        const { color: _c, ...rest } = st
+        return Object.keys(rest).length ? rest : undefined
+      }
+      return st
+    }
+    style = stripColor(style) as any
+  }
   style = StyleSheet.compose(textShadow ? {
     // fontFamily: 'System',
     textShadowColor: theme['c-primary-dark-300-alpha-800'],

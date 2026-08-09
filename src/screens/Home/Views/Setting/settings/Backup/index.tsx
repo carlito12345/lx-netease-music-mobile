@@ -3,13 +3,14 @@ import { memo } from 'react'
 
 import Section from '../../components/Section'
 import Part from './Part'
+import { DESIGN } from '@/theme/design'
 // import MaxCache from './MaxCache'
 
 export default memo(() => {
   const t = useI18n()
 
   return (
-    <Section title={t('setting_backup')} bgColor='#2F293A'>
+    <Section title={t('setting_backup')} bgColor={DESIGN.cardDark2}>
       <Part />
       {/* <MaxCache /> */}
     </Section>

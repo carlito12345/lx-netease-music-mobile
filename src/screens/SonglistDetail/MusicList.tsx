@@ -21,6 +21,8 @@ export interface MusicListProps {
 export interface MusicListType {
   loadList: (source: LX.OnlineSource, listId: string, isRefresh?: boolean) => Promise<DetailInfo>
   scrollToInfo: (info: LX.Music.MusicInfoOnline) => void
+  /** 进入多选模式 */
+  enterMultiSelect: () => void
 }
 
 export default forwardRef<MusicListType, MusicListProps>(({componentId, isCreator, playingId }, ref) => {
@@ -140,6 +142,9 @@ export default forwardRef<MusicListType, MusicListProps>(({componentId, isCreato
             }
           })
         }
+      },
+      enterMultiSelect() {
+        listRef.current?.enterMultiSelect()
       },
     }),
     [info.source, info.id],

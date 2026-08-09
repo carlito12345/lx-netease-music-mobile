@@ -4,7 +4,7 @@
  * 样式跟随 app 主题, 文字大小跟随 setSpText
  */
 import { memo } from 'react'
-import { View, TouchableOpacity } from 'react-native'
+import { View } from 'react-native'
 import { createStyle } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
 import Text from '@/components/common/Text'
@@ -12,6 +12,7 @@ import { updateSetting } from '@/core/common'
 import { useSettingValue } from '@/store/setting/hook'
 import CheckBoxItem from '@/screens/Home/Views/Setting/components/CheckBoxItem'
 import { setSpText } from '@/utils/pixelRatio'
+import Chip from '@/components/common/Chip'
 import { GRADIENT_PRESETS } from '@/components/common/GradientText'
 
 // 星空粒子数量选项
@@ -57,15 +58,12 @@ export default memo(() => {
             {PARTICLE_COUNTS.map(item => {
               const active = starCount === item.value
               return (
-                <TouchableOpacity
+                <Chip
                   key={item.value}
+                  label={item.label}
+                  active={active}
                   onPress={() => updateSetting({ 'playDetail.effect.starfield.particleCount': item.value })}
-                  style={[styles.chip, { backgroundColor: active ? theme['c-primary'] : theme['c-primary-alpha-900'] }]}
-                >
-                  <Text size={12} color={active ? theme['c-primary-font-on-primary'] : theme['c-font']}>
-                    {item.label}
-                  </Text>
-                </TouchableOpacity>
+                />
               )
             })}
           </View>
@@ -92,15 +90,12 @@ export default memo(() => {
             ].map(item => {
               const active = wallpaperColor === item.value
               return (
-                <TouchableOpacity
+                <Chip
                   key={item.value}
+                  label={item.label}
+                  active={active}
                   onPress={() => updateSetting({ 'playDetail.effect.wallpaper.color': item.value })}
-                  style={[styles.chip, { backgroundColor: active ? theme['c-primary'] : theme['c-primary-alpha-900'] }]}
-                >
-                  <Text size={12} color={active ? theme['c-primary-font-on-primary'] : theme['c-font']}>
-                    {item.label}
-                  </Text>
-                </TouchableOpacity>
+                />
               )
             })}
           </View>
@@ -142,15 +137,12 @@ export default memo(() => {
             {Object.entries(GRADIENT_PRESETS).map(([key, preset]) => {
               const active = lyricGradientPreset === key
               return (
-                <TouchableOpacity
+                <Chip
                   key={key}
+                  label={preset.name}
+                  active={active}
                   onPress={() => updateSetting({ 'playDetail.effect.lyricGradient.preset': key })}
-                  style={[styles.chip, { backgroundColor: active ? theme['c-primary'] : theme['c-primary-alpha-900'] }]}
-                >
-                  <Text size={12} color={active ? theme['c-primary-font-on-primary'] : theme['c-font']}>
-                    {preset.name}
-                  </Text>
-                </TouchableOpacity>
+                />
               )
             })}
           </View>

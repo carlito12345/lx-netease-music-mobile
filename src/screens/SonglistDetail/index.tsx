@@ -29,7 +29,7 @@ import MusicInfoOnline = LX.Music.MusicInfoOnline
 
 const IMAGE_WIDTH = scaleSizeW(70)
 
-const ListHeader = ({ detailInfo, info, onBack }: { detailInfo: DetailInfo, info: ListInfoItem, onBack: () => void }) => {
+const ListHeader = ({ detailInfo, info, onBack, onMultiSelect }: { detailInfo: DetailInfo, info: ListInfoItem, onBack: () => void, onMultiSelect?: () => void }) => {
   const theme = useTheme()
   const loggedInUserId = useWyUid()
   const isSubscribed = useIsWyPlaylistSubscribed(info.id)
@@ -143,7 +143,7 @@ const ListHeader = ({ detailInfo, info, onBack }: { detailInfo: DetailInfo, info
             </View>
           </View>
         </View>
-        <ActionBar onBack={onBack} />
+        <ActionBar onBack={onBack} onMultiSelect={onMultiSelect} />
       </View>
       {isCreator && isMenuVisible && (
         <Menu
@@ -260,7 +260,11 @@ export default ({ info, onBack, initialScrollToInfo }: { info: ListInfoItem, onB
     }
   }, [detailInfo.total, initialScrollToInfo])
 
-  const ListHeaderComponent = useMemo(() => <ListHeader detailInfo={detailInfo} info={info} onBack={handleBack} />, [detailInfo, info, handleBack])
+  const handleMultiSelect = useCallback(() => {
+    musicListRef.current?.enterMultiSelect()
+  }, [])
+
+  const ListHeaderComponent = useMemo(() => <ListHeader detailInfo={detailInfo} info={info} onBack={handleBack} onMultiSelect={handleMultiSelect} />, [detailInfo, info, handleBack, handleMultiSelect])
 
   const isCreator = useMemo(() => {
     return info.source === 'wy' &&

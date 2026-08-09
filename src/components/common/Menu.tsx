@@ -7,6 +7,8 @@ import Modal, { type ModalType } from './Modal'
 import { createStyle } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
 import Text from './Text'
+import { BackgroundColorProvider } from '@/store/backgroundColor'
+import { DESIGN } from '@/theme/design'
 import { scaleSizeH, scaleSizeW } from '@/utils/pixelRatio'
 
 const menuItemHeight = scaleSizeH(40)
@@ -39,10 +41,10 @@ const styles = createStyle({
   menu: {
     position: 'absolute',
     // borderWidth: StyleSheet.hairlineWidth,
-    borderColor: 'lightgray',
-    borderRadius: 2,
-    backgroundColor: 'white',
-    elevation: 3,
+    borderColor: DESIGN.separator,
+    borderRadius: DESIGN.radius.md,
+    backgroundColor: DESIGN.cardDark,
+    elevation: 6,
   },
   menuItem: {
     paddingLeft: 10,
@@ -138,10 +140,11 @@ const Menu = ({
   // console.log(menuStyle)
   // console.log(menuItemStyle)
   return (
-    <View
-      style={{ ...styles.menu, ...menuStyle, backgroundColor: theme['c-content-background'] }}
-      onStartShouldSetResponder={() => true}
-    >
+    <BackgroundColorProvider initialMode="white">
+      <View
+        style={{ ...styles.menu, ...menuStyle, backgroundColor: DESIGN.cardDark }}
+        onStartShouldSetResponder={() => true}
+      >
       <Animated.ScrollView keyboardShouldPersistTaps={'always'}>
         {menus.map((menu, index) =>
           menu.disabled ? (
@@ -204,7 +207,8 @@ const Menu = ({
           )
         )}
       </Animated.ScrollView>
-    </View>
+      </View>
+    </BackgroundColorProvider>
   )
 }
 

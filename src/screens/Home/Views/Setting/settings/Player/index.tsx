@@ -13,6 +13,7 @@ import IsShowLyricRoma from './IsShowLyricRoma'
 import IsS2T from './IsS2T'
 import MaxCache from './MaxCache'
 import { useI18n } from '@/lang'
+import { DESIGN } from '@/theme/design'
 
 export default memo(() => {
   const t = useI18n()
@@ -20,20 +21,20 @@ export default memo(() => {
   return (
     <>
       {/* 播放行为 */}
-      <Section title={t('setting_player')} bgColor='#1B1722'>
+      <Section title={t('setting_player')} bgColor={DESIGN.cardDark}>
         <IsSavePlayTime />
         <IsAutoCleanPlayedList />
         <IsHandleAudioFocus />
       </Section>
 
       {/* 音频 */}
-      <Section title={t('setting_player_audio')} bgColor='#2F293A'>
+      <Section title={t('setting_player_audio')} bgColor={DESIGN.cardDark2}>
         <IsEnableAudioOffload />
         <IsShowNotificationImage />
       </Section>
 
       {/* 歌词 */}
-      <Section title={t('setting_player_lyric')} bgColor='#2F293A'>
+      <Section title={t('setting_player_lyric')} bgColor={DESIGN.cardDark2}>
         <IsShowBluetoothLyric />
         <IsShowLyricTranslation />
         <IsShowLyricRoma />
@@ -41,7 +42,7 @@ export default memo(() => {
       </Section>
 
       {/* 缓存与音质 */}
-      <Section title={t('setting_player_cache_quality')} bgColor='#2F293A'>
+      <Section title={t('setting_player_cache_quality')} bgColor={DESIGN.cardDark2}>
         <MaxCache />
         <PlayHighQuality />
       </Section>

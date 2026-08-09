@@ -10,12 +10,13 @@ import IsShowMyListSubMenu from './IsShowMyListSubMenu';
 
 import { useI18n } from '@/lang'
 import MenuSettings from "@/screens/Home/Views/Setting/settings/List/MenuSettings.tsx";
+import { DESIGN } from '@/theme/design'
 
 export default memo(() => {
   const t = useI18n()
 
   return (
-    <Section title={t('setting_list')} bgColor='#2F293A'>
+    <Section title={t('setting_list')} bgColor={DESIGN.cardDark2}>
       <IsClickPlayList />
       <IsShowAlbumName />
       <IsShowInterval />

@@ -4,13 +4,15 @@
  * 规范: 留空不贴边, 居左对齐
  */
 import { memo, useCallback } from 'react'
-import { View, TouchableOpacity } from 'react-native'
+import { View } from 'react-native'
 import { createStyle } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
 import { useSettingValue } from '@/store/setting/hook'
 import Text from '@/components/common/Text'
 import { updateSetting } from '@/core/common'
 import { setSpText } from '@/utils/pixelRatio'
+import Chip from '@/components/common/Chip'
+import { DESIGN } from '@/theme/design'
 
 const BG_TYPES = [
   { id: 'theme', label: '主题' },
@@ -21,14 +23,14 @@ const BG_TYPES = [
 ] as const
 
 const SOLID_COLORS = [
-  { label: '深蓝', value: '#1a1a2e' },
-  { label: '深空黑', value: '#0d1117' },
-  { label: '暗夜紫', value: '#1a0d2e' },
-  { label: '墨绿', value: '#0d2818' },
-  { label: '酒红', value: '#2e0d1a' },
-  { label: '深灰', value: '#1c1c1c' },
-  { label: '午夜蓝', value: '#0d1b2a' },
-  { label: '炭黑', value: '#121212' },
+  { label: '深蓝', value: DESIGN.background.solid.deepBlue },
+  { label: '深空黑', value: DESIGN.background.solid.deepSpace },
+  { label: '暗夜紫', value: DESIGN.background.solid.darkPurple },
+  { label: '墨绿', value: DESIGN.background.solid.darkGreen },
+  { label: '酒红', value: DESIGN.background.solid.wineRed },
+  { label: '深灰', value: DESIGN.background.solid.darkGray },
+  { label: '午夜蓝', value: DESIGN.background.solid.midnightBlue },
+  { label: '炭黑', value: DESIGN.background.solid.charcoal },
 ] as const
 
 const WALLPAPER_COLORS = [
@@ -82,13 +84,12 @@ export default memo(() => {
       <Text style={styles.title} size={13} color={theme['c-primary']}>背景模式</Text>
       <View style={styles.row}>
         {BG_TYPES.map(type => (
-          <TouchableOpacity
+          <Chip
             key={type.id}
-            style={[styles.chip, activeMode === type.id && { backgroundColor: theme['c-primary'] }]}
+            label={type.label}
+            active={activeMode === type.id}
             onPress={() => handleTypeChange(type.id)}
-          >
-            <Text size={12} color={activeMode === type.id ? theme['c-primary-font-on-primary'] : theme['c-font']}>{type.label}</Text>
-          </TouchableOpacity>
+          />
         ))}
       </View>
 
@@ -97,13 +98,12 @@ export default memo(() => {
           <Text style={styles.subLabel} size={12} color={theme['c-font-label']}>壁纸颜色</Text>
           <View style={styles.row}>
             {WALLPAPER_COLORS.map(c => (
-              <TouchableOpacity
+              <Chip
                 key={c.value}
-                style={[styles.chip, wallpaperColor === c.value && { backgroundColor: theme['c-primary'] }]}
+                label={c.label}
+                active={wallpaperColor === c.value}
                 onPress={() => updateSetting({ 'playDetail.effect.wallpaper.color': c.value } as any)}
-              >
-                <Text size={12} color={wallpaperColor === c.value ? theme['c-primary-font-on-primary'] : theme['c-font']}>{c.label}</Text>
-              </TouchableOpacity>
+              />
             ))}
           </View>
         </>
@@ -114,13 +114,12 @@ export default memo(() => {
           <Text style={styles.subLabel} size={12} color={theme['c-font-label']}>纯色背景</Text>
           <View style={styles.row}>
             {SOLID_COLORS.map(c => (
-              <TouchableOpacity
+              <Chip
                 key={c.value}
-                style={[styles.chip, solidColor === c.value && { backgroundColor: theme['c-primary'] }]}
+                label={c.label}
+                active={solidColor === c.value}
                 onPress={() => updateSetting({ 'playDetail.background.solidColor': c.value } as any)}
-              >
-                <Text size={12} color={solidColor === c.value ? theme['c-primary-font-on-primary'] : theme['c-font']}>{c.label}</Text>
-              </TouchableOpacity>
+              />
             ))}
           </View>
         </>

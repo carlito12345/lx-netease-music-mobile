@@ -8,12 +8,13 @@ import Log from './Log'
 import Permission from './Permission'
 // import MaxCache from './MaxCache'
 import { useI18n } from '@/lang'
+import { DESIGN } from '@/theme/design'
 
 export default memo(() => {
   const t = useI18n()
 
   return (
-    <Section title={t('setting_other')} bgColor='#2F293A'>
+    <Section title={t('setting_other')} bgColor={DESIGN.cardDark2}>
       <ResourceCache />
       <MetaCache />
       <DislikeList />

@@ -1,5 +1,5 @@
 import { memo, useCallback, useEffect, useMemo, useState } from 'react'
-import { View, TouchableOpacity, type ImageSourcePropType } from 'react-native'
+import { View, type ImageSourcePropType } from 'react-native'
 import { setTheme } from '@/core/theme'
 import { useI18n } from '@/lang'
 import { useSettingValue } from '@/store/setting/hook'
@@ -12,6 +12,7 @@ import { createStyle } from '@/utils/tools'
 import { scaleSizeH } from '@/utils/pixelRatio'
 import { Icon } from '@/components/common/Icon'
 import ImageBackground from '@/components/common/ImageBackground'
+import Chip from '@/components/common/Chip'
 
 const useActive = (id: string) => {
   const activeThemeId = useSettingValue('theme.id')
@@ -36,34 +37,23 @@ const ThemeItem = ({
   const isActive = useActive(id)
 
   return (
-    <TouchableOpacity
-      style={[
-        styles.chip,
-        { backgroundColor: isActive ? theme['c-primary'] : 'rgba(128,128,128,0.12)' },
-      ]}
-      activeOpacity={0.6}
-      onPress={() => {
-        setTheme(id)
-      }}
-    >
-      {/* 色点 */}
-      <View
-        style={{
-          width: 14,
-          height: 14,
-          borderRadius: 7,
-          backgroundColor: color,
-          marginRight: 6,
-        }}
-      />
-      <Text
-        size={11}
-        color={isActive ? theme['c-primary-font-on-primary'] : theme['c-font']}
-        numberOfLines={1}
-      >
-        {name}
-      </Text>
-    </TouchableOpacity>
+    <Chip
+      label={name}
+      active={isActive}
+      onPress={() => setTheme(id)}
+      size={11}
+      leading={
+        <View
+          style={{
+            width: 14,
+            height: 14,
+            borderRadius: 7,
+            backgroundColor: color,
+            marginRight: 6,
+          }}
+        />
+      }
+    />
   )
 }
 

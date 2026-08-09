@@ -78,13 +78,28 @@ interface IconProps extends Omit<ComponentProps<IconType>, 'style'> {
   rawSize?: number
 }
 
+// 从 style 中提取 color(兼容 style={{ color }} 与 style={[..., {color}]})
+const extractStyleColor = (style: any): string | undefined => {
+  if (Array.isArray(style)) {
+    for (const s of style) {
+      const c = extractStyleColor(s)
+      if (c) return c
+    }
+    return undefined
+  }
+  if (style && typeof style === 'object') {
+    return (style as TextStyle).color as string | undefined
+  }
+  return undefined
+}
+
 export const Icon = memo(({ size = 15, rawSize, color, style, name, ...props }: IconProps) => {
   const theme = useTheme()
   const textShadow = useTextShadow()
   const { textColorMode } = useBackgroundColor()
   const adaptiveColor = getTextColorByMode(textColorMode, theme.isDark)
   const materialName = ICON_MAP[name as string] || name
-  const newStyle = textShadow
+  let newStyle = textShadow
     ? StyleSheet.compose(
         {
           textShadowColor: theme['c-primary-dark-300-alpha-800'],
@@ -94,13 +109,33 @@ export const Icon = memo(({ size = 15, rawSize, color, style, name, ...props }: 
         style
       )
     : style
+
+  // 统一语言: style 内的灰色系 color 也做自适应替换(与 color prop 一致)
+  let resolvedColor = color == null
+    ? adaptiveColor
+    : (typeof color === 'string' && isGrayColor(color) ? adaptiveColor : color)
+  if (color == null) {
+    const styleColor = extractStyleColor(newStyle)
+    if (typeof styleColor === 'string' && isGrayColor(styleColor)) {
+      resolvedColor = adaptiveColor
+      // 移除 style 中的灰色系 color, 避免覆盖 prop 的自适应色
+      const stripColor = (st: any): any => {
+        if (Array.isArray(st)) return st.map(stripColor).filter(Boolean)
+        if (st && typeof st === 'object') {
+          const { color: _c, ...rest } = st
+          return Object.keys(rest).length ? rest : undefined
+        }
+        return st
+      }
+      newStyle = stripColor(newStyle) as any
+    }
+  }
+
   return (
     <MaterialIcons
       name={materialName}
       size={rawSize ?? scaleSizeW(size)}
-      color={color == null
-        ? adaptiveColor
-        : (typeof color === 'string' && isGrayColor(color) ? adaptiveColor : color)}
+      color={resolvedColor}
       style={newStyle as any}
       {...props}
     />

@@ -10,6 +10,7 @@ import { useTheme } from '@/store/theme/hook'
 import { useSettingValue } from '@/store/setting/hook'
 import { usePlayMusicInfo } from '@/store/player/hook'
 import { useBackgroundColor } from '@/store/backgroundColor'
+import { DESIGN } from '@/theme/design'
 
 export const PlayDetailBackground = memo(() => {
   const theme = useTheme()
@@ -22,7 +23,7 @@ export const PlayDetailBackground = memo(() => {
   const wallpaperEnabled = useSettingValue('playDetail.effect.wallpaper.enabled')
 
   // 封面主色降级: 无 PaletteModule, 用深色兜底
-  const dominantColor = '#1a1a2e'
+  const dominantColor = DESIGN.background.fallbackCover
 
   const backgroundColor = useMemo(() => {
     if (wallpaperEnabled) return 'transparent'

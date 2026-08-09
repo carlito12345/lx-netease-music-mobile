@@ -48,6 +48,7 @@ import { windowSizeTools } from '@/utils/windowSizeTools'
 import { SvgIcon } from '@/components/common/SvgIcon'
 import { Icon } from '@/components/common/Icon'
 import PlayingIcon from '@/components/common/PlayingIcon'
+import { DESIGN } from '@/theme/design'
 
 /* ------------------------------------------------------------------ */
 /*  Types                                                              */
@@ -543,7 +544,7 @@ const styles = createStyle({
   },
   grayOverlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: '#808080',
+    backgroundColor: DESIGN.chipBgActive,
     zIndex: 3,
   },
   imageWrapper: {

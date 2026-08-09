@@ -1,5 +1,5 @@
 import {useMemo, useRef, useState, forwardRef, useImperativeHandle, useEffect} from 'react'
-import {FlatList, type FlatListProps, Keyboard, RefreshControl, View} from 'react-native'
+import {FlatList, type FlatListProps, Keyboard, RefreshControl, View, Dimensions} from 'react-native'
 import ListItem, { ITEM_HEIGHT } from './ListItem'
 import { createStyle, getRowInfo, type RowInfoType } from '@/utils/tools'
 import type { Position } from './ListMenu'
@@ -9,6 +9,7 @@ import settingState from '@/store/setting/state'
 import { MULTI_SELECT_BAR_HEIGHT } from './MultipleModeBar'
 import { useI18n } from '@/lang'
 import Text from '@/components/common/Text'
+import { ListRowSkeleton } from '@/components/common/Skeleton'
 import { handlePlay } from './listAction'
 import { useSettingValue } from '@/store/setting/hook'
 
@@ -219,9 +220,14 @@ const List = forwardRef<ListType, ListProps>(
 
     const handleLongPress = (item: LX.Music.MusicInfoOnline, index: number) => {
       if (isMultiSelectModeRef.current) return
-      prevSelectIndexRef.current = index
-      handleUpdateSelectedList([item])
-      onMuiltSelectMode()
+      // 车机友好: 长按直接弹快捷菜单(与更多按钮同菜单), 屏幕居中显示
+      const { width, height } = Dimensions.get('window')
+      onShowMenu(item, index, {
+        x: Math.round(width / 2),
+        y: Math.round(height / 2),
+        w: 0,
+        h: 0,
+      })
     }
 
     const handleLoadMore = () => {
@@ -304,6 +310,14 @@ const List = forwardRef<ListType, ListProps>(
 
     const handleScrollBeginDrag = () => {
       if (listId !== 'search') Keyboard.dismiss()
+    }
+
+    if (status == 'loading' && currentList.length == 0) {
+      return (
+        <View style={{ flex: 1 }}>
+          <ListRowSkeleton rows={10} />
+        </View>
+      )
     }
 
     return (

@@ -4,13 +4,14 @@
  * 规范: 留空不贴边, 居左对齐
  */
 import { memo, useCallback } from 'react'
-import { View, TouchableOpacity } from 'react-native'
+import { View } from 'react-native'
 import { createStyle } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
 import { useSettingValue } from '@/store/setting/hook'
 import Text from '@/components/common/Text'
 import { updateSetting } from '@/core/common'
 import { setSpText } from '@/utils/pixelRatio'
+import Chip from '@/components/common/Chip'
 
 const COVER_STYLES = [
   { id: 'circle', label: '圆形' },
@@ -56,26 +57,24 @@ export default memo(() => {
       <Text style={styles.title} size={13} color={theme['c-primary']}>封面样式</Text>
       <View style={styles.row}>
         {COVER_STYLES.map(s => (
-          <TouchableOpacity
+          <Chip
             key={s.id}
-            style={[styles.chip, coverStyle === s.id && { backgroundColor: theme['c-primary'] }]}
+            label={s.label}
+            active={coverStyle === s.id}
             onPress={() => handleStyleChange(s.id)}
-          >
-            <Text size={12} color={coverStyle === s.id ? theme['c-primary-font-on-primary'] : theme['c-font']}>{s.label}</Text>
-          </TouchableOpacity>
+          />
         ))}
       </View>
 
       <Text style={styles.title} size={13} color={theme['c-primary']}>特效开关</Text>
       <View style={styles.row}>
         {EFFECTS.map(e => (
-          <TouchableOpacity
+          <Chip
             key={e.key}
-            style={[styles.chip, effects[e.key as keyof typeof effects] && { backgroundColor: theme['c-primary'] }]}
+            label={e.label}
+            active={effects[e.key as keyof typeof effects]}
             onPress={() => handleEffectToggle(e.key)}
-          >
-            <Text size={12} color={effects[e.key as keyof typeof effects] ? theme['c-primary-font-on-primary'] : theme['c-font']}>{e.label}</Text>
-          </TouchableOpacity>
+          />
         ))}
       </View>
     </View>

@@ -1,10 +1,11 @@
 import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { View, PanResponder } from 'react-native'
+import { View, PanResponder, Vibration } from 'react-native'
 import { createStyle } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
 import { scaleSizeW, scaleSizeH } from '@/utils/pixelRatio'
 import { useDrag } from '@/utils/hooks'
 import { Icon } from '@/components/common/Icon'
+import Text from '@/components/common/Text'
 // import { AppColors } from '@/theme'
 
 const DefaultBar = memo(() => {
@@ -119,6 +120,16 @@ const Progress = ({
     global.app_event.setProgress(progress * durationRef.current)
   }, [])
   const activeColor = theme.isDark ? theme['c-font'] : theme['c-primary'];
+
+  // 拖动反馈: 开始/结束震动, 拖动中显示时间气泡
+  const handleDragState = useCallback((drag: boolean) => {
+    setDraging(drag)
+    if (drag) Vibration.vibrate(8)
+    else Vibration.vibrate(15)
+  }, [])
+
+  const dragTimeStr = formatTime(dragProgress * durationRef.current)
+
   return (
     <View style={styles.progress}>
       <View>
@@ -174,14 +185,30 @@ const Progress = ({
           </View>
         )}
       </View>
+      {/* 拖动时间气泡 */}
+      {draging ? (
+        <View style={styles.bubbleWrap} pointerEvents="none">
+          <View style={[styles.bubble, { backgroundColor: theme['c-primary'] }]}>
+            <Text size={11} color="#fff" style={styles.bubbleText}>{dragTimeStr}</Text>
+          </View>
+        </View>
+      ) : null}
       <PreassBar
-        onDragState={setDraging}
+        onDragState={handleDragState}
         setDragProgress={setDragProgress}
         onSetProgress={onSetProgress}
       />
       {/* <View style={{ ...styles.progressBar, height: '100%', width: progressStr }}><Pressable style={styles.progressDot}></Pressable></View> */}
     </View>
   )
+}
+
+// 秒 -> mm:ss
+const formatTime = (sec: number) => {
+  if (!isFinite(sec) || sec < 0) sec = 0
+  const m = Math.floor(sec / 60)
+  const s = Math.floor(sec % 60)
+  return `${m}:${s.toString().padStart(2, '0')}`
 }
 
 const progressContentPadding = 10
@@ -212,6 +239,22 @@ const styles = createStyle({
     paddingBottom: progressContentPadding,
     width: '100%',
     zIndex: 6,
+  },
+  bubbleWrap: {
+    position: 'absolute',
+    top: -26,
+    left: 0,
+    right: 0,
+    alignItems: 'center',
+    zIndex: 10,
+  },
+  bubble: {
+    paddingHorizontal: 10,
+    paddingVertical: 3,
+    borderRadius: 10,
+  },
+  bubbleText: {
+    fontWeight: '600',
   },
 })
 

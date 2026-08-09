@@ -18,6 +18,7 @@ import SettingVisualEffects from "@/screens/PlayDetail/components/SettingPopup/s
 import SettingBackground from "@/screens/PlayDetail/components/SettingPopup/settings/SettingBackground.tsx";
 import SettingCover from "@/screens/PlayDetail/components/SettingPopup/settings/SettingCover.tsx";
 import SettingMiniPlayer from "@/screens/PlayDetail/components/SettingPopup/settings/SettingMiniPlayer.tsx";
+import { DESIGN } from '@/theme/design'
 
 export interface SettingPopupProps extends Omit<PopupProps, 'children'> {
   direction: 'vertical' | 'horizontal'
@@ -74,7 +75,7 @@ export default forwardRef<SettingPopupType, SettingPopupProps>(({ direction, ...
       <ScrollView>
         <View onStartShouldSetResponder={() => true}>
           {/* 基础设置组: App 设置同款折叠卡片(深色背景+白字, 折叠状态持久化) */}
-          <Section title={t('play_detail_setting_basic')} bgColor="#1B1722" hideTitle
+          <Section title={t('play_detail_setting_basic')} bgColor={DESIGN.cardDark} hideTitle
             open={collapseMap.basic} onToggle={handleToggle('basic')}>
             <SettingLyricProgress />
             <SettingVolume />
@@ -83,7 +84,7 @@ export default forwardRef<SettingPopupType, SettingPopupProps>(({ direction, ...
             <SettingLrcAlign />
           </Section>
           {/* 播放器外观组 */}
-          <Section title={t('play_detail_setting_appearance')} bgColor="#2F293A" hideTitle
+          <Section title={t('play_detail_setting_appearance')} bgColor={DESIGN.cardDark2} hideTitle
             open={collapseMap.appearance} onToggle={handleToggle('appearance')}>
             <SettingCoverSpin />
             <SettingLayout />
@@ -91,7 +92,7 @@ export default forwardRef<SettingPopupType, SettingPopupProps>(({ direction, ...
             <SettingCover />
           </Section>
           {/* 特效组 */}
-          <Section title={t('play_detail_setting_effects')} bgColor="#1B1722" hideTitle
+          <Section title={t('play_detail_setting_effects')} bgColor={DESIGN.cardDark} hideTitle
             open={collapseMap.effects} onToggle={handleToggle('effects')}>
             <SettingMiniPlayer />
             <SettingVisualEffects />

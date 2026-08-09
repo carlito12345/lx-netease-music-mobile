@@ -9,6 +9,7 @@ import { scaleSizeW } from '@/utils/pixelRatio'
 import { createStyle } from '@/utils/tools'
 import Text from '@/components/common/Text'
 import ChromaGrid, { type ChromaGridItem } from '@/components/ChromaGrid'
+import { SonglistGridSkeleton } from '@/components/common/Skeleton'
 
 /** 原版 ChromaGrid demo 卡片边框色板 */
 const BORDER_PALETTE = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4']
@@ -119,7 +120,9 @@ export default forwardRef<ListType, ListProps>(({ onRefresh, onLoadMore, onOpenD
 
   return (
     <View style={styles.container} onLayout={onLayout}>
-      {width == 0 ? null : (
+      {status == 'loading' && currentList.length == 0 ? (
+        <SonglistGridSkeleton columns={rowInfo.num} gap={GAP} />
+      ) : width == 0 ? null : (
         <ChromaGrid
           listKey={String(rowInfo.num)}
           items={gridItems}

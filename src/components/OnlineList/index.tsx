@@ -57,6 +57,8 @@ export interface OnlineListType {
   setStatus: (val: Status) => void
   getList: () => LX.Music.MusicInfoOnline[]
   scrollToInfo: (info: LX.Music.MusicInfoOnline) => void
+  /** 进入多选模式 */
+  enterMultiSelect: () => void
 }
 
 export default forwardRef<OnlineListType, OnlineListProps>(
@@ -104,6 +106,9 @@ export default forwardRef<OnlineListType, OnlineListProps>(
       },
       scrollToInfo(info) {
         listRef.current?.scrollToInfo(info)
+      },
+      enterMultiSelect() {
+        hancelMultiSelect()
       },
     }))
 

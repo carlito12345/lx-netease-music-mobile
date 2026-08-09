@@ -4,13 +4,14 @@
  * 与其他设置项一致: 由外层 Section 包裹, 内部标准 CheckBoxItem 项
  */
 import { memo } from 'react'
-import { View, TouchableOpacity } from 'react-native'
+import { View } from 'react-native'
 import CheckBoxItem from '../../components/CheckBoxItem'
 import { createStyle } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
 import Text from '@/components/common/Text'
 import { updateSetting } from '@/core/common'
 import { useSettingValue } from '@/store/setting/hook'
+import Chip from '@/components/common/Chip'
 
 const AURORA_PRESETS = [
   { label: '极光', value: 'aurora' },
@@ -42,35 +43,25 @@ export default memo(() => {
         <View style={styles.options}>
           <Text size={12} color={theme['c-font-label']} style={styles.optionLabel}>配色</Text>
           <View style={styles.row}>
-            {AURORA_PRESETS.map(p => {
-              const active = preset === p.value
-              return (
-                <TouchableOpacity
-                  key={p.value}
-                  onPress={() => {
-                    updateSetting({ 'app.background.aurora.preset': p.value })
-                  }}
-                  style={[styles.chip, active && { backgroundColor: theme['c-primary'] }]}
-                >
-                  <Text size={11} color={active ? theme['c-primary-font-on-primary'] : theme['c-font']}>{p.label}</Text>
-                </TouchableOpacity>
-              )
-            })}
+            {AURORA_PRESETS.map(p => (
+              <Chip
+                key={p.value}
+                label={p.label}
+                active={preset === p.value}
+                onPress={() => updateSetting({ 'app.background.aurora.preset': p.value })}
+              />
+            ))}
           </View>
           <Text size={12} color={theme['c-font-label']} style={styles.optionLabel}>强度</Text>
           <View style={styles.row}>
-            {[0.3, 0.5, 0.75, 1].map(v => {
-              const active = intensity === v
-              return (
-                <TouchableOpacity
-                  key={v}
-                  onPress={() => updateSetting({ 'app.background.aurora.intensity': v })}
-                  style={[styles.chip, active && { backgroundColor: theme['c-primary'] }]}
-                >
-                  <Text size={11} color={active ? theme['c-primary-font-on-primary'] : theme['c-font']}>{v}x</Text>
-                </TouchableOpacity>
-              )
-            })}
+            {[0.3, 0.5, 0.75, 1].map(v => (
+              <Chip
+                key={v}
+                label={`${v}x`}
+                active={intensity === v}
+                onPress={() => updateSetting({ 'app.background.aurora.intensity': v })}
+              />
+            ))}
           </View>
         </View>
       ) : null}

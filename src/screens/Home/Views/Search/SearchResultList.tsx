@@ -1,5 +1,6 @@
 import {forwardRef, useImperativeHandle, useRef, useState, useCallback, memo, useEffect} from 'react'
-import { FlatList, RefreshControl } from 'react-native'
+import { FlatList, RefreshControl, View } from 'react-native'
+import { ListRowSkeleton } from '@/components/common/Skeleton'
 import musicSearch from '@/utils/musicSdk/wy/musicSearch'
 import { useTheme } from '@/store/theme/hook'
 import SingerListItem from '../FollowedArtists/ListItem'
@@ -55,6 +56,14 @@ export default forwardRef(({ searchType }, ref) => {
       return <AlbumListItem item={item} showSubscribeButton={true}  />
     }
     return null
+  }
+
+  if (loading && list.length === 0) {
+    return (
+      <View style={{ flex: 1 }}>
+        <ListRowSkeleton rows={10} />
+      </View>
+    )
   }
 
   return (
