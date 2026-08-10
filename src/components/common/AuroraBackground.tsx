@@ -39,11 +39,12 @@ interface Blob {
 const makeBlobs = (colors: string[]): Blob[] => {
   const c = colors.length >= 2 ? colors : ['#00e676', '#00b0ff']
   // 光斑数量 = 颜色数,每个光斑一种颜色,相位差错开
+  // 极光中心在顶部: 锚点 top 8%, 漂移以顶部为中心向两侧/下方轻扫
   return c.map((color, i) => ({
     color,
     size: 1.2 + (i % 3) * 0.25,
-    moveX: 90 + (i * 37) % 90,
-    moveY: 60 + (i * 23) % 70,
+    moveX: 70 + (i * 37) % 70,
+    moveY: 100 + (i * 23) % 60,
     duration: 9000 + i * 2500,
     delay: i * 1800,
     baseOpacity: 0.5 + (i % 2) * 0.15,
@@ -113,7 +114,7 @@ const AuroraBackground = memo(({ colors, intensity = 1, style }: AuroraProps) =>
             style={{
               position: 'absolute',
               left: '50%',
-              top: '50%',
+              top: '8%',
               width: 0,
               height: 0,
               transform: [
