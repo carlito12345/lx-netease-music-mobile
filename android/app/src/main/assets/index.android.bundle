@@ -188672,12 +188672,21 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
               componentBackgroundColor: theme['c-content-background']
             },
             animations: {
-              push: skipAnimation ? {} : hasPic ? {
+              push: skipAnimation ? {
+                // 启动场景: 纯淡入(无共享元素/无位移, 避免转场残留倾斜)
+                content: {
+                  alpha: {
+                    from: 0,
+                    to: 1,
+                    duration: 120
+                  }
+                }
+              } : hasPic ? {
                 sharedElementTransitions: [{
                   fromId: _$$_REQUIRE(_dependencyMap[7], "../config/constant").NAV_SHEAR_NATIVE_IDS.playDetail_pic,
                   toId: _$$_REQUIRE(_dependencyMap[7], "../config/constant").NAV_SHEAR_NATIVE_IDS.playDetail_pic,
                   interpolation: {
-                    type: 'spring'
+                    type: 'decelerate'
                   }
                 }],
                 elementTransitions: [{
@@ -188759,7 +188768,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
                   fromId: `${_$$_REQUIRE(_dependencyMap[7], "../config/constant").NAV_SHEAR_NATIVE_IDS.songlistDetail_pic}_from_${info.id}`,
                   toId: `${_$$_REQUIRE(_dependencyMap[7], "../config/constant").NAV_SHEAR_NATIVE_IDS.songlistDetail_pic}_to_${info.id}`,
                   interpolation: {
-                    type: 'spring'
+                    type: 'decelerate'
                   }
                 }],
                 elementTransitions: [{
@@ -188798,7 +188807,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
                   fromId: `${_$$_REQUIRE(_dependencyMap[7], "../config/constant").NAV_SHEAR_NATIVE_IDS.songlistDetail_pic}_to_${info.id}`,
                   toId: `${_$$_REQUIRE(_dependencyMap[7], "../config/constant").NAV_SHEAR_NATIVE_IDS.songlistDetail_pic}_from_${info.id}`,
                   interpolation: {
-                    type: 'spring'
+                    type: 'decelerate'
                   }
                 }],
                 elementTransitions: [{
@@ -199397,26 +199406,42 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   var designWidth = 375.0;
   var designHeight = 667.0;
 
-  // 获取屏幕的dp
-  var size = _$$_REQUIRE(_dependencyMap[1], "./windowSizeTools").windowSizeTools.getSize();
-  // console.log('size', size)
-  var screenW = size.width;
-  var screenH = size.height;
-  if (screenW > screenH) {
-    var temp = screenW;
-    screenW = screenH;
-    screenH = temp;
-  }
+  // 屏幕缩放比例: 每次调用实时读取(修复冷启动 windowSizeTools 未初始化导致 scale=0 布局倾斜)
+  // 旧算法: 模块加载时捕获尺寸 + screenPx 换算, 冷启动时序竞争会得到 0
+  // 新算法: 惰性读取, windowSizeTools 优先, Dimensions 兜底, dp 直接比例
+  var cachedScreenW = 0;
+  var cachedScreenH = 0;
+  var getScreenSize = function getScreenSize() {
+    var size = _$$_REQUIRE(_dependencyMap[1], "./windowSizeTools").windowSizeTools.getSize();
+    var w = size.width;
+    var h = size.height;
+    if (!w || !h) {
+      // windowSizeTools 未初始化时用 Dimensions 兜底
+      var d = _reactNative.Dimensions.get('window');
+      w = d.width;
+      h = d.height;
+    }
+    if (w > h) {
+      var temp = w;
+      w = h;
+      h = temp;
+    }
+    return {
+      w: w,
+      h: h
+    };
+  };
+  var getScale = function getScale() {
+    var _getScreenSize = getScreenSize(),
+      w = _getScreenSize.w,
+      h = _getScreenSize.h;
+    // 兜底: 尺寸异常(0/极小)时用标准手机基准, 避免布局崩坏
+    if (w < 100 || h < 100) return 1;
+    var scaleW = w / designWidth;
+    var scaleH = h / designHeight;
+    return Math.min(scaleW, scaleH, 2.8);
+  };
   var fontScale = _reactNative.PixelRatio.getFontScale();
-  var pixelRatio = _reactNative.PixelRatio.get();
-  // 屏幕缩放比例: 直接用 dp 比例(修复低密度大屏如车机 scaleSize 失真)
-  // 旧算法: screenPx(物理像素)/designWidth, 再在 scaleSizeH/W 里除 pixelRatio
-  // —— screenW 已是 dp, 重复换算导致车机(density~1.2)放大 4.9 倍
-  // 新算法: dp 直接比例, 手机车机统一合理
-  var scaleW = screenW / designWidth;
-  var scaleH = screenH / designHeight;
-  var scale = Math.min(scaleW, scaleH, 2.8);
-  // console.log(scale)
 
   /**
    * 设置text
@@ -199424,14 +199449,13 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
    * @returns dp
    */
   function getTextSize(size) {
-    // console.log('screenW======' + screenW)
-    // console.log('screenPxW======' + screenPxW)
-    var scaleWidth = screenW / designWidth;
-    var scaleHeight = screenH / designHeight;
-    // console.log(scaleWidth, scaleHeight)
+    var _getScreenSize2 = getScreenSize(),
+      w = _getScreenSize2.w,
+      h = _getScreenSize2.h;
+    var scaleWidth = w / designWidth;
+    var scaleHeight = h / designHeight;
     var scale = Math.min(scaleWidth, scaleHeight, 1.3);
     size = Math.floor(size * scale / fontScale);
-    // console.log(size)
     return size;
   }
   function setSpText(size) {
@@ -199444,7 +199468,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
    * @returns dp
    */
   function scaleSizeH(size) {
-    var scaleHeight = size * scale;
+    var scaleHeight = size * getScale();
     size = Math.floor(scaleHeight);
     return size * global.lx.fontSize;
   }
@@ -199455,7 +199479,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
    * @returns dp
    */
   function scaleSizeW(size) {
-    var scaleWidth = size * scale;
+    var scaleWidth = size * getScale();
     size = Math.floor(scaleWidth);
     return size * global.lx.fontSize;
   }
@@ -199466,7 +199490,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     return size * 2 - scaleSizeH(size);
   };
   var scaleSizeAbsHR = exports.scaleSizeAbsHR = function scaleSizeAbsHR(size) {
-    var scaleHeight = size * scale;
+    var scaleHeight = size * getScale();
     return size * 2 - Math.floor(scaleHeight);
   };
 },990,[20,734],"src/utils/pixelRatio.ts");
@@ -207097,21 +207121,22 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     var dimensionsChangedRef = (0, _react.useRef)(true);
     var handleLayout = (0, _react.useCallback)(function (_ref) {
       var layout = _ref.nativeEvent.layout;
-      // console.log('handleLayout')
+      // 冷启动修复: 每次布局都更新 windowSizeTools(不再一次性锁),
+      // 首帧布局错误(0/偏小)后, 布局稳定时自动写入正确尺寸, 修复页面倾斜/错位
+      if (layout.width <= 0 || layout.height <= 0) return;
+      // 只要尺寸有意义的布局变化就同步(状态栏高度仅首次稳定后设置)
+      var currentSize = _$$_REQUIRE(_dependencyMap[6], "../utils/windowSizeTools").windowSizeTools.getSize();
+      if (currentSize.width != layout.width || currentSize.height != layout.height) {
+        _$$_REQUIRE(_dependencyMap[6], "../utils/windowSizeTools").windowSizeTools.setWindowSize(layout.width, layout.height);
+      }
       if (!dimensionsChangedRef.current) return;
       void (0, _$$_REQUIRE(_dependencyMap[6], "../utils/windowSizeTools").getWindowSize)().then(function (size) {
         dimensionsChangedRef.current = false;
-        // console.log(layout, size)
         sizeRef.current = [size.height, layout.height];
         var height = getStatusbarHeight(size.height, layout.height);
         if (currentHeightRef.current != height) {
           currentHeightRef.current = height;
           (0, _$$_REQUIRE(_dependencyMap[7], "../core/common").setStatusbarHeight)(height);
-        }
-        // console.log(layout, size)
-        var currentSize = _$$_REQUIRE(_dependencyMap[6], "../utils/windowSizeTools").windowSizeTools.getSize();
-        if (currentSize.width != layout.width || currentSize.height != layout.height) {
-          _$$_REQUIRE(_dependencyMap[6], "../utils/windowSizeTools").windowSizeTools.setWindowSize(layout.width, layout.height);
         }
       });
     }, []);
@@ -255545,7 +255570,14 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     (0, _react.useEffect)(function () {
       (0, _$$_REQUIRE(_dependencyMap[15], "../../core/common").setComponentId)(_$$_REQUIRE(_dependencyMap[16], "../../config/constant").COMPONENT_IDS.home, componentId);
       if (_state.default.setting['player.startupPushPlayDetailScreen']) {
-        _$$_REQUIRE(_dependencyMap[17], "../../navigation").navigations.pushPlayDetailScreen(componentId, true);
+        // 延迟到 setRoot 启动动画完全结束后 push, 避免转场竞争卡在中间
+        // (杀后台重进时 RNN 需重建, 1200ms 确保动画完成)
+        var timer = setTimeout(function () {
+          _$$_REQUIRE(_dependencyMap[17], "../../navigation").navigations.pushPlayDetailScreen(componentId, true);
+        }, 1200);
+        return function () {
+          return clearTimeout(timer);
+        };
       }
       var handleGlobalSearch = function handleGlobalSearch(text) {
         (0, _$$_REQUIRE(_dependencyMap[18], "../../core/search/search").setSearchText)(text);
@@ -257864,12 +257896,16 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       setActiveNavIdState = _useState24[1];
     var navStatus = (0, _$$_REQUIRE(_dependencyMap[21], "../../../store/setting/hook.ts").useSettingValue)('common.navStatus'); // 获取菜单显示状态
     // Carousel 3D 转场: 基于横向滚动位置驱动每页 rotateY/scale
-    var scrollX = (0, _react.useRef)(new _reactNative.Animated.Value(0)).current;
-    var pageWidth = (0, _react.useRef)(_reactNative.Dimensions.get('window').width).current;
+    // 响应式页宽: 冷启动首帧 Dimensions 可能异常(0/错误值), 用 useWindowSize 监听修正
+    var winSize = (0, _$$_REQUIRE(_dependencyMap[22], "../../../utils/hooks").useWindowSize)();
+    var _useState25 = (0, _react.useState)(winSize.width || _reactNative.Dimensions.get('window').width),
+      _useState26 = (0, _slicedToArray2.default)(_useState25, 2),
+      pageWidth = _useState26[0],
+      setPageWidth = _useState26[1];
 
     // 根据 navStatus 动态生成可见的菜单项、viewMap 和 indexMap
     var visibleNavs = (0, _react.useMemo)(function () {
-      return _$$_REQUIRE(_dependencyMap[22], "../../../config/constant.ts").NAV_MENUS.filter(function (menu) {
+      return _$$_REQUIRE(_dependencyMap[23], "../../../config/constant.ts").NAV_MENUS.filter(function (menu) {
         return isMenuVisible(menu.id, navStatus);
       });
     }, [navStatus]);
@@ -257888,6 +257924,16 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       viewMap = _useMemo.viewMap,
       indexMap = _useMemo.indexMap;
     var activeIndexRef = (0, _react.useRef)((_viewMap$commonState$ = viewMap[_state.default.navActiveId]) != null ? _viewMap$commonState$ : 0);
+    // Carousel 3D: scrollX 初始化为当前激活页偏移(冷启动首帧 PagerView 不触发 onPageScroll,
+    // 若保持 0 则非首页全部 rotateY 45° 倾斜, 手动滑动才归位)
+    var scrollX = (0, _react.useRef)(new _reactNative.Animated.Value(activeIndexRef.current * (winSize.width || _reactNative.Dimensions.get('window').width))).current;
+    (0, _react.useEffect)(function () {
+      if (winSize.width > 0 && winSize.width !== pageWidth) {
+        // 尺寸修正时按比例同步 scrollX, 保持当前页视角
+        scrollX.setValue(activeIndexRef.current * winSize.width);
+        setPageWidth(winSize.width);
+      }
+    }, [winSize.width, pageWidth]);
     var onPageSelected = (0, _react.useCallback)(function (_ref) {
       var nativeEvent = _ref.nativeEvent;
       activeIndexRef.current = nativeEvent.position;
@@ -257895,7 +257941,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       if (!selectedId) return;
       if (selectedId) setActiveNavIdState(selectedId);
       if (activeIndexRef.current !== viewMap[_state.default.navActiveId]) {
-        (0, _$$_REQUIRE(_dependencyMap[23], "../../../core/common").setNavActiveId)(selectedId);
+        (0, _$$_REQUIRE(_dependencyMap[24], "../../../core/common").setNavActiveId)(selectedId);
       }
     }, [indexMap, viewMap]);
     var onPageScroll = (0, _react.useCallback)(function (e) {
@@ -257951,30 +257997,32 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       return visibleNavs.map(function (nav, index) {
         var _pageComponents$nav$i;
         // Carousel 3D: 当前页正视,两侧页旋转/缩小
+        // 冷启动修复: pageWidth 异常(<100)时禁用 3D 变换, 避免 rotateY 卡在 45° 导致页面倾斜
         var inputRange = [(index - 1) * pageWidth, index * pageWidth, (index + 1) * pageWidth];
-        var rotateY = scrollX.interpolate({
+        var rotateY = pageWidth < 100 ? '0deg' : scrollX.interpolate({
           inputRange: inputRange,
           outputRange: ['45deg', '0deg', '-45deg'],
           extrapolate: 'clamp'
         });
-        var scale = scrollX.interpolate({
+        var scale = pageWidth < 100 ? 1 : scrollX.interpolate({
           inputRange: inputRange,
           outputRange: [0.92, 1, 0.92],
           extrapolate: 'clamp'
         });
+        var transform = pageWidth < 100 ? [] : [{
+          perspective: 1200
+        }, {
+          rotateY: rotateY
+        }, {
+          scale: scale
+        }];
         return /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.View, {
           collapsable: false,
           style: styles.pageStyle,
           children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Animated.View, {
             style: {
               flex: 1,
-              transform: [{
-                perspective: 1200
-              }, {
-                rotateY: rotateY
-              }, {
-                scale: scale
-              }]
+              transform: transform
             },
             children: (_pageComponents$nav$i = pageComponents[nav.id]) != null ? _pageComponents$nav$i : null
           })
@@ -257996,7 +258044,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       }), /*#__PURE__*/(0, _jsxRuntime.jsx)(PlayHistoryOverlay, {})]
     });
   };
-  var styles = (0, _$$_REQUIRE(_dependencyMap[24], "../../../utils/tools").createStyle)({
+  var styles = (0, _$$_REQUIRE(_dependencyMap[25], "../../../utils/tools").createStyle)({
     container: {
       flex: 1
     },
@@ -258019,7 +258067,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     }
   });
   var _default = exports.default = Main;
-},1349,[11,12,65,20,1350,1429,1443,1481,1494,726,1635,559,1640,1647,1648,1649,1650,1652,1653,106,986,1001,653,720,549],"src/screens/Home/Vertical/Main.tsx");
+},1349,[11,12,65,20,1350,1429,1443,1481,1494,726,1635,559,1640,1647,1648,1649,1650,1652,1653,106,986,1001,1286,653,720,549],"src/screens/Home/Vertical/Main.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {

@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type ComponentRef, type ReactNode } from 'react'
 import {Keyboard, View, Animated, Dimensions} from 'react-native'
+import { useWindowSize } from '@/utils/hooks'
 import Search from '../Views/Search'
 import SongList from '../Views/SongList'
 import Mylist from '../Views/Mylist'
@@ -420,8 +421,9 @@ const Main = () => {
   const [activeNavId, setActiveNavIdState] = useState(commonState.navActiveId)
   const navStatus = useSettingValue('common.navStatus'); // 获取菜单显示状态
   // Carousel 3D 转场: 基于横向滚动位置驱动每页 rotateY/scale
-  const scrollX = useRef(new Animated.Value(0)).current
-  const pageWidth = useRef(Dimensions.get('window').width).current
+  // 响应式页宽: 冷启动首帧 Dimensions 可能异常(0/错误值), 用 useWindowSize 监听修正
+  const winSize = useWindowSize()
+  const [pageWidth, setPageWidth] = useState(winSize.width || Dimensions.get('window').width)
 
   // 根据 navStatus 动态生成可见的菜单项、viewMap 和 indexMap
   const visibleNavs = useMemo(() => {
@@ -439,6 +441,16 @@ const Main = () => {
   }, [visibleNavs]);
 
   const activeIndexRef = useRef(viewMap[commonState.navActiveId] ?? 0);
+  // Carousel 3D: scrollX 初始化为当前激活页偏移(冷启动首帧 PagerView 不触发 onPageScroll,
+  // 若保持 0 则非首页全部 rotateY 45° 倾斜, 手动滑动才归位)
+  const scrollX = useRef(new Animated.Value(activeIndexRef.current * (winSize.width || Dimensions.get('window').width))).current
+  useEffect(() => {
+    if (winSize.width > 0 && winSize.width !== pageWidth) {
+      // 尺寸修正时按比例同步 scrollX, 保持当前页视角
+      scrollX.setValue(activeIndexRef.current * winSize.width)
+      setPageWidth(winSize.width)
+    }
+  }, [winSize.width, pageWidth])
 
   const onPageSelected = useCallback(({ nativeEvent }: PagerViewOnPageSelectedEvent) => {
     activeIndexRef.current = nativeEvent.position;
@@ -507,23 +519,31 @@ const Main = () => {
 
     return visibleNavs.map((nav, index) => {
       // Carousel 3D: 当前页正视,两侧页旋转/缩小
+      // 冷启动修复: pageWidth 异常(<100)时禁用 3D 变换, 避免 rotateY 卡在 45° 导致页面倾斜
       const inputRange = [(index - 1) * pageWidth, index * pageWidth, (index + 1) * pageWidth]
-      const rotateY = scrollX.interpolate({
-        inputRange,
-        outputRange: ['45deg', '0deg', '-45deg'],
-        extrapolate: 'clamp',
-      })
-      const scale = scrollX.interpolate({
-        inputRange,
-        outputRange: [0.92, 1, 0.92],
-        extrapolate: 'clamp',
-      })
+      const rotateY = pageWidth < 100
+        ? '0deg'
+        : scrollX.interpolate({
+            inputRange,
+            outputRange: ['45deg', '0deg', '-45deg'],
+            extrapolate: 'clamp',
+          })
+      const scale = pageWidth < 100
+        ? 1
+        : scrollX.interpolate({
+            inputRange,
+            outputRange: [0.92, 1, 0.92],
+            extrapolate: 'clamp',
+          })
+      const transform = pageWidth < 100
+        ? []
+        : [{ perspective: 1200 }, { rotateY }, { scale }]
       return (
         <View collapsable={false} key={nav.id} style={styles.pageStyle}>
           <Animated.View
             style={{
               flex: 1,
-              transform: [{ perspective: 1200 }, { rotateY }, { scale }],
+              transform,
             }}
           >
             {pageComponents[nav.id] ?? null}

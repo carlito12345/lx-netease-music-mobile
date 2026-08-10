@@ -24,22 +24,22 @@ export default memo(
       ({
         nativeEvent: { layout },
       }: LayoutChangeEvent | { nativeEvent: { layout: { width: number; height: number } } }) => {
-        // console.log('handleLayout')
+        // 冷启动修复: 每次布局都更新 windowSizeTools(不再一次性锁),
+        // 首帧布局错误(0/偏小)后, 布局稳定时自动写入正确尺寸, 修复页面倾斜/错位
+        if (layout.width <= 0 || layout.height <= 0) return
+        // 只要尺寸有意义的布局变化就同步(状态栏高度仅首次稳定后设置)
+        const currentSize = windowSizeTools.getSize()
+        if (currentSize.width != layout.width || currentSize.height != layout.height) {
+          windowSizeTools.setWindowSize(layout.width, layout.height)
+        }
         if (!dimensionsChangedRef.current) return
         void getWindowSize().then((size) => {
           dimensionsChangedRef.current = false
-          // console.log(layout, size)
           sizeRef.current = [size.height, layout.height]
           const height = getStatusbarHeight(size.height, layout.height)
-
           if (currentHeightRef.current != height) {
             currentHeightRef.current = height
             setStatusbarHeight(height)
-          }
-          // console.log(layout, size)
-          const currentSize = windowSizeTools.getSize()
-          if (currentSize.width != layout.width || currentSize.height != layout.height) {
-            windowSizeTools.setWindowSize(layout.width, layout.height)
           }
         })
       },

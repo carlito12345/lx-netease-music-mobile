@@ -31,7 +31,12 @@ export default ({ componentId }: Props) => {
     setComponentId(COMPONENT_IDS.home, componentId)
 
     if (settingState.setting['player.startupPushPlayDetailScreen']) {
-      navigations.pushPlayDetailScreen(componentId, true)
+      // 延迟到 setRoot 启动动画完全结束后 push, 避免转场竞争卡在中间
+      // (杀后台重进时 RNN 需重建, 1200ms 确保动画完成)
+      const timer = setTimeout(() => {
+        navigations.pushPlayDetailScreen(componentId, true)
+      }, 1200)
+      return () => clearTimeout(timer)
     }
 
     const handleGlobalSearch = (text: string) => {

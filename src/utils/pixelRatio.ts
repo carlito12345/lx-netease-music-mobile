@@ -5,33 +5,47 @@
  * width:375
  * height:667
  */
-import { PixelRatio } from 'react-native'
+import { PixelRatio, Dimensions } from 'react-native'
 import { windowSizeTools } from './windowSizeTools'
 
 // 高保真的宽度和高度
 const designWidth = 375.0
 const designHeight = 667.0
 
-// 获取屏幕的dp
-const size = windowSizeTools.getSize()
-// console.log('size', size)
-let screenW = size.width
-let screenH = size.height
-if (screenW > screenH) {
-  const temp = screenW
-  screenW = screenH
-  screenH = temp
+// 屏幕缩放比例: 每次调用实时读取(修复冷启动 windowSizeTools 未初始化导致 scale=0 布局倾斜)
+// 旧算法: 模块加载时捕获尺寸 + screenPx 换算, 冷启动时序竞争会得到 0
+// 新算法: 惰性读取, windowSizeTools 优先, Dimensions 兜底, dp 直接比例
+let cachedScreenW = 0
+let cachedScreenH = 0
+
+const getScreenSize = () => {
+  const size = windowSizeTools.getSize()
+  let w = size.width
+  let h = size.height
+  if (!w || !h) {
+    // windowSizeTools 未初始化时用 Dimensions 兜底
+    const d = Dimensions.get('window')
+    w = d.width
+    h = d.height
+  }
+  if (w > h) {
+    const temp = w
+    w = h
+    h = temp
+  }
+  return { w, h }
 }
+
+const getScale = () => {
+  const { w, h } = getScreenSize()
+  // 兜底: 尺寸异常(0/极小)时用标准手机基准, 避免布局崩坏
+  if (w < 100 || h < 100) return 1
+  const scaleW = w / designWidth
+  const scaleH = h / designHeight
+  return Math.min(scaleW, scaleH, 2.8)
+}
+
 let fontScale = PixelRatio.getFontScale()
-let pixelRatio = PixelRatio.get()
-// 屏幕缩放比例: 直接用 dp 比例(修复低密度大屏如车机 scaleSize 失真)
-// 旧算法: screenPx(物理像素)/designWidth, 再在 scaleSizeH/W 里除 pixelRatio
-// —— screenW 已是 dp, 重复换算导致车机(density~1.2)放大 4.9 倍
-// 新算法: dp 直接比例, 手机车机统一合理
-const scaleW = screenW / designWidth
-const scaleH = screenH / designHeight
-const scale = Math.min(scaleW, scaleH, 2.8)
-// console.log(scale)
 
 /**
  * 设置text
@@ -39,14 +53,11 @@ const scale = Math.min(scaleW, scaleH, 2.8)
  * @returns dp
  */
 export function getTextSize(size: number) {
-  // console.log('screenW======' + screenW)
-  // console.log('screenPxW======' + screenPxW)
-  let scaleWidth = screenW / designWidth
-  let scaleHeight = screenH / designHeight
-  // console.log(scaleWidth, scaleHeight)
+  const { w, h } = getScreenSize()
+  let scaleWidth = w / designWidth
+  let scaleHeight = h / designHeight
   let scale = Math.min(scaleWidth, scaleHeight, 1.3)
   size = Math.floor((size * scale) / fontScale)
-  // console.log(size)
   return size
 }
 export function setSpText(size: number) {
@@ -59,7 +70,7 @@ export function setSpText(size: number) {
  * @returns dp
  */
 export function scaleSizeH(size: number) {
-  let scaleHeight = size * scale
+  let scaleHeight = size * getScale()
   size = Math.floor(scaleHeight)
   return size * global.lx.fontSize
 }
@@ -70,7 +81,7 @@ export function scaleSizeH(size: number) {
  * @returns dp
  */
 export function scaleSizeW(size: number) {
-  let scaleWidth = size * scale
+  let scaleWidth = size * getScale()
   size = Math.floor(scaleWidth)
   return size * global.lx.fontSize
 }
@@ -84,6 +95,6 @@ export const scaleSizeHR = (size: number) => {
 }
 
 export const scaleSizeAbsHR = (size: number) => {
-  let scaleHeight = size * scale
+  let scaleHeight = size * getScale()
   return size * 2 - Math.floor(scaleHeight)
 }

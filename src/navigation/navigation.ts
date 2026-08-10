@@ -149,13 +149,18 @@ export function pushPlayDetailScreen(componentId: string, skipAnimation = false)
           },
           animations: {
             push: skipAnimation
-              ? {}
+              ? {
+                // 启动场景: 纯淡入(无共享元素/无位移, 避免转场残留倾斜)
+                content: {
+                  alpha: { from: 0, to: 1, duration: 120 },
+                },
+              }
               : hasPic ? {
                 sharedElementTransitions: [
                   {
                     fromId: NAV_SHEAR_NATIVE_IDS.playDetail_pic,
                     toId: NAV_SHEAR_NATIVE_IDS.playDetail_pic,
-                    interpolation: { type: 'spring' },
+                    interpolation: { type: 'decelerate' },
                   },
                 ],
                 elementTransitions: [
@@ -242,7 +247,7 @@ export function pushSonglistDetailScreen(componentId: string, info: ListInfoItem
                 {
                   fromId: `${NAV_SHEAR_NATIVE_IDS.songlistDetail_pic}_from_${info.id}`,
                   toId: `${NAV_SHEAR_NATIVE_IDS.songlistDetail_pic}_to_${info.id}`,
-                  interpolation: { type: 'spring' },
+                  interpolation: { type: 'decelerate' },
                 },
               ],
               elementTransitions: [
@@ -281,7 +286,7 @@ export function pushSonglistDetailScreen(componentId: string, info: ListInfoItem
                 {
                   fromId: `${NAV_SHEAR_NATIVE_IDS.songlistDetail_pic}_to_${info.id}`,
                   toId: `${NAV_SHEAR_NATIVE_IDS.songlistDetail_pic}_from_${info.id}`,
-                  interpolation: { type: 'spring' },
+                  interpolation: { type: 'decelerate' },
                 },
               ],
               elementTransitions: [
