@@ -11,10 +11,13 @@ import { useMemo, useRef, useEffect } from 'react'
 import EffectControlButton from '@/components/common/EffectControlButton'
 import MagicRings from '@/components/common/MagicRings'
 import { useSettingValue } from '@/store/setting/hook'
+import { useBackgroundColor } from '@/store/backgroundColor'
+import { getTextColorByMode } from '@/utils/adaptiveTextColor'
 
 const PrevBtn = ({ size }: { size: number }) => {
   const theme = useTheme()
-  const activeColor = theme.isDark ? theme['c-font'] : theme['c-primary'];
+  const { textColorMode } = useBackgroundColor()
+  const activeColor = getTextColorByMode(textColorMode, theme.isDark)
   const handlePlayPrev = () => {
     void playPrev()
   }
@@ -30,7 +33,8 @@ const PrevBtn = ({ size }: { size: number }) => {
 }
 const NextBtn = ({ size }: { size: number }) => {
   const theme = useTheme()
-  const activeColor = theme.isDark ? theme['c-font'] : theme['c-primary'];
+  const { textColorMode } = useBackgroundColor()
+  const activeColor = getTextColorByMode(textColorMode, theme.isDark)
   const handlePlayNext = () => {
     void playNext()
   }
@@ -47,7 +51,8 @@ const NextBtn = ({ size }: { size: number }) => {
 
 const TogglePlayBtn = ({ size }: { size: number }) => {
   const theme = useTheme()
-  const activeColor = theme.isDark ? theme['c-font'] : theme['c-primary'];
+  const { textColorMode } = useBackgroundColor()
+  const activeColor = getTextColorByMode(textColorMode, theme.isDark)
   const isPlay = useIsPlay()
   const magicRingsEnabled = useSettingValue('playDetail.effect.magicRings.enabled')
   // 播放/暂停切换动画: 缩放回弹 + 切换瞬间旋转90度再回位(静止时图标方向始终正确)

@@ -159,11 +159,11 @@ const styles = createStyle({
     position: 'relative',
   },
   miniLyricContainer: {
-    position: 'absolute',
-    bottom: '6%',
-    left: '10%',
-    right: '10%',
-    alignItems: 'flex-start',
+    // 封面下方居中显示, 与封面形成紧凑整体
+    width: '80%',
+    alignSelf: 'center',
+    marginTop: 24,
+    alignItems: 'center',
   },
   // pageIndicator: {
   //   flex: 0,

@@ -5,6 +5,8 @@ import { TouchableOpacity, View } from 'react-native';
 import { useLrcPlay, useLrcSet } from '@/plugins/lyric';
 import { createStyle } from '@/utils/tools';
 import { useTheme } from '@/store/theme/hook';
+import { useBackgroundColor } from '@/store/backgroundColor';
+import { getTextColorByMode } from '@/utils/adaptiveTextColor';
 import Text from '@/components/common/Text';
 import { useSettingValue } from '@/store/setting/hook';
 import { setSpText } from '@/utils/pixelRatio';
@@ -30,7 +32,8 @@ const MiniLyric = ({ onPress, style }: { onPress?: () => void, style?: any }) =>
   const size = lrcFontSize / 16; // 缩小字体
   const lineHeight = setSpText(size) * 1.3;
 
-  const activeColor = theme.isDark ? theme['c-font'] : theme['c-primary'];
+  const { textColorMode } = useBackgroundColor();
+  const activeColor = getTextColorByMode(textColorMode, theme.isDark);
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.7} style={[styles.container, style]}>
       {currentLine ? (

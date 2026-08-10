@@ -57,7 +57,7 @@ const LineSidebar = memo(({
   const theme = useTheme()
 
   return (
-    <View style={[styles.container, showMarker ? { paddingLeft: markerLength + 12 } : null]}>
+    <View style={styles.container}>
       {items.map((item, index) => (
         <LineItem
           key={item.id}
@@ -71,9 +71,9 @@ const LineSidebar = memo(({
           maxShift={maxShift}
           padIndex={padIndex}
           accentColor={theme['c-primary']}
-          markerColor={theme['c-border-background']}
-          textColor={theme['c-font-label']}
-          activeTextColor={theme['c-primary-font']}
+          markerColor="rgba(255,255,255,0.25)"
+          textColor="#ffffff"
+          activeTextColor="#ffffff" 
           renderTrailing={renderTrailing}
         />
       ))}
@@ -122,30 +122,26 @@ const LineItem = ({
   // 位移:激活右移
   const shift = effect.interpolate({ inputRange: [0, 1], outputRange: [0, maxShift] })
   // 文字透明度
-  const textOpacity = effect.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] })
+  const textOpacity = effect.interpolate({ inputRange: [0, 1], outputRange: [0.85, 1] })
   // marker 线宽:0.5 -> 1
   const markerScale = effect.interpolate({ inputRange: [0, 1], outputRange: [0.5, 1] })
+  // marker 水平位置跟随数字右移(保持对准)
+  const markerLeft = effect.interpolate({
+    inputRange: [0, 1],
+    outputRange: [-markerLength - 12, -markerLength - 12 + maxShift],
+  })
   // 文字颜色:gray -> accent(用 interpolate 转颜色需 rgba,简化用两层 Text 切换透明度)
-  const indexOpacity = effect.interpolate({ inputRange: [0, 1], outputRange: [0.55, 1] })
+  const indexOpacity = effect.interpolate({ inputRange: [0, 1], outputRange: [0.75, 1] })
 
   const label = item.label
   const indexStr = padIndex ? String(index + 1).padStart(2, '0') : String(index + 1)
 
   return (
-    <TouchableOpacity style={styles.item} onPress={onPress} activeOpacity={0.6}>
-      {showMarker ? (
-        <Animated.View
-          style={[
-            styles.marker,
-            {
-              left: -markerLength - 12,
-              width: markerLength,
-              backgroundColor: active ? accentColor : markerColor,
-              transform: [{ scaleX: markerScale }],
-            },
-          ]}
-        />
-      ) : null}
+    <TouchableOpacity
+      style={[styles.item, active ? styles.itemActive : null]}
+      onPress={onPress}
+      activeOpacity={0.6}
+    >
       <Animated.View style={[styles.label, { transform: [{ translateX: shift }] }]}>
         {showIndex ? (
           <Animated.Text
@@ -160,8 +156,8 @@ const LineItem = ({
         {item.icon ? (
           <Animated.View style={[styles.iconText, { opacity: textOpacity }]}>
             {item.icon.startsWith('svg:')
-              ? <SvgIcon name={item.icon.slice(4)} size={16} color={active ? accentColor : textColor} />
-              : <Icon name={item.icon} size={16} color={active ? accentColor : textColor} />}
+              ? <SvgIcon name={item.icon.slice(4)} size={24} color={active ? accentColor : textColor} />
+              : <Icon name={item.icon} size={24} color={active ? accentColor : textColor} />}
           </Animated.View>
         ) : null}
         <Animated.Text
@@ -175,6 +171,20 @@ const LineItem = ({
         </Animated.Text>
         {renderTrailing ? renderTrailing(item) : null}
       </Animated.View>
+      {showMarker ? (
+        <View style={styles.markerWrap}>
+          <Animated.View
+            style={[
+              styles.marker,
+              {
+                width: markerLength,
+                backgroundColor: active ? accentColor : markerColor,
+                transform: [{ scaleX: markerScale }],
+              },
+            ]}
+          />
+        </View>
+      ) : null}
     </TouchableOpacity>
   )
 }
@@ -184,33 +194,56 @@ const styles = createStyle({
     paddingVertical: 6,
   },
   item: {
-    paddingVertical: 11,
-    paddingHorizontal: 6,
+    paddingVertical: 14,
+    paddingLeft: 56, // 横线(28) + 间距(28), 内容从横线右侧开始
+    paddingRight: 20,
     position: 'relative',
+    alignItems: 'center',
+    width: '100%',
   },
   label: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent: 'flex-end', // 按数字对齐: 序号/图标/文字整体靠右
+    height: 30, // 固定行高, 各行文字垂直中心一致(消除波浪)
   },
   index: {
     fontFamily: 'monospace',
-    fontSize: 11,
-    marginRight: 8,
-    width: 22,
-    textAlign: 'right',
+    fontSize: 13,
+    lineHeight: 13, // line-height 1, 消除字体行高偏移
+    marginRight: 12,
+    width: 30,
+    textAlign: 'right', // 数字右对齐
+    opacity: 0.55,
+    transform: [{ translateY: 2 }], // 微调视觉重心
   },
   iconText: {
-    marginRight: 8,
+    width: 30,
+    height: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 12,
+    transform: [{ translateY: 1 }], // 微调图标视觉重心
   },
   text: {
-    flex: 1,
-    fontSize: 14,
+    fontSize: 20,
+    lineHeight: 24, // 统一行高, 与图标盒(24)对齐
+  },
+  markerWrap: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    justifyContent: 'center',
   },
   marker: {
-    position: 'absolute',
-    top: '50%',
-    height: 1.5,
-    marginTop: -1,
+    height: 3,
+    borderRadius: 2,
+  },
+  itemActive: {
+    backgroundColor: 'rgba(255,255,255,0.10)',
+    borderRadius: 12,
   },
 })
 

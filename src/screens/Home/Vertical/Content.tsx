@@ -43,6 +43,7 @@ const Content = () => {
       visibleNavNames={[COMPONENT_IDS.home]}
       // drawerWidth={width}
       drawerPosition={drawerLayoutPosition}
+      drawerBackgroundColor="transparent"
       renderNavigationView={navigationView}
     >
       <Header />

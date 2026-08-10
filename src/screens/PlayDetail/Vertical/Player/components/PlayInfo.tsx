@@ -5,6 +5,8 @@ import Progress from '@/components/player/ProgressBar'
 import Status from './Status'
 import { useProgress } from '@/store/player/hook'
 import { useTheme } from '@/store/theme/hook'
+import { useBackgroundColor } from '@/store/backgroundColor'
+import { getTextColorByMode } from '@/utils/adaptiveTextColor'
 import { createStyle } from '@/utils/tools'
 import Text from '@/components/common/Text'
 import { useBufferProgress } from '@/plugins/player'
@@ -14,13 +16,15 @@ import { useBufferProgress } from '@/plugins/player'
 const PlayTimeCurrent = ({ timeStr }: { timeStr: string }) => {
   const theme = useTheme()
   // console.log(timeStr)
-  const activeColor = theme.isDark ? theme['c-font'] : theme['c-primary'];
+  const { textColorMode } = useBackgroundColor()
+  const activeColor = getTextColorByMode(textColorMode, theme.isDark)
   return <Text color={activeColor}>{timeStr}</Text>
 }
 
 const PlayTimeMax = memo(({ timeStr }: { timeStr: string }) => {
   const theme = useTheme()
-  const activeColor = theme.isDark ? theme['c-font'] : theme['c-primary'];
+  const { textColorMode } = useBackgroundColor()
+  const activeColor = getTextColorByMode(textColorMode, theme.isDark)
   return <Text color={activeColor}>{timeStr}</Text>
 })
 

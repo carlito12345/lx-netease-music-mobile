@@ -152,7 +152,9 @@ export interface ChromaGridRef {
 
 /** 封面图四周内边距(露出卡片渐变背景) */
 const CARD_PADDING = 10
-/** 底部文字区固定高度(保证行高确定,聚光灯定位准确) */
+/** 底部文字区高度: 随卡片宽度比例(手机 105dp 卡→80dp 文字区, 车机 500dp 卡→150dp 文字区) */
+const getInfoHeight = (cardWidth: number) => Math.max(72, Math.min(160, Math.round(cardWidth * 0.32)))
+// 默认基准(调用方未传 cardWidth 时)
 const INFO_HEIGHT = 80
 const INFO_PADDING_H = 16
 const INFO_PADDING_TOP = 6
@@ -236,8 +238,8 @@ const ChromaCard = memo(({
     ]).start()
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
-  // 固定卡片高度:图片区(CARD_PADDING 包围) + 文字区
-  const cardHeight = cardWidth + INFO_HEIGHT - CARD_PADDING
+  // 固定卡片高度:图片区(CARD_PADDING 包围) + 文字区(随卡片宽)
+  const cardHeight = cardWidth + getInfoHeight(cardWidth) - CARD_PADDING
   const row = Math.floor(index / columns)
   const itemCenterY = row * (cardHeight + gap) + cardHeight / 2
 
@@ -355,8 +357,8 @@ const ChromaCard = memo(({
         ) : null}
       </View>
 
-      {/* 文字区(固定高度,保证行高确定) */}
-      <View style={styles.cardInfo}>
+      {/* 文字区(随卡片宽度自适应高度, 保证行高确定) */}
+      <View style={[styles.cardInfo, { height: getInfoHeight(cardWidth) }]}>
         <Text size={14} numberOfLines={2} style={[styles.cardTitle, { color: titleColor }]}>
           {item.title}
         </Text>
@@ -452,7 +454,7 @@ const ChromaGrid = memo(forwardRef<ChromaGridRef, ChromaGridProps>(({
   const spotRadius = spotlightRadius ?? screen.height * 0.55
 
   // 固定行高:卡片高 + 间距,用于 scrollToIndex 精确定位
-  const cardHeight = cardWidth + INFO_HEIGHT - CARD_PADDING
+  const cardHeight = cardWidth + getInfoHeight(cardWidth) - CARD_PADDING
   const rowHeight = cardHeight + gap
 
   // 暴露滚动定位能力(单曲跳转播放位置等)
@@ -562,7 +564,7 @@ const styles = createStyle({
     fontWeight: '300',
   },
   cardInfo: {
-    height: INFO_HEIGHT,
+    height: 'auto',
     paddingHorizontal: INFO_PADDING_H,
     paddingTop: INFO_PADDING_TOP,
     paddingBottom: INFO_PADDING_BOTTOM,

@@ -17,7 +17,7 @@ import MiniProgressBar from "@/components/player/PlayerBar/components/MiniProgre
 import playerState from '@/store/player/state'
 import { LIST_IDS } from '@/config/constant'
 
-export default memo(({ componentId, isHome = false }: { isHome?: boolean }) => {
+export default memo(({ componentId, isHome = false }: { componentId?: string, isHome?: boolean }) => {
   const { keyboardShown } = useKeyboard()
   const theme = useTheme()
   const musicInfo = usePlayerMusicInfo()
@@ -122,15 +122,9 @@ export default memo(({ componentId, isHome = false }: { isHome?: boolean }) => {
 const styles = createStyle({
   container: {
     width: '100%',
-    // height: 100,
-    // paddingTop: progressContentPadding,
-    // marginTop: -progressContentPadding,
-    // backgroundColor: 'rgba(0, 0, 0, .1)',
-    // borderTopWidth: BorderWidths.normal2,
-    paddingVertical: 5,
+    paddingVertical: 8,
     paddingLeft: 5,
-    // backgroundColor: AppColors.primary,
-    // backgroundColor: 'red',
+    paddingBottom: 10,
     borderTopLeftRadius: 6,
     borderTopRightRadius: 6,
     flexDirection: 'row',
@@ -142,6 +136,7 @@ const styles = createStyle({
     flexShrink: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    minHeight: 46,
   },
   center: {
     flexDirection: 'column',

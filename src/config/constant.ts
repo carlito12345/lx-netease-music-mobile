@@ -1,5 +1,6 @@
 export const HEADER_HEIGHT = 42
-export const LIST_ITEM_HEIGHT = 70
+// 配合新 scaleSize 算法(dp 比例): 手机 55*1.1≈61dp(15%), 车机 55*2.42≈133dp(8%)
+export const LIST_ITEM_HEIGHT = 55
 export const LIST_SCROLL_POSITION_KEY = '__LIST_SCROLL_POSITION_KEY__'
 
 export const SPLIT_CHAR = {

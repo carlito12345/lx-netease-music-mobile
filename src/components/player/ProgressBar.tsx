@@ -2,6 +2,8 @@ import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { View, PanResponder, Vibration } from 'react-native'
 import { createStyle } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
+import { useBackgroundColor } from '@/store/backgroundColor'
+import { getTextColorByMode } from '@/utils/adaptiveTextColor'
 import { scaleSizeW, scaleSizeH } from '@/utils/pixelRatio'
 import { useDrag } from '@/utils/hooks'
 import { Icon } from '@/components/common/Icon'
@@ -15,7 +17,7 @@ const DefaultBar = memo(() => {
     <View
       style={{
         ...styles.progressBar,
-        backgroundColor: theme['c-primary-light-300-alpha-800'],
+        backgroundColor: 'rgba(128,128,128,0.3)',
         position: 'absolute',
         width: '100%',
         left: 0,
@@ -32,7 +34,7 @@ const BufferedBar = memo(({ progress }: { progress: number }) => {
     <View
       style={{
         ...styles.progressBar,
-        backgroundColor: theme['c-primary-light-400-alpha-700'],
+        backgroundColor: 'rgba(128,128,128,0.18)',
         position: 'absolute',
         width: `${progress * 100}%`,
         left: 0,
@@ -119,7 +121,8 @@ const Progress = ({
   const onSetProgress = useCallback((progress: number) => {
     global.app_event.setProgress(progress * durationRef.current)
   }, [])
-  const activeColor = theme.isDark ? theme['c-font'] : theme['c-primary'];
+  const { textColorMode } = useBackgroundColor()
+  const activeColor = getTextColorByMode(textColorMode, theme.isDark)
 
   // 拖动反馈: 开始/结束震动, 拖动中显示时间气泡
   const handleDragState = useCallback((drag: boolean) => {

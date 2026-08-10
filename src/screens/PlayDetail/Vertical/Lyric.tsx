@@ -14,6 +14,8 @@ import { type Line, useLrcPlay, useLrcSet } from '@/plugins/lyric'
 import { createStyle } from '@/utils/tools'
 import { updateSetting } from '@/core/common'
 import { useTheme } from '@/store/theme/hook'
+import { useBackgroundColor } from '@/store/backgroundColor'
+import { getTextColorByMode } from '@/utils/adaptiveTextColor'
 import GradientText from '@/components/common/GradientText'
 import { useSettingValue } from '@/store/setting/hook'
 import { AnimatedColorText } from '@/components/common/Text'
@@ -75,6 +77,7 @@ interface LineProps {
 const LrcLine = memo(
   ({ line, lineNum, activeLine, onLayout, onPress }: LineProps) => {
     const theme = useTheme()
+    const { textColorMode } = useBackgroundColor()
     const lrcFontSize = useSettingValue('playDetail.vertical.style.lrcFontSize')
     const textAlign = useSettingValue('playDetail.style.align')
     const size = lrcFontSize / 10
@@ -109,7 +112,7 @@ const LrcLine = memo(
     const stageStyle = useMemo(() => {
       const active = activeLine == lineNum
       return active && stageEnabled ? {
-        textShadowColor: theme['c-primary'],
+        textShadowColor: getTextColorByMode(textColorMode, theme.isDark),
         textShadowOffset: { width: 0, height: 0 },
         textShadowRadius: 6,
       } : {}
@@ -117,9 +120,9 @@ const LrcLine = memo(
     const colors = useMemo(() => {
       const active = activeLine == lineNum
       return active
-        ? ([theme.isDark ? theme['c-font'] : theme['c-primary-font-active'], theme['c-primary-alpha-200'], 1] as const)
+        ? ([getTextColorByMode(textColorMode, theme.isDark), 'rgba(128,128,128,0.4)', 1] as const)
         : ([theme['c-450'], theme['c-400'], 0.8] as const)
-    }, [activeLine, lineNum, theme])
+    }, [activeLine, lineNum, theme, textColorMode])
 
     const handleLayout = ({ nativeEvent }: LayoutChangeEvent) => {
       onLayout(lineNum, nativeEvent.layout.height, nativeEvent.layout.width)

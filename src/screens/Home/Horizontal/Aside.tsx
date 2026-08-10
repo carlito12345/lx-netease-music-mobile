@@ -11,8 +11,14 @@ import type { InitState } from '@/store/common/state'
 import { exitApp, setNavActiveId } from '@/core/common'
 import { BorderWidths } from '@/theme'
 import { useSettingValue } from '@/store/setting/hook'
+import { useWindowSize } from '@/utils/hooks'
+import Text from '@/components/common/Text'
+import { DESIGN } from '@/theme/design'
+import { useI18n } from '@/lang'
 
 const NAV_WIDTH = 68
+// 车机大屏侧边栏宽度(横屏>=1000dp): 显示文字, 大图标
+const NAV_WIDTH_CAR = 280
 
 const styles = createStyle({
   container: {
@@ -62,16 +68,47 @@ const styles = createStyle({
     paddingLeft: 15,
     // fontWeight: '500',
   },
+  // ===== 车机单独布局样式 =====
+  headerCar: {
+    paddingTop: 20,
+    paddingBottom: 24,
+    justifyContent: 'flex-start',
+    paddingLeft: 20,
+  },
+  headerTextCar: {
+    marginLeft: 12,
+  },
+  menuItemCar: {
+    height: 64,
+    justifyContent: 'flex-start',
+    paddingLeft: 20,
+    marginBottom: 4,
+    position: 'relative',
+  },
+  textCar: {
+    marginLeft: 12,
+    flex: 1,
+  },
+  activeBar: {
+    position: 'absolute',
+    left: 0,
+    top: '18%',
+    bottom: '18%',
+    width: 4,
+    borderRadius: 2,
+  },
 })
 
-const Header = () => {
+const Header = ({ isCar }: { isCar: boolean }) => {
   const theme = useTheme()
   const statusBarHeight = useStatusbarHeight()
   return (
     <View style={{ paddingTop: statusBarHeight }}>
-      <View style={styles.header}>
-        <Icon name="logo" color={theme['c-primary-dark-100-alpha-300']} size={22} />
-        {/* <Text style={styles.headerText} size={16} color={theme['c-primary-dark-100-alpha-300']}>LX-N Music</Text> */}
+      <View style={[styles.header, isCar ? styles.headerCar : null]}>
+        <Icon name="logo" color={isCar ? theme['c-primary'] : theme['c-primary-dark-100-alpha-300']} size={isCar ? 30 : 22} />
+        {isCar ? (
+          <Text style={styles.headerTextCar} size={22} color="#ffffff">LX-N Music</Text>
+        ) : null}
       </View>
     </View>
   )
@@ -89,40 +126,51 @@ const renderIcon = (icon: string, size: number, color: string) => {
 const MenuItem = ({
   id,
   icon,
+  isCar,
   onPress,
 }: {
   id: IdType
   icon: string
+  isCar: boolean
   onPress: (id: IdType) => void
 }) => {
-  // const t = useI18n()
+  const t = useI18n()
   const activeId = useNavActiveId()
   const theme = useTheme()
 
-  return activeId == id ? (
-    <View style={{ ...styles.menuItem, backgroundColor: theme['c-primary-background-hover'] }}>
+  const iconSize = isCar ? 30 : 20
+  const active = activeId == id
+
+  return active ? (
+    <View style={[styles.menuItem, isCar ? styles.menuItemCar : null, { backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 14 }]}>
+      {active && isCar ? (
+        <View style={[styles.activeBar, { backgroundColor: theme['c-primary'] }]} />
+      ) : null}
       <View style={styles.iconContent}>
-        {renderIcon(icon, 20, theme['c-primary-font-active'])}
+        {renderIcon(icon, iconSize, isCar ? theme['c-primary'] : theme['c-primary-font-active'])}
       </View>
-      {/* <Text style={styles.text} size={14} color={theme['c-primary-font']}>{t(id)}</Text> */}
+      {isCar ? <Text style={styles.textCar} size={22} color="#ffffff">{t(id)}</Text> : null}
     </View>
   ) : (
     <TouchableOpacity
-      style={styles.menuItem}
+      style={[styles.menuItem, isCar ? styles.menuItemCar : null]}
       onPress={() => {
         onPress(id)
       }}
     >
       <View style={styles.iconContent}>
-        {renderIcon(icon, 20, theme['c-font-label'])}
+        {renderIcon(icon, iconSize, isCar ? '#ffffff' : theme['c-font-label'])}
       </View>
-      {/* <Text style={styles.text} size={14}>{t(id)}</Text> */}
+      {isCar ? <Text style={styles.textCar} size={22} color="rgba(255,255,255,0.9)">{t(id)}</Text> : null}
     </TouchableOpacity>
   )
 }
 
 export default memo(() => {
   const theme = useTheme()
+  // 车机单独布局: 短边(竖向最小边) >= 1000dp 即大屏车机/平板(兼容横竖屏)
+  const { width, height } = useWindowSize()
+  const isCar = Math.min(width, height) >= 1000
   // console.log('render drawer nav')
   const showBackBtn = useSettingValue('common.showBackBtn')
   const showExitBtn = useSettingValue('common.showExitBtn')
@@ -154,17 +202,22 @@ export default memo(() => {
     );
   }, [navStatus]);
   return (
-    <View style={{ ...styles.container, borderRightColor: theme['c-border-background'] }}>
-      <Header />
+    <View
+      style={[
+        styles.container,
+        isCar ? { width: NAV_WIDTH_CAR, backgroundColor: DESIGN.cardDark, borderRightWidth: 0 } : { borderRightColor: theme['c-border-background'] },
+      ]}
+    >
+      <Header isCar={isCar} />
       <ScrollView style={styles.menus}>
         <View style={styles.list}>
           {filteredNavMenus.map((menu) => ( // 使用过滤后的菜单
-            <MenuItem key={menu.id} id={menu.id} icon={menu.icon} onPress={handlePress} />
+            <MenuItem key={menu.id} id={menu.id} icon={menu.icon} isCar={isCar} onPress={handlePress} />
           ))}
         </View>
       </ScrollView>
-      {global.lx.isCarMode && showBackBtn ? <MenuItem id="back_home" icon="home" onPress={handlePress} /> : null}
-      {global.lx.isCarMode && showExitBtn ? <MenuItem id="nav_exit" icon="exit2" onPress={handlePress} /> : null}
+      {global.lx.isCarMode && showBackBtn ? <MenuItem id="back_home" icon="home" isCar={isCar} onPress={handlePress} /> : null}
+      {global.lx.isCarMode && showExitBtn ? <MenuItem id="nav_exit" icon="exit2" isCar={isCar} onPress={handlePress} /> : null}
     </View>
   )
 })

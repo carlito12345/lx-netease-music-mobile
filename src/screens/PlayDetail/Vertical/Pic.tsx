@@ -88,7 +88,11 @@ export default memo(({ componentId }: { componentId: string }) => {
 
   const coverStyle = useSettingValue('playDetail.cover.style')
   const { imgWidth, borderRadius, ringSize } = useMemo(() => {
-    const w = Math.min(winWidth * 0.85, (winHeight - statusBarHeight - HEADER_HEIGHT) * 0.5);
+    // 封面尺寸: 大屏(车机)限制到 38% 屏宽, 手机 60% 屏宽 —— 避免封面过大太空
+    const isLarge = Math.min(winWidth, winHeight) >= 1000
+    const w = isLarge
+      ? 750 // 车机固定 750dp
+      : Math.min(winWidth * 0.60, (winHeight - statusBarHeight - HEADER_HEIGHT) * 0.5);
     let br: number
     switch (coverStyle) {
       case 'circle': br = w / 2; break
@@ -225,7 +229,8 @@ const styles = createStyle({
     flexShrink: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingBottom: '3%',
+    marginTop: -10, // 上移10px
+    paddingBottom: '2%',
   },
   content: {
     backgroundColor: 'rgba(0,0,0,0)',

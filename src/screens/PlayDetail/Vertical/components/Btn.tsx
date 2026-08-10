@@ -17,7 +17,7 @@ export default ({
 }) => {
   return (
     <TouchableOpacity onPress={onPress} style={{ ...styles.button, width: HEADER_HEIGHT }}>
-      <Icon name={icon} color={color} size={18} />
+      <Icon name={icon} color={color} size={27} />
     </TouchableOpacity>
   )
 }

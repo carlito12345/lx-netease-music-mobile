@@ -24,14 +24,13 @@ if (screenW > screenH) {
 }
 let fontScale = PixelRatio.getFontScale()
 let pixelRatio = PixelRatio.get()
-// 根据dp获取屏幕的px
-let screenPxW = PixelRatio.getPixelSizeForLayoutSize(screenW)
-let screenPxH = PixelRatio.getPixelSizeForLayoutSize(screenH)
-// console.log(screenPxW, screenPxH)
-
-const scaleW = screenPxW / designWidth
-const scaleH = screenPxH / designHeight
-const scale = Math.min(scaleW, scaleH, 3.1)
+// 屏幕缩放比例: 直接用 dp 比例(修复低密度大屏如车机 scaleSize 失真)
+// 旧算法: screenPx(物理像素)/designWidth, 再在 scaleSizeH/W 里除 pixelRatio
+// —— screenW 已是 dp, 重复换算导致车机(density~1.2)放大 4.9 倍
+// 新算法: dp 直接比例, 手机车机统一合理
+const scaleW = screenW / designWidth
+const scaleH = screenH / designHeight
+const scale = Math.min(scaleW, scaleH, 2.8)
 // console.log(scale)
 
 /**
@@ -60,10 +59,8 @@ export function setSpText(size: number) {
  * @returns dp
  */
 export function scaleSizeH(size: number) {
-  // console.log(screenPxH / designHeight)
-  // let scaleHeight = size * Math.min(screenPxH / designHeight, 3.1)
   let scaleHeight = size * scale
-  size = Math.floor(scaleHeight / pixelRatio)
+  size = Math.floor(scaleHeight)
   return size * global.lx.fontSize
 }
 
@@ -73,10 +70,8 @@ export function scaleSizeH(size: number) {
  * @returns dp
  */
 export function scaleSizeW(size: number) {
-  // console.log(screenPxW / designWidth)
-  // let scaleWidth = size * Math.min(screenPxW / designWidth, 3.1)
   let scaleWidth = size * scale
-  size = Math.floor(scaleWidth / pixelRatio)
+  size = Math.floor(scaleWidth)
   return size * global.lx.fontSize
 }
 
@@ -90,5 +85,5 @@ export const scaleSizeHR = (size: number) => {
 
 export const scaleSizeAbsHR = (size: number) => {
   let scaleHeight = size * scale
-  return size * 2 - Math.floor(scaleHeight / pixelRatio)
+  return size * 2 - Math.floor(scaleHeight)
 }

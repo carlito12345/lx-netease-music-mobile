@@ -15,8 +15,14 @@ import { SonglistGridSkeleton } from '@/components/common/Skeleton'
 const BORDER_PALETTE = ['#4F46E5', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', '#06B6D4']
 
 // const MAX_WIDTH = scaleSizeW(110)
-const MIN_WIDTH = scaleSizeW(110)
-const GAP = scaleSizeW(20)
+// 车机适配: scaleSizeW 在低密度大屏(dpi~190, 1617dp 横屏)会严重放大(4.9x),
+// 导致卡片最小宽 224dp、列数失控。改用固定 dp 基准 + 屏幕宽度比例(上限 2.0)。
+import { Dimensions as _D } from 'react-native'
+const _screenW = Math.min(_D.get('window').width, _D.get('window').height)
+const _wScale = Math.min(_screenW / 375, 2.0)
+// 卡片最小宽: 手机 110dp(3列), 屏幕增大线性到 135dp(车机8列)
+const MIN_WIDTH = 110 + 25 * (_wScale - 1)
+const GAP = _screenW >= 600 ? 16 : 20
 
 export interface ListProps {
   onRefresh: () => void
@@ -91,10 +97,15 @@ export default forwardRef<ListType, ListProps>(({ onRefresh, onLoadMore, onOpenD
   }, [onLoadMore, status])
 
   // 动态计算列数与卡片宽度(大屏适配)
+  // 车机宽屏(>=1000dp): 固定 3 列, 卡片大文字完整可读(3x4 布局)
   const rowInfo = useMemo(() => {
+    if (width >= 1000) {
+      const num = 3
+      return { num, width: (width - GAP * (num + 1)) / num }
+    }
     let w = width - GAP
     let n = width / (MIN_WIDTH + GAP)
-    if (n > 10) n = 10
+    if (n > 12) n = 12
     let computedItemWidth = Math.floor(w / n)
     const num = Math.max(Math.floor(width / computedItemWidth), 2)
     return {

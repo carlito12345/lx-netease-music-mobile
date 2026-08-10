@@ -1,6 +1,7 @@
 import { memo, useMemo } from 'react'
 import { ScrollView, TouchableOpacity, View } from 'react-native'
 import { useI18n } from '@/lang'
+import { useWindowSize } from '@/utils/hooks'
 import { useNavActiveId, useStatusbarHeight } from '@/store/common/hook'
 import { useTheme } from '@/store/theme/hook'
 import { Icon } from '@/components/common/Icon'
@@ -13,17 +14,20 @@ import type { InitState } from '@/store/common/state'
 import { exitApp, setNavActiveId } from '@/core/common'
 import Text from '@/components/common/Text'
 import { useSettingValue } from '@/store/setting/hook'
-import LineSidebar from '@/components/LineSidebar'
+import SidebarNav, { type SidebarNavItem } from '@/components/SidebarNav'
 import React, { useState, useRef, useCallback } from 'react';
 import { Animated, Easing } from 'react-native';
 import { useMyList } from '@/store/list/hook';
 import { setActiveList } from '@/core/list';
 import { navigations } from "@/navigation";
 import commonState from '@/store/common/state';
+import { DESIGN } from '@/theme/design';
+import { BackgroundColorProvider } from '@/store/backgroundColor';
 
 const CollapsibleMyListItem = () => {
   const t = useI18n();
   const theme = useTheme();
+  const activeNavId = useNavActiveId();
   const allList = useMyList();
   const [isExpanded, setExpanded] = useState(false);
   const animation = useRef(new Animated.Value(0)).current;
@@ -62,17 +66,29 @@ const CollapsibleMyListItem = () => {
     outputRange: ['0deg', '90deg'],
   });
 
+  const isCar = Math.min(useWindowSize().width, useWindowSize().height) >= 1000
+  const rowH = isCar ? 96 : 52
+  const fontS = isCar ? 40 : 16
+  const iconS = isCar ? 60 : 20
+
   return (
     <View>
-      {/* 主菜单项 */}
-      <TouchableOpacity style={styles.menuItem} onPress={toggleCollapse}>
-        <View style={styles.iconContent}>
-          <Icon name="love" size={20} color={theme['c-font-label']} />
+      {/* 主菜单项(与 SidebarNav 同款: 固定行高 + 居中 + 激活胶囊) */}
+      <TouchableOpacity
+        style={[styles.navRow, { height: rowH }, activeNavId === 'nav_love' ? { backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: 14 } : null]}
+        onPress={toggleCollapse}
+      >
+        <View style={[styles.navContent, { height: rowH }]}>
+          <View style={[styles.iconBox, { width: iconS + 12, marginRight: iconS * 0.9 }]}>
+            <Icon name="love" rawSize={iconS} color={activeNavId === 'nav_love' ? theme['c-primary'] : '#ffffff'} />
+          </View>
+          <Text size={fontS} color={activeNavId === 'nav_love' ? '#ffffff' : 'rgba(255,255,255,0.9)'} numberOfLines={1}>
+            {t('nav_love')}
+          </Text>
         </View>
-        <Text style={styles.text}>{t('nav_love')}</Text>
-        {/*<Animated.View style={{ transform: [{ rotate: arrowRotation }] }}>*/}
-        {/*  <Icon name="chevron-right" size={16} color={theme['c-font-label']} />*/}
-        {/*</Animated.View>*/}
+        <Animated.View style={{ marginRight: 16, transform: [{ rotate: arrowRotation }] }}>
+          <Icon name="chevron-right" size={isCar ? 24 : 16} color="rgba(255,255,255,0.6)" />
+        </Animated.View>
       </TouchableOpacity>
 
       {/* 可折叠的子列表 */}
@@ -87,10 +103,10 @@ const CollapsibleMyListItem = () => {
           {allList.map(list => (
             <TouchableOpacity
               key={list.id}
-              style={styles.subMenuItem}
+              style={[styles.subMenuItem, { height: rowH - 8, paddingLeft: iconS + 30 }]}
               onPress={() => handleSelect(list.id)}
             >
-              <Text size={14} color={theme['c-font-label']} numberOfLines={1}>
+              <Text size={fontS - 4} color="rgba(255,255,255,0.8)" numberOfLines={1}>
                 {list.name}
               </Text>
             </TouchableOpacity>
@@ -108,23 +124,23 @@ const styles = createStyle({
     // padding: 10,
   },
   header: {
-    paddingTop: 40,
-    paddingBottom: 50,
+    paddingTop: 16,
+    paddingBottom: 24,
     flexDirection: 'row',
-    justifyContent: 'center',
+    paddingLeft: 24, // 与 SidebarNav 菜单起点对齐
     alignItems: 'center',
   },
   headerText: {
-    textAlign: 'center',
-    marginLeft: 16,
+    marginLeft: 12,
   },
   menus: {
     flex: 1,
   },
   subMenuItem: {
-    paddingVertical: 12,
-    paddingLeft: 55, // 缩进，使其在主菜单项的下方
-    paddingRight: 25,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingRight: 20,
+    marginHorizontal: 12,
   },
   collapsibleMenuItemText: {
     flex: 1,
@@ -133,6 +149,23 @@ const styles = createStyle({
   list: {
     paddingTop: 10,
     paddingBottom: 10,
+  },
+  navRow: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 12,
+    position: 'relative',
+  },
+  navContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flex: 1,
+  },
+  iconBox: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 8,
   },
   menuItem: {
     flexDirection: 'row',
@@ -167,15 +200,10 @@ const Header = () => {
   const theme = useTheme()
   const statusBarHeight = useStatusbarHeight()
   return (
-    <View
-      style={{
-        paddingTop: statusBarHeight,
-        backgroundColor: theme['c-primary-light-700-alpha-500'],
-      }}
-    >
+    <View style={{ paddingTop: statusBarHeight }}>
       <View style={styles.header}>
-        <Icon name="logo" color={theme['c-primary-dark-100-alpha-300']} size={28} />
-        <Text style={styles.headerText} size={28} color={theme['c-primary-dark-100-alpha-300']}>
+        <Icon name="logo" color={theme['c-primary']} size={28} />
+        <Text style={styles.headerText} size={28} color="#ffffff">
           LX-N Music
         </Text>
       </View>
@@ -189,7 +217,7 @@ const renderIcon = (icon: string, size: number, color: string) => {
   if (icon.startsWith('svg:')) {
     return <SvgIcon name={icon.slice(4)} size={size} color={color} />
   }
-  return <Icon name={icon} size={size} color={color} />
+  return <Icon name={icon} rawSize={size} color={color} />
 }
 
 const MenuItem = ({
@@ -206,11 +234,11 @@ const MenuItem = ({
   const theme = useTheme()
 
   return activeId == id ? (
-    <View style={{ ...styles.menuItem, backgroundColor: theme['c-primary-background-hover'] }}>
+    <View style={{ ...styles.menuItem, backgroundColor: 'rgba(255,255,255,0.10)', borderRadius: 12 }}>
       <View style={styles.iconContent}>
-        {renderIcon(icon, 20, theme['c-primary-font-active'])}
+        {renderIcon(icon, 20, theme['c-primary'])}
       </View>
-      <Text style={styles.text} color={theme['c-primary-font']}>
+      <Text style={styles.text} color="#ffffff">
         {t(id)}
       </Text>
     </View>
@@ -273,20 +301,45 @@ export default memo(() => {
   }, [navStatus]);
 
   return (
-    <View style={{ ...styles.container, backgroundColor: theme['c-content-background'] }}>
+    <BackgroundColorProvider initialMode="white">
+      <View style={styles.container}>
+      {/* 顶部镂空区: 透出极光/主题背景(半透明深色渐变, 上部最透) */}
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: 220,
+          backgroundColor: 'rgba(27,23,34,0.35)',
+        }}
+      />
+      {/* 菜单区: 实心深色盖住下方, 保证可读性 */}
+      <View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          top: 220,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: DESIGN.cardDark,
+        }}
+      />
       <Header />
       <ScrollView style={styles.menus}>
         {isShowMyListSubMenu && filteredNavMenus.some(m => m.id === 'nav_love') ? (
           <>
             <CollapsibleMyListItem />
-            <LineSidebar
+            <SidebarNav
               items={filteredNavMenus.filter(m => m.id !== 'nav_love').map(m => ({ id: m.id, label: t(m.id), icon: m.icon }))}
               activeId={activeNavId}
               onPress={(id) => handlePress(id as IdType)}
             />
           </>
         ) : (
-          <LineSidebar
+          <SidebarNav
             items={filteredNavMenus.map(m => ({ id: m.id, label: t(m.id), icon: m.icon }))}
             activeId={activeNavId}
             onPress={(id) => handlePress(id as IdType)}
@@ -296,15 +349,16 @@ export default memo(() => {
 
       <View style={styles.footer}>
         <TouchableOpacity style={styles.footerBtn} onPress={handleHistoryPress}>
-          <Icon name="music_time" size={25} color={theme['c-font-label']} />
+          <Icon name="music_time" size={25} color="#ffffff" />
         </TouchableOpacity>
         <TouchableOpacity style={styles.footerBtn} onPress={handleDownloadPress}>
-          <Icon name="download-2" size={22} color={theme['c-font-label']} />
+          <Icon name="download-2" size={22} color="#ffffff" />
         </TouchableOpacity>
       </View>
 
       {global.lx.isCarMode && showBackBtn ? <MenuItem id="back_home" icon="home" onPress={handlePress} /> : null}
       {global.lx.isCarMode && showExitBtn ? <MenuItem id="nav_exit" icon="exit2" onPress={handlePress} /> : null}
-    </View>
+      </View>
+    </BackgroundColorProvider>
   )
 })
