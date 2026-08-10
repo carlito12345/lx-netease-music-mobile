@@ -42,12 +42,12 @@ const Title = () => {
     if (!musicInfo.artists?.length || musicInfo.source == 'local') {
       return (
         <View style={styles.singerContainer}>
-          <Text numberOfLines={1} size={18} color={theme['c-font']}>
+          <Text numberOfLines={1} size={15} color={theme['c-font']}>
             {musicInfo.singer}
           </Text>
           {albumName ? (
             <TouchableOpacity style={{ flexShrink: 1 }} onPress={handleAlbumPress} disabled={musicInfo.source !== 'wy' || !albumId}>
-              <Text numberOfLines={1} size={18} color={theme['c-font']}>
+              <Text numberOfLines={1} size={15} color={theme['c-font']}>
                 {` · ${albumName}`}
               </Text>
             </TouchableOpacity>
@@ -60,7 +60,7 @@ const Title = () => {
       <View style={styles.singerContainer}>
         {musicInfo.artists.map((artist, index) => (
           <TouchableOpacity key={artist.id || index} onPress={() => handleArtistPress(artist)}>
-            <Text style={styles.singerText} size={18} color={theme['c-font']}>
+            <Text style={styles.singerText} size={15} color={theme['c-font']}>
               {artist.name}
               {(musicInfo.artists?.length ?? 0) > 0 && index < (musicInfo.artists?.length ?? 0) - 1 ? ' / ' : ''}
             </Text>
@@ -68,7 +68,7 @@ const Title = () => {
         ))}
         {albumName ? (
           <TouchableOpacity style={{ flexShrink: 1 }} onPress={handleAlbumPress} disabled={musicInfo.source !== 'wy' || !albumId}>
-            <Text numberOfLines={1} size={18} color={theme['c-font']}>
+            <Text numberOfLines={1} size={15} color={theme['c-font']}>
               {` · ${albumName}`}
             </Text>
           </TouchableOpacity>
@@ -87,7 +87,7 @@ const Title = () => {
             color={theme['c-font']}
             aliasColor={theme['c-font-label']}
             style={styles.title}
-            size={24}
+            size={20}
           />
           {singerRender}
         </>

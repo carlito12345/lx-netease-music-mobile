@@ -301535,7 +301535,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
           style: styles.singerContainer,
           children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_Text.default, {
             numberOfLines: 1,
-            size: 18,
+            size: 15,
             color: theme['c-font'],
             children: musicInfo.singer
           }), albumName ? /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.TouchableOpacity, {
@@ -301546,7 +301546,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
             disabled: musicInfo.source !== 'wy' || !albumId,
             children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_Text.default, {
               numberOfLines: 1,
-              size: 18,
+              size: 15,
               color: theme['c-font'],
               children: ` · ${albumName}`
             })
@@ -301563,7 +301563,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
             },
             children: /*#__PURE__*/(0, _jsxRuntime.jsxs)(_Text.default, {
               style: styles.singerText,
-              size: 18,
+              size: 15,
               color: theme['c-font'],
               children: [artist.name, ((_musicInfo$artists$le = (_musicInfo$artists2 = musicInfo.artists) == null ? void 0 : _musicInfo$artists2.length) != null ? _musicInfo$artists$le : 0) > 0 && index < ((_musicInfo$artists$le2 = (_musicInfo$artists3 = musicInfo.artists) == null ? void 0 : _musicInfo$artists3.length) != null ? _musicInfo$artists$le2 : 0) - 1 ? ' / ' : '']
             })
@@ -301576,7 +301576,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
           disabled: musicInfo.source !== 'wy' || !albumId,
           children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_Text.default, {
             numberOfLines: 1,
-            size: 18,
+            size: 15,
             color: theme['c-font'],
             children: ` · ${albumName}`
           })
@@ -301592,7 +301592,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
           color: theme['c-font'],
           aliasColor: theme['c-font-label'],
           style: styles.title,
-          size: 24
+          size: 20
         }), singerRender]
       }) : null
     });
@@ -303523,7 +303523,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_$$_REQUIRE(_dependencyMap[4], "../../../../components/common/Icon").Icon, {
         name: icon,
         color: color,
-        size: 27
+        size: 22
       })
     });
   };
