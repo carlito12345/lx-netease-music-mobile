@@ -1,6 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
   xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Android 11+ 包可见性: 允许发现 ASR 引擎插件 -->
+    <queries>
+        <intent>
+            <action android:name="com.lxnetease.asr.ENGINE" />
+            <category android:name="android.intent.category.DEFAULT" />
+        </intent>
+        <package android:name="com.lxnetease.asr.vosk" />
+    </queries>
+
     <!-- 获取读写外置存储权限 -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -15,6 +24,9 @@
     <!-- 开机自启动 -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <!-- ASR 引擎访问权限 -->
+    <uses-permission android:name="com.lxnetease.asr.ACCESS_ENGINE" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />

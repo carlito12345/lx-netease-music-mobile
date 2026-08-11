@@ -6,6 +6,8 @@ import MetaCache from './MetaCache'
 import DislikeList from './DislikeList'
 import Log from './Log'
 import Permission from './Permission'
+import WakeWord from './WakeWord'
+import AsrLog from './AsrLog'
 // import MaxCache from './MaxCache'
 import { useI18n } from '@/lang'
 import { DESIGN } from '@/theme/design'
@@ -18,6 +20,8 @@ export default memo(() => {
       <ResourceCache />
       <MetaCache />
       <DislikeList />
+      <WakeWord />
+      <AsrLog />
       <Permission />
       <Log />
       {/* <MaxCache /> */}

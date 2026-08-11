@@ -73,7 +73,12 @@ public class NativeLoggerModule extends ReactContextBaseJavaModule {
       File baseDir = appContext != null
           ? appContext.getExternalFilesDir(null)
           : null;
-      File dir = new File(baseDir != null ? baseDir.getAbsolutePath() : "/data/data/lxnetease/tmp", "LXMusic_Logs");
+      // 日志写到公共目录(Android/data 受保护读不到)
+      File pubDir = new File("/storage/emulated/0/MT2/mcp/LXMUSIC-test/");
+      File dir = new File(pubDir.exists() ? pubDir.getAbsolutePath() : (baseDir != null ? baseDir.getAbsolutePath() : "/data/data/lxnetease/tmp"), "LXMusic_Logs");
+      if (!dir.exists()) dir.mkdirs();
+      // 若公共目录不可写则降级到 app 私有目录
+      if (!dir.canWrite()) dir = new File(baseDir != null ? baseDir.getAbsolutePath() : "/data/data/lxnetease/tmp", "LXMusic_Logs");
       if (!dir.exists()) dir.mkdirs();
       String dateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
       logFile = new File(dir, "log_" + dateStr + ".log");

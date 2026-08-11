@@ -24,6 +24,8 @@ export interface HeaderBarProps {
   onSearch: SearchInputProps['onSubmit']
   onHideTipList: SearchInputProps['onBlur']
   onShowTipList: SearchInputProps['onTouchStart']
+  onVoicePress?: () => void
+  voiceListening?: boolean
 }
 
 export interface HeaderBarType {
@@ -33,7 +35,7 @@ export interface HeaderBarType {
 }
 
 export default forwardRef<HeaderBarType, HeaderBarProps>(
-  ({ onSourceChange, onTipSearch, onSearch, onHideTipList, onShowTipList }, ref) => {
+  ({ onSourceChange, onTipSearch, onSearch, onHideTipList, onShowTipList, onVoicePress, voiceListening = false }, ref) => {
     const sourceSelectorRef = useRef<SourceSelectorType>(null)
     const searchInputRef = useRef<SearchInputType>(null)
     const theme = useTheme()
@@ -65,6 +67,8 @@ export default forwardRef<HeaderBarType, HeaderBarProps>(
           onSubmit={onSearch}
           onBlur={onHideTipList}
           onTouchStart={onShowTipList}
+          onVoicePress={onVoicePress}
+          voiceListening={voiceListening}
         />
       </View>
     )

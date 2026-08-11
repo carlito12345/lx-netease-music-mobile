@@ -6,6 +6,8 @@ export interface SearchInputProps {
   onSubmit: (text: string) => void
   onBlur: () => void
   onTouchStart: () => void
+  onVoicePress?: () => void
+  voiceListening?: boolean
 }
 
 export interface SearchInputType {
@@ -16,7 +18,7 @@ export interface SearchInputType {
 }
 
 export default forwardRef<SearchInputType, SearchInputProps>(
-  ({ onChangeText, onSubmit, onBlur, onTouchStart }, ref) => {
+  ({ onChangeText, onSubmit, onBlur, onTouchStart, onVoicePress, voiceListening = false }, ref) => {
     const [text, setText] = useState('')
     const inputRef = useRef<BubbleSearchType>(null)
 
@@ -60,6 +62,8 @@ export default forwardRef<SearchInputType, SearchInputProps>(
         onSubmit={handleSubmit}
         onClearText={handleClearText}
         onTouchStart={onTouchStart}
+        onVoicePress={onVoicePress}
+        voiceListening={voiceListening}
         height={30}
       />
     )

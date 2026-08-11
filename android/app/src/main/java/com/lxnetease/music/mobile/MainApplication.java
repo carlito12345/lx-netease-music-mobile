@@ -43,6 +43,8 @@ public class MainApplication extends NavigationApplication {
           packages.add(new WidgetPackage());
           packages.add(new NativeLoggerPackage());
           packages.add(new PermissionPackage());
+          packages.add(new com.lxnetease.music.mobile.voice.SpeechPackage());
+          packages.add(new com.lxnetease.music.mobile.asr.AsrPackage());
           packages.add(new MiniPlayerPackage());
           packages.add(new USBPackage());
           return packages;

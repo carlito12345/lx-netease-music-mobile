@@ -66,3 +66,6 @@ buck-out/
 
 # testing
 /coverage
+
+# ASR model files (too large, downloaded separately)
+android/app/src/main/assets/iat/

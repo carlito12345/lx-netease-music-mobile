@@ -97,6 +97,16 @@ const HeartbeatIcon = ({ size, color }: { size: number; color: string }) => (
   </Svg>
 )
 
+
+const MicIcon = ({ size, color }: { size: number; color: string }) => (
+  <Svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+    <Rect x="9" y="1" width="6" height="11" rx="3" stroke={color} strokeWidth="1.8" fill="none" />
+    <Path d="M5 11a7 7 0 0 0 14 0" stroke={color} strokeWidth="1.8" strokeLinecap="round" fill="none" />
+    <Line x1="12" y1="18" x2="12" y2="22" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
+    <Line x1="8" y1="22" x2="16" y2="22" stroke={color} strokeWidth="1.8" strokeLinecap="round" />
+  </Svg>
+)
+
 export const SvgIcon = memo(({ name, size = 15, rawSize, color = '#000' }: SvgIconProps) => {
   const finalSize = rawSize ?? scaleSizeW(size)
 
@@ -109,8 +119,15 @@ export const SvgIcon = memo(({ name, size = 15, rawSize, color = '#000' }: SvgIc
       return <AlbumDiscIcon size={finalSize} color={color} />
     case 'onedrive':
       return <OneDriveIcon size={finalSize} color={color} />
+    case 'mic':
+      return <MicIcon size={finalSize} color={color} />
     case 'heartbeat':
       return <HeartbeatIcon size={finalSize} color={color} />
+
+/**
+ * 麦克风图标 - 语音识别
+ */
+
     default:
       return null
   }

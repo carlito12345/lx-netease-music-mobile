@@ -620,5 +620,6 @@
   "play_detail_setting_basic": "基礎設置",
   "play_detail_setting_appearance": "外觀",
   "play_detail_setting_effects": "特效",
-  "setting_basic_theme_aurora": "全局極光"
+  "setting_basic_theme_aurora": "全局極光",
+  "setting_other_speech_desc": "系統語音辨識測試(車機 SpeechRecognizer 可用性驗證)"
 }

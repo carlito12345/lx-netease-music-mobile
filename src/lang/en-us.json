@@ -643,5 +643,6 @@
   "play_detail_setting_basic": "Basic",
   "play_detail_setting_appearance": "Appearance",
   "play_detail_setting_effects": "Effects",
-  "setting_basic_theme_aurora": "Aurora"
+  "setting_basic_theme_aurora": "Aurora",
+  "setting_other_speech_desc": "System SpeechRecognizer test (car head unit ASR availability)"
 }

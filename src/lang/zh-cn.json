@@ -648,5 +648,6 @@
   "play_detail_setting_basic": "基础设置",
   "play_detail_setting_appearance": "外观",
   "play_detail_setting_effects": "特效",
-  "setting_basic_theme_aurora": "全局极光"
+  "setting_basic_theme_aurora": "全局极光",
+  "setting_other_speech_desc": "系统语音识别测试(车机 SpeechRecognizer 可用性验证)"
 }

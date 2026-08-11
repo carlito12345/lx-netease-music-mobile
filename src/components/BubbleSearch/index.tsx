@@ -25,6 +25,10 @@ export interface BubbleSearchProps extends TextInputProps {
   height?: number
   /** 清除回调 */
   onClearText?: () => void
+  /** 语音按钮回调(传入则显示麦克风按钮) */
+  onVoicePress?: () => void
+  /** 语音识别中(图标高亮) */
+  voiceListening?: boolean
   /** 提交回调 */
   onSubmit?: (text: string) => void
   /** 文字变化回调 */
@@ -39,7 +43,7 @@ export interface BubbleSearchType {
 }
 
 const BubbleSearch = forwardRef<BubbleSearchType, BubbleSearchProps>(
-  ({ placeholder = '搜索...', height = 36, onClearText, onSubmit, onChangeText, ...props }, ref) => {
+  ({ placeholder = '搜索...', height = 36, onClearText, onSubmit, onChangeText, onVoicePress, voiceListening = false, ...props }, ref) => {
     const theme = useTheme()
     const [text, setText] = useState('')
     const inputRef = useRef<InputType>(null)
@@ -129,6 +133,19 @@ const BubbleSearch = forwardRef<BubbleSearchType, BubbleSearchProps>(
             <Icon name="remove" color={theme['c-font-label']} size={14} />
           </TouchableOpacity>
         ) : null}
+        {onVoicePress ? (
+          <TouchableOpacity
+            style={[styles.voiceBtn, { height }]}
+            onPress={onVoicePress}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Icon
+              name="voice"
+              color={voiceListening ? theme['c-primary'] : theme['c-font-label']}
+              size={voiceListening ? 20 : 18}
+            />
+          </TouchableOpacity>
+        ) : null}
       </Animated.View>
     )
   }
@@ -156,6 +173,12 @@ const styles = createStyle({
     paddingLeft: 2,
     paddingRight: 2,
     fontSize: 14,
+  },
+  voiceBtn: {
+    paddingLeft: 8,
+    paddingRight: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   clearBtn: {
     justifyContent: 'center',

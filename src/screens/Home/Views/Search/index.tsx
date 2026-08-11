@@ -6,12 +6,14 @@ import commonState from '@/store/common/state'
 import searchMusicState from '@/store/search/music/state'
 import searchSonglistState, { type ListInfoItem } from '@/store/search/songlist/state'
 import { getSearchSetting, saveSearchSetting } from '@/utils/data'
-import {createStyle, toast} from '@/utils/tools'
+import { createStyle, toast } from '@/utils/tools'
 import TipList, { type TipListType } from './TipList'
 import List, { type ListType } from './List'
 import { addHistoryWord, setSearchText as setSearchState } from '@/core/search/search'
 import SonglistDetail from '../../../SonglistDetail'
-import {COMPONENT_IDS} from "@/config/constant.ts"
+import { COMPONENT_IDS } from "@/config/constant.ts"
+import useAsrSearch from '@/utils/asr/useAsrSearch'
+import { VoicePanel } from '@/components/VoiceAssistant'
 
 interface SearchInfo {
   temp_source: LX.OnlineSource
@@ -31,139 +33,84 @@ export default () => {
   selectedListRef.current = selectedList
 
   const [headerKey, setHeaderKey] = useState(Date.now())
+  const [overlayVisible, setOverlayVisible] = useState(false)
+
+  // 语音搜索 - 识别结果回调
+  const asr = useAsrSearch(useCallback((text) => {
+    setOverlayVisible(false)
+    if (!text.trim()) return
+    headerBarRef.current?.setText(text.trim())
+    handleSearch(text.trim())
+  }, []))
+
+  // overlayVisible 跟随 listening 状态
+  useEffect(() => {
+    setOverlayVisible(asr.listening)
+  }, [asr.listening])
 
   useEffect(() => {
     const onBackPress = () => {
       if (selectedListRef.current) {
-        // 获取状态管理中记录的最后一个（即最顶层）屏幕信息
         const lastScreen = commonState.componentIds[commonState.componentIds.length - 1]
-
-        // 如果最顶层的屏幕不是 Home 屏幕，则意味着有其他屏幕（如歌手详情页）被 push 到栈顶
-        // 此时不应处理返回事件，应交由 react-native-navigation 默认处理（即 pop 顶层屏幕）
-        if (lastScreen && lastScreen.name !== COMPONENT_IDS.home) {
-          return false
-        }
-
-        // 否则，处理返回事件，关闭当前的歌单详情浮层
+        if (lastScreen && lastScreen.name !== COMPONENT_IDS.home) return false
         setSelectedList(null)
-        return true // 消费事件，防止退出应用
+        return true
       }
       return false
     }
-
     const subscription = BackHandler.addEventListener('hardwareBackPress', onBackPress)
-
     return () => subscription.remove()
   }, [])
 
   useEffect(() => {
-    if (!selectedList) {
+    if (!selectedList && searchState.searchText) {
       setHeaderKey(Date.now())
-      if (searchState.searchText) {
-        listRef.current?.loadList(
-          searchState.searchText,
-          searchInfo.current.source,
-          searchInfo.current.searchType,
-        )
-      }
+      listRef.current?.loadList(searchState.searchText, searchInfo.current.source, searchInfo.current.searchType)
     }
-  }, [selectedList])
+  }, [selectedList, searchState.searchText])
+
+  // 语音搜索: 监听 triggerSearch 事件, 收到后直接加载
+  useEffect(() => {
+    const handler = (text: string) => {
+      if (!text.trim()) return
+      headerBarRef.current?.setText(text.trim())
+      listRef.current?.loadList(text.trim(), searchInfo.current.source, searchInfo.current.searchType)
+      searchState.searchText = text.trim()
+    }
+    global.app_event.on('triggerSearch', handler)
+    return () => { global.app_event.off('triggerSearch', handler) }
+  }, [])
 
   const handleSearch: HeaderBarProps['onSearch'] = useCallback((text) => {
-    handleHideTipList()
-    setSelectedList(null)
-    setSearchState(text) // 更新全局状态
-    searchTipListRef.current?.search(text, layoutHeightRef.current)
+    if (!text.trim()) return
+    setSearchState(text.trim())
+    addHistoryWord(text.trim())
+    listRef.current?.loadList(text.trim(), searchInfo.current.source, searchInfo.current.searchType)
+  }, [])
+
+  const handleTipSearch: HeaderBarProps['onTipSearch'] = useCallback((text) => {
     headerBarRef.current?.setText(text)
-    headerBarRef.current?.blur()
-    void addHistoryWord(text)
-    listRef.current?.loadList(text, searchInfo.current.source, searchInfo.current.searchType)
-  }, [])
+    handleSearch(text)
+  }, [handleSearch])
 
-  useEffect(() => {
-    void getSearchSetting().then((info) => {
-      searchInfo.current.temp_source = info.temp_source
-      searchInfo.current.source = info.source
-      searchInfo.current.searchType = info.type
-      switch (info.type) {
-        case 'music':
-        case 'singer':
-        case 'album':
-          headerBarRef.current?.setSourceList(searchMusicState.sources, info.source)
-          break
-        case 'songlist':
-          headerBarRef.current?.setSourceList(searchSonglistState.sources, info.source)
-          break
-      }
-      headerBarRef.current?.setText(searchState.searchText)
-      listRef.current?.loadList(
-        searchState.searchText,
-        searchInfo.current.source,
-        searchInfo.current.searchType,
-      )
-    })
-
-    const handleTypeChange = (type: SearchType) => {
-      setSelectedList(null)
-      searchInfo.current.searchType = type
-      void saveSearchSetting({ type })
-      if ((type === 'singer' || type === 'album') && searchInfo.current.source !== 'wy') {
-        toast('歌手与专辑搜索目前仅支持网易云源')
-      }
-      if (searchState.searchText) {
-        listRef.current?.loadList(searchState.searchText, searchInfo.current.source, type)
-      }
-    }
-    global.app_event.on('searchTypeChanged', handleTypeChange)
-
-    return () => {
-      global.app_event.off('searchTypeChanged', handleTypeChange)
-    }
-  }, [headerKey])
-
-  useEffect(() => {
-    const handleNavChange = (id: string) => {
-      if (id === 'nav_search' && searchState.searchText) {
-        headerBarRef.current?.setText(searchState.searchText)
-        listRef.current?.loadList(searchState.searchText, searchInfo.current.source, searchInfo.current.searchType)
-      }
-    }
-    global.state_event.on('navActiveIdUpdated', handleNavChange)
-    return () => {
-      global.state_event.off('navActiveIdUpdated', handleNavChange)
-    }
-  }, [])
-
-  const handleLayout = (e: LayoutChangeEvent) => {
-    layoutHeightRef.current = e.nativeEvent.layout.height
-  }
-  const handleSourceChange: HeaderBarProps['onSourceChange'] = (source) => {
-    setSelectedList(null)
+  const handleSourceChange = useCallback((source: LX.OnlineSource | 'all') => {
     searchInfo.current.source = source
-    void saveSearchSetting({ source })
     if (searchState.searchText) {
       listRef.current?.loadList(searchState.searchText, source, searchInfo.current.searchType)
     }
-  }
+  }, [])
 
-  const handleTipSearch: HeaderBarProps['onTipSearch'] = (text) => {
-    setTimeout(() => {
-      searchTipListRef.current?.search(text, layoutHeightRef.current)
-    }, 500)
-  }
-  const handleHideTipList = () => {
-    if (timeoutRef.current) {
-      clearTimeout(timeoutRef.current)
-      timeoutRef.current = null
-    }
+  const handleHideTipList = useCallback(() => {
     searchTipListRef.current?.hide()
-  }
-  const handleShowTipList: HeaderBarProps['onShowTipList'] = () => {
-    if (timeoutRef.current) clearTimeout(timeoutRef.current)
-    timeoutRef.current = setTimeout(() => {
-      searchTipListRef.current?.show(layoutHeightRef.current)
-    }, 500)
-  }
+  }, [])
+
+  const handleShowTipList = useCallback(() => {
+    searchTipListRef.current?.show()
+  }, [])
+
+  const handleLayout = useCallback((e: LayoutChangeEvent) => {
+    layoutHeightRef.current = e.nativeEvent.layout.height
+  }, [])
 
   const handleOpenDetail = useCallback((item: ListInfoItem) => {
     setSelectedList(item)
@@ -171,7 +118,18 @@ export default () => {
 
   return (
     <View style={styles.container}>
-      { !selectedList && (
+      <VoicePanel
+        visible={overlayVisible}
+        onText={(text) => {
+          asr.stop()
+          setOverlayVisible(false)
+          if (text) {
+            headerBarRef.current?.setText(text.trim())
+            handleSearch(text.trim())
+          }
+        }}
+      />
+      {!selectedList && (
         <HeaderBar
           key={headerKey}
           ref={headerBarRef}
@@ -180,10 +138,15 @@ export default () => {
           onSearch={handleSearch}
           onHideTipList={handleHideTipList}
           onShowTipList={handleShowTipList}
+          onVoicePress={() => {
+            if (asr.listening) { asr.stop(); setOverlayVisible(false) }
+            else { asr.start() }
+          }}
+          voiceListening={asr.listening}
         />
       )}
       <View style={styles.content} onLayout={handleLayout}>
-        { selectedList
+        {selectedList
           ? <SonglistDetail
             componentId={commonState.componentIds.find(c => c.name === COMPONENT_IDS.home)?.id}
             info={selectedList} onBack={() => setSelectedList(null)}
@@ -199,7 +162,6 @@ export default () => {
     </View>
   )
 }
-
 
 const styles = createStyle({
   container: {

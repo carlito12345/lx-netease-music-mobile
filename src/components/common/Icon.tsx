@@ -65,6 +65,8 @@ const ICON_MAP: Record<string, string> = {
   'leaderboard': 'leaderboard',
   'album': 'album',
   'search-2': 'search',
+  'voice': 'mic',
+  'voice-filled': 'mic',
   'calendar': 'event',
   'artist': 'person',
   'album-disc': 'album',
