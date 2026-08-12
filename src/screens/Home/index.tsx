@@ -9,7 +9,8 @@ import { navigations } from '@/navigation'
 import ArtistSelectorManager from '@/components/ArtistSelectorManager'
 import settingState from '@/store/setting/state'
 import { useI18n } from "@/lang"
-import { BackHandler, NativeModules } from "react-native"
+import { BackHandler } from "react-native"
+import { startListening, stopListening } from '@/utils/asr/manager'
 import { toast } from "@/utils/tools.ts"
 import commonState from '@/store/common/state'
 import { useBackHandler } from "@/utils/hooks/useBackHandler.ts"
@@ -20,13 +21,12 @@ import { FloatingMicButton, VoicePanel } from '@/components/VoiceAssistant'
 import useVoiceCommands from '@/utils/asr/useVoiceCommands'
 import { getData, saveData } from '@/plugins/storage'
 
-// 安全获取 AsrModule, 允许 undefined
-const AsrModule = NativeModules.AsrModule
+
 
 const opLog = (event: string) => {
   const time = new Date().toLocaleTimeString()
   const line = `[${time}] ${event}`
-  try { AsrModule?.writeOpLog?.(event) } catch (_) {}
+  try { const { writeOpLog } = require('@/utils/asr/manager'); writeOpLog(event) } catch (_) {}
   getData('asr_op_log').then((v: any) => {
     const next = v ? v + '\n' + line : line
     saveData('asr_op_log', next.split('\n').slice(-200).join('\n'))
@@ -42,7 +42,7 @@ export default ({ componentId }: Props) => {
   const { parseCommand } = useVoiceCommands()
 
   useEffect(() => {
-    opLog('Home mounted, AsrModule=' + (AsrModule ? 'OK' : 'MISSING'))
+    opLog('Home mounted')
   }, [])
 
   useEffect(() => {
@@ -65,15 +65,11 @@ export default ({ componentId }: Props) => {
   }, [t]))
 
   const handleVoicePress = useCallback(async () => {
-    if (!AsrModule) {
-      toast('语音模块未加载')
-      opLog('AsrModule MISSING')
-      return
-    }
+
     if (voiceActive) {
       setVoiceActive(false)
       try {
-        const r = await AsrModule.stopListening()
+        const r = await stopListening()
         opLog('手动停止: raw=' + (r?.text || '(空)'))
         if (r?.text) {
           const cmd = parseCommand(r.text)
@@ -88,7 +84,7 @@ export default ({ componentId }: Props) => {
     } else {
       setVoiceActive(true)
       opLog('开始聆听')
-      try { await AsrModule.startListening() }
+      try { await startListening() }
       catch (e: any) { setVoiceActive(false); opLog('启动失败: ' + (e.message || '')) }
     }
   }, [voiceActive, parseCommand])

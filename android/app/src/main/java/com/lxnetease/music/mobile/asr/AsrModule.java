@@ -79,12 +79,13 @@ public class AsrModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void startListening(Promise p) {
         if (!sdkInit) { logBoth("start: SDK not init"); p.reject("ERR", "SDK未初始化"); return; }
+        lastResult = ""; hasResult = false; listening = true;
         new Thread(() -> {
             try {
                 if (recognizer != null) { recognizer.cancel(); recognizer.destroy(); recognizer = null; }
                 Log.e(TAG, "startListening: about to createRecognizer, sdkInit=" + sdkInit);
                 recognizer = SpeechRecognizer.createRecognizer(ctx, null);
-                if (recognizer == null) { Log.e(TAG, "start: createRecognizer RETURNED NULL"); logBoth("start: createRecognizer null"); p.reject("ERR", "创建失败"); return; }
+                if (recognizer == null) { Log.e(TAG, "start: createRecognizer RETURNED NULL"); logBoth("start: createRecognizer null"); listening = false; p.reject("ERR", "创建失败"); return; }
                 Log.e(TAG, "start: createRecognizer OK, setting parameters");
                 recognizer.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
                 recognizer.setParameter(SpeechConstant.RESULT_TYPE, "json");
@@ -93,7 +94,6 @@ public class AsrModule extends ReactContextBaseJavaModule {
                 recognizer.setParameter(SpeechConstant.ASR_PTT, "1");
                 recognizer.setParameter(SpeechConstant.VAD_BOS, "5000");
                 recognizer.setParameter(SpeechConstant.VAD_EOS, "1500");
-                lastResult = ""; hasResult = false; listening = true;
                 logBoth("start: calling startListening");
                 int ret = recognizer.startListening(new RecognizerListener() {
                     @Override public void onBeginOfSpeech() { logBoth("onBegin"); }
