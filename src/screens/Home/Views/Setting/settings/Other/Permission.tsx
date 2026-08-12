@@ -10,7 +10,8 @@ import { useTheme } from '@/store/theme/hook'
 import Text from '@/components/common/Text'
 import { useI18n } from '@/lang'
 
-const { PermissionModule } = require('react-native').NativeModules as any
+const { NativeModules } = require('react-native')
+const { PermissionModule, AsrModule } = NativeModules as any
 
 interface PermissionItem {
   key: string
@@ -26,6 +27,15 @@ export default memo(() => {
   const [permStatus, setPermStatus] = useState<Record<string, boolean>>({})
 
   const permissionList: PermissionItem[] = [
+    {
+      key: 'recordAudio',
+      label: '麦克风权限',
+      description: '语音识别需要使用麦克风',
+      check: async () => {
+        try { return await AsrModule?.hasRecordAudioPermission?.() ?? false } catch { return false }
+      },
+      open: () => { try { AsrModule?.openRecordAudioSettings?.() } catch (_) {} },
+    },
     {
       key: 'overlay',
       label: t('setting_other_permission_overlay'),

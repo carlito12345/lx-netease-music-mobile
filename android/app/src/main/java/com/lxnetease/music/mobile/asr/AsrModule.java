@@ -14,6 +14,10 @@ import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechRecognizer;
 import com.iflytek.cloud.SpeechUtility;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.net.Uri;
+import android.provider.Settings;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -74,10 +78,21 @@ public class AsrModule extends ReactContextBaseJavaModule {
     public void hasRecordAudioPermission(Promise p) {
         try {
             boolean granted = ctx.checkSelfPermission(android.Manifest.permission.RECORD_AUDIO)
-                == android.content.pm.PackageManager.PERMISSION_GRANTED;
+                == PackageManager.PERMISSION_GRANTED;
             log("hasRecordAudioPermission: " + granted);
             p.resolve(granted);
         } catch (Throwable e) { p.reject("ERR", e.getMessage()); }
+    }
+
+    @ReactMethod
+    public void openRecordAudioSettings() {
+        log("openRecordAudioSettings");
+        try {
+            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                Uri.parse("package:" + ctx.getPackageName()));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            ctx.startActivity(intent);
+        } catch (Throwable e) { log("openSettings err: " + e.getMessage()); }
     }
 
     @ReactMethod public void getStatus(Promise p) {

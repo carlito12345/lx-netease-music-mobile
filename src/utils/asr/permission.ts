@@ -1,6 +1,6 @@
 import { Platform, Linking } from 'react-native'
 import { toast } from '@/utils/tools'
-import { hasRecordAudioPermission } from './manager'
+import { hasRecordAudioPermission, openRecordAudioSettings } from './manager'
 
 export async function ensureRecordAudioPermission(): Promise<boolean> {
   if (Platform.OS !== 'android') return true
@@ -16,6 +16,6 @@ export async function ensureRecordAudioPermission(): Promise<boolean> {
 
   // 没权限 → toast 提示 + 直接跳设置
   toast('请授予麦克风权限后重试')
-  try { Linking.openSettings() } catch (_) {}
+  openRecordAudioSettings()
   return false
 }

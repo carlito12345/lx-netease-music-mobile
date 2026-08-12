@@ -28,3 +28,4 @@ export const hasRecordAudioPermission = (): Promise<boolean> => safeCall("hasRec
 export const writeOpLog = (line: string) => { try { AsrNative?.writeOpLog?.(line) } catch (_) {} }
 
 export const readNativeLog = (): Promise<string> => safeCall("readLog")
+export const openRecordAudioSettings = () => { try { AsrNative?.openRecordAudioSettings?.() } catch (_) {} }
