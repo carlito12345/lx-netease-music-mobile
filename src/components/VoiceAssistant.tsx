@@ -177,9 +177,9 @@ export function VoicePanel({ visible, onText }: { visible: boolean; onText: (tex
 }
 
 const ss = createStyle({
-  floatBtnWrapper: { position: 'absolute', bottom: 80, right: 20, zIndex: 1000 },
-  floatBtn: { width: 52, height: 52, borderRadius: 26, justifyContent: 'center', alignItems: 'center', elevation: 8, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 8 },
-  floatRing: { position: 'absolute', top: -6, left: -6, width: 64, height: 64, borderRadius: 32, borderWidth: 2, opacity: 0.5 },
+  floatBtnWrapper: { position: 'absolute', bottom: 100, right: 16, zIndex: 1000 },
+  floatBtn: { width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', elevation: 8, shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.35, shadowRadius: 8 },
+  floatRing: { position: 'absolute', top: -6, left: -6, width: 68, height: 68, borderRadius: 34, borderWidth: 2, opacity: 0.5 },
   panelOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 1001, backgroundColor: 'rgba(0,0,0,0.85)', justifyContent: 'center', alignItems: 'center' },
   panelContent: { alignItems: 'center', paddingHorizontal: 48 },
   micRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginBottom: 20 },

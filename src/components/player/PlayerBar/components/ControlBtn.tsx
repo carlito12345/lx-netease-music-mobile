@@ -1,8 +1,11 @@
+import { TouchableOpacity } from 'react-native'
+import { Icon } from '@/components/common/Icon'
 import { useIsPlay } from '@/store/player/hook'
+import { useTheme } from '@/store/theme/hook'
+import { useBgPic } from '@/store/common/hook'
 import { playNext, playPrev, togglePlay } from '@/core/player/player'
-import { useHorizontalMode } from '@/utils/hooks'
 import { createStyle } from '@/utils/tools'
-import IconButton from '@/components/common/IconButton'
+import { useHorizontalMode } from '@/utils/hooks'
 
 const BTN_SIZE = 24
 const handlePlayPrev = () => {
@@ -13,22 +16,36 @@ const handlePlayNext = () => {
 }
 
 const PlayPrevBtn = () => {
+  const theme = useTheme()
+  const bgPic = useBgPic()
+
   return (
-    <IconButton name="prevMusic" size={BTN_SIZE} onPress={handlePlayPrev} />
+    <TouchableOpacity style={styles.cotrolBtn} activeOpacity={0.5} onPress={handlePlayPrev}>
+      <Icon name='prevMusic' color={bgPic ? '#fff' : theme['c-button-font']} size={BTN_SIZE} />
+    </TouchableOpacity>
   )
 }
 
 const PlayNextBtn = () => {
+  const theme = useTheme()
+  const bgPic = useBgPic()
+
   return (
-    <IconButton name="nextMusic" size={BTN_SIZE} onPress={handlePlayNext} />
+    <TouchableOpacity style={styles.cotrolBtn} activeOpacity={0.5} onPress={handlePlayNext}>
+      <Icon name='nextMusic' color={bgPic ? '#fff' : theme['c-button-font']} size={BTN_SIZE} />
+    </TouchableOpacity>
   )
 }
 
 const TogglePlayBtn = () => {
   const isPlay = useIsPlay()
+  const theme = useTheme()
+  const bgPic = useBgPic()
 
   return (
-    <IconButton name={isPlay ? 'pause' : 'play'} size={BTN_SIZE} onPress={togglePlay} />
+    <TouchableOpacity style={styles.cotrolBtn} activeOpacity={0.5} onPress={togglePlay}>
+      <Icon name={isPlay ? 'pause' : 'play'} color={bgPic ? '#fff' : theme['c-button-font']} size={BTN_SIZE} />
+    </TouchableOpacity>
   )
 }
 
@@ -43,12 +60,13 @@ export default () => {
       </TouchableOpacity>
     */}
       {/* {btnPrev} */}
-      {isHorizontalMode ? <PlayPrevBtn /> : null}
+      { isHorizontalMode ? <PlayPrevBtn /> : null }
       <TogglePlayBtn />
       <PlayNextBtn />
     </>
   )
 }
+
 
 const styles = createStyle({
   cotrolBtn: {
