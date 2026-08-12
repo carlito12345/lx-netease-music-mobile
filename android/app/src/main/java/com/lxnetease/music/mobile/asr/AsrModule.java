@@ -86,13 +86,21 @@ public class AsrModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void openRecordAudioSettings() {
-        log("openRecordAudioSettings");
+        log("openRecordAudioSettings: requesting permission");
         try {
-            Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
-                Uri.parse("package:" + ctx.getPackageName()));
+            Intent intent = new Intent("android.intent.action.MANAGE_APP_PERMISSIONS");
+            intent.putExtra(Intent.EXTRA_PACKAGE_NAME, ctx.getPackageName());
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             ctx.startActivity(intent);
-        } catch (Throwable e) { log("openSettings err: " + e.getMessage()); }
+        } catch (Throwable e) {
+            log("openSettings fallback: " + e.getMessage());
+            try {
+                Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
+                    Uri.parse("package:" + ctx.getPackageName()));
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                ctx.startActivity(intent);
+            } catch (Throwable e2) { log("openSettings err: " + e2.getMessage()); }
+        }
     }
 
     @ReactMethod public void getStatus(Promise p) {
