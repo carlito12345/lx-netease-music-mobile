@@ -268869,16 +268869,33 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       }
     }, [active]);
     return /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.TouchableOpacity, {
-      style: ss.floatBtnWrapper,
+      style: {
+        position: 'absolute',
+        bottom: 100,
+        right: 16,
+        zIndex: 1000
+      },
       onPress: onPress,
       activeOpacity: 0.8,
       children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Animated.View, {
-        style: [ss.floatBtn, {
+        style: [{
+          width: 56,
+          height: 56,
+          borderRadius: 28,
           backgroundColor: active ? '#DC2626' : '#2563EB',
+          justifyContent: 'center',
+          alignItems: 'center',
+          elevation: 8,
+          shadowOffset: {
+            width: 0,
+            height: 4
+          },
+          shadowOpacity: 0.35,
+          shadowRadius: 8,
+          shadowColor: active ? '#DC2626' : '#2563EB',
           transform: [{
             scale: pulse
-          }],
-          shadowColor: active ? '#DC2626' : '#2563EB'
+          }]
         }],
         children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_$$_REQUIRE(_dependencyMap[7], "./common/SvgIcon").SvgIcon, {
           name: "mic",
@@ -268886,9 +268903,17 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
           color: "#FFFFFF"
         })
       }), active && /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.View, {
-        style: [ss.floatRing, {
-          borderColor: '#DC2626'
-        }]
+        style: {
+          position: 'absolute',
+          top: -6,
+          left: -6,
+          width: 68,
+          height: 68,
+          borderRadius: 34,
+          borderWidth: 2,
+          borderColor: '#DC2626',
+          opacity: 0.5
+        }
       })]
     });
   }

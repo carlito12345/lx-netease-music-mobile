@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-import { Animated, View, TouchableOpacity, Easing } from 'react-native'
+import { Animated, View, TouchableOpacity, Easing, StyleSheet, PixelRatio } from 'react-native'
 import { createStyle } from '@/utils/tools'
 import { SvgIcon } from '@/components/common/SvgIcon'
 import { getPartialResult } from '@/utils/asr/manager'
@@ -25,11 +25,51 @@ export function FloatingMicButton({ onPress, active }: { onPress: () => void; ac
     }
   }, [active])
   return (
-    <TouchableOpacity style={ss.floatBtnWrapper} onPress={onPress} activeOpacity={0.8}>
-      <Animated.View style={[ss.floatBtn, { backgroundColor: active ? '#DC2626' : '#2563EB', transform: [{ scale: pulse }], shadowColor: active ? '#DC2626' : '#2563EB' }]}>
+    <TouchableOpacity
+      style={{
+        position: 'absolute',
+        bottom: 100,
+        right: 16,
+        zIndex: 1000,
+      }}
+      onPress={onPress}
+      activeOpacity={0.8}
+    >
+      <Animated.View
+        style={[
+          {
+            width: 56,
+            height: 56,
+            borderRadius: 28,
+            backgroundColor: active ? '#DC2626' : '#2563EB',
+            justifyContent: 'center',
+            alignItems: 'center',
+            elevation: 8,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.35,
+            shadowRadius: 8,
+            shadowColor: active ? '#DC2626' : '#2563EB',
+            transform: [{ scale: pulse }],
+          },
+        ]}
+      >
         <SvgIcon name="mic" rawSize={28} color="#FFFFFF" />
       </Animated.View>
-      {active && <View style={[ss.floatRing, { borderColor: '#DC2626' }]} />}
+      {active && (
+        <View
+          style={{
+            position: 'absolute',
+            top: -6,
+            left: -6,
+            width: 68,
+            height: 68,
+            borderRadius: 34,
+            borderWidth: 2,
+            borderColor: '#DC2626',
+            opacity: 0.5,
+          }}
+        />
+      )}
     </TouchableOpacity>
   )
 }
