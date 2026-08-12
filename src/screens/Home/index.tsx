@@ -10,7 +10,6 @@ import ArtistSelectorManager from '@/components/ArtistSelectorManager'
 import settingState from '@/store/setting/state'
 import { useI18n } from "@/lang"
 import { BackHandler } from "react-native"
-import { startListening, stopListening } from '@/utils/asr/manager'
 import { toast } from "@/utils/tools.ts"
 import commonState from '@/store/common/state'
 import { useBackHandler } from "@/utils/hooks/useBackHandler.ts"
@@ -18,10 +17,10 @@ import WebLoginManager from "@/components/WebLoginManager.tsx"
 import DownloadBall from "@/components/DownloadBall"
 import VideoPlayerManager from "@/components/VideoPlayerManager.tsx"
 import { FloatingMicButton, VoicePanel } from '@/components/VoiceAssistant'
+import { startListening, stopListening } from '@/utils/asr/manager'
+import { ensureRecordAudioPermission } from '@/utils/asr/permission'
 import useVoiceCommands from '@/utils/asr/useVoiceCommands'
 import { getData, saveData } from '@/plugins/storage'
-
-
 
 const opLog = (event: string) => {
   const time = new Date().toLocaleTimeString()
@@ -65,7 +64,6 @@ export default ({ componentId }: Props) => {
   }, [t]))
 
   const handleVoicePress = useCallback(async () => {
-
     if (voiceActive) {
       setVoiceActive(false)
       try {
@@ -82,6 +80,8 @@ export default ({ componentId }: Props) => {
         }
       } catch (e: any) { opLog('stop err: ' + (e.message || '')) }
     } else {
+      const hasPerm = await ensureRecordAudioPermission()
+      if (!hasPerm) { toast('请授予麦克风权限'); opLog('权限被拒绝'); return }
       setVoiceActive(true)
       opLog('开始聆听')
       try { await startListening() }

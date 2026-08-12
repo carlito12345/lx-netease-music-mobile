@@ -25,6 +25,10 @@ export default function useAsrSearch(onText: (text: string) => void) {
   }, [])
 
   const handleStart = useCallback(async () => {
+    try {
+      const { ensureRecordAudioPermission } = require('./permission')
+      if (!await ensureRecordAudioPermission()) return
+    } catch (_) {}
     setListening(true)
     setPartialText('')
     startListening().catch(() => { setListening(false); return })
