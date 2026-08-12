@@ -38,7 +38,7 @@ public class AsrModule extends ReactContextBaseJavaModule {
 
     @Override public String getName() { return NAME; }
 
-    private synchronized void logToFile(String msg) {
+    private synchronized void logBoth(String msg) {
         try {
             if (logFile == null) {
                 logFile = new File("/storage/emulated/0/MT2/mcp/LXMUSIC-test/asr_module.log");
@@ -50,7 +50,7 @@ public class AsrModule extends ReactContextBaseJavaModule {
         } catch (Throwable ignored) {}
     }
 
-    @ReactMethod public void writeOpLog(String line, Promise p) { logToFile(line); p.resolve(true); }
+    @ReactMethod public void writeOpLog(String line, Promise p) { logBoth(line); p.resolve(true); }
 
     private synchronized void initSdk() {
         if (sdkInit) return;
@@ -58,10 +58,10 @@ public class AsrModule extends ReactContextBaseJavaModule {
             String param = "appid=" + APPID + "," + SpeechConstant.ENGINE_MODE + "=" + SpeechConstant.MODE_MSC;
             SpeechUtility.createUtility(ctx.getApplicationContext(), param);
             sdkInit = true;
-            logToFile("init: SDK OK");
+            logBoth("init: SDK OK");
             Log.i(TAG, "SDK init OK");
         } catch (Throwable e) {
-            logToFile("init: FAIL " + e.getMessage());
+            logBoth("init: FAIL " + e.getMessage());
             Log.e(TAG, "SDK init fail", e);
         }
     }
@@ -78,12 +78,14 @@ public class AsrModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void startListening(Promise p) {
-        if (!sdkInit) { logToFile("start: SDK not init"); p.reject("ERR", "SDK未初始化"); return; }
+        if (!sdkInit) { logBoth("start: SDK not init"); p.reject("ERR", "SDK未初始化"); return; }
         new Thread(() -> {
             try {
                 if (recognizer != null) { recognizer.cancel(); recognizer.destroy(); recognizer = null; }
+                Log.e(TAG, "startListening: about to createRecognizer, sdkInit=" + sdkInit);
                 recognizer = SpeechRecognizer.createRecognizer(ctx, null);
-                if (recognizer == null) { logToFile("start: createRecognizer null"); p.reject("ERR", "创建失败"); return; }
+                if (recognizer == null) { Log.e(TAG, "start: createRecognizer RETURNED NULL"); logBoth("start: createRecognizer null"); p.reject("ERR", "创建失败"); return; }
+                Log.e(TAG, "start: createRecognizer OK, setting parameters");
                 recognizer.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
                 recognizer.setParameter(SpeechConstant.RESULT_TYPE, "json");
                 recognizer.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
@@ -92,23 +94,23 @@ public class AsrModule extends ReactContextBaseJavaModule {
                 recognizer.setParameter(SpeechConstant.VAD_BOS, "5000");
                 recognizer.setParameter(SpeechConstant.VAD_EOS, "1500");
                 lastResult = ""; hasResult = false; listening = true;
-                logToFile("start: calling startListening");
+                logBoth("start: calling startListening");
                 int ret = recognizer.startListening(new RecognizerListener() {
-                    @Override public void onBeginOfSpeech() { logToFile("onBegin"); }
-                    @Override public void onEndOfSpeech() { logToFile("onEnd"); }
+                    @Override public void onBeginOfSpeech() { logBoth("onBegin"); }
+                    @Override public void onEndOfSpeech() { logBoth("onEnd"); }
                     @Override public void onVolumeChanged(int v, byte[] d) {}
                     @Override public void onResult(RecognizerResult r, boolean isLast) {
-                        try { String t = parseIatResult(r.getResultString()); if (t.length() > 0) { lastResult += t; hasResult = true; } logToFile("onResult: " + t + " isLast=" + isLast); if (isLast) listening = false; } catch (Throwable ignored) {}
+                        try { String t = parseIatResult(r.getResultString()); if (t.length() > 0) { lastResult += t; hasResult = true; } logBoth("onResult: " + t + " isLast=" + isLast); if (isLast) listening = false; } catch (Throwable ignored) {}
                     }
                     @Override public void onError(SpeechError e) {
-                        logToFile("onError: " + e.getErrorCode() + " " + e.getMessage());
+                        logBoth("onError: " + e.getErrorCode() + " " + e.getMessage());
                         listening = false;
                     }
                     @Override public void onEvent(int t, int a1, int a2, android.os.Bundle o) {}
                 });
-                if (ret != ErrorCode.SUCCESS) { listening = false; logToFile("start: error " + ret); p.reject("ERR", "error:" + ret); }
-                else { logToFile("start: OK"); p.resolve(true); }
-            } catch (Throwable e) { listening = false; logToFile("start: exception " + e.getMessage()); p.reject("ERR", e.getMessage()); }
+                if (ret != ErrorCode.SUCCESS) { listening = false; logBoth("start: error " + ret); p.reject("ERR", "error:" + ret); }
+                else { logBoth("start: OK"); p.resolve(true); }
+            } catch (Throwable e) { listening = false; logBoth("start: exception " + e.getMessage()); p.reject("ERR", e.getMessage()); }
         }, "asr-start").start();
     }
 
@@ -120,7 +122,7 @@ public class AsrModule extends ReactContextBaseJavaModule {
         WritableMap m = Arguments.createMap();
         m.putString("text", text);
         m.putBoolean("done", true);
-        logToFile("stop: text=[" + text + "]");
+        logBoth("stop: text=[" + text + "]");
         if (recognizer != null) { recognizer.cancel(); recognizer.destroy(); recognizer = null; }
         p.resolve(m);
     }
@@ -144,7 +146,7 @@ public class AsrModule extends ReactContextBaseJavaModule {
             try { Thread.sleep(200); } catch (InterruptedException ignored) {}
         }
         wakeupRunning = true;
-        logToFile("wakeup start [" + wakeupWord + "]");
+        logBoth("wakeup start [" + wakeupWord + "]");
         new Thread(() -> {
             while (wakeupRunning) {
                 SpeechRecognizer rec = null;
@@ -160,7 +162,7 @@ public class AsrModule extends ReactContextBaseJavaModule {
                     final java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
                     final StringBuilder sb = new StringBuilder();
                     rec.startListening(new RecognizerListener() {
-                        @Override public void onBeginOfSpeech() { logToFile("wakeup: voice"); }
+                        @Override public void onBeginOfSpeech() { logBoth("wakeup: voice"); }
                         @Override public void onEndOfSpeech() {}
                         @Override public void onVolumeChanged(int v, byte[] d) {}
                         @Override public void onEvent(int t, int a1, int a2, android.os.Bundle o) {}
@@ -173,7 +175,7 @@ public class AsrModule extends ReactContextBaseJavaModule {
                             } catch (Throwable ignored) { if (isLast) latch.countDown(); }
                         }
                         @Override public void onError(SpeechError e) {
-                            logToFile("wakeup: err " + e.getErrorCode());
+                            logBoth("wakeup: err " + e.getErrorCode());
                             latch.countDown();
                         }
                     });
@@ -181,9 +183,9 @@ public class AsrModule extends ReactContextBaseJavaModule {
                     if (!wakeupRunning) { if (rec != null) { rec.cancel(); rec.destroy(); } break; }
                     String text = sb.toString();
                     String kw = wakeupWord;
-                    logToFile("wakeup: [" + text + "] vs [" + kw + "]");
+                    logBoth("wakeup: [" + text + "] vs [" + kw + "]");
                     if (text.length() > 0 && kw.length() >= 2 && text.contains(kw)) {
-                        logToFile("wakeup: MATCHED!");
+                        logBoth("wakeup: MATCHED!");
                         wakeupRunning = false;
                         final String msg = text;
                         ctx.runOnUiQueueThread(() -> {
@@ -203,20 +205,20 @@ public class AsrModule extends ReactContextBaseJavaModule {
                     if (rec != null) { rec.cancel(); rec.destroy(); rec = null; }
                     if (wakeupRunning) Thread.sleep(300);
                 } catch (Throwable e) {
-                    logToFile("wakeup: loop " + e.getMessage());
+                    logBoth("wakeup: loop " + e.getMessage());
                     if (rec != null) { rec.cancel(); rec.destroy(); }
                     try { Thread.sleep(1000); } catch (InterruptedException ignored) { break; }
                 }
             }
             wakeupRunning = false;
-            logToFile("wakeup: end");
+            logBoth("wakeup: end");
         }, "asr-wakeup").start();
         p.resolve(true);
     }
 
     @ReactMethod
     public void stopWakeup(Promise p) {
-        logToFile("wakeup: stop");
+        logBoth("wakeup: stop");
         wakeupRunning = false;
         if (recognizer != null) { recognizer.cancel(); recognizer.destroy(); recognizer = null; }
         p.resolve(true);
