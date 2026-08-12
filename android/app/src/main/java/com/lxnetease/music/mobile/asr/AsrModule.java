@@ -85,12 +85,14 @@ public class AsrModule extends ReactContextBaseJavaModule {
         if (!sdkInit) { log("startListening: SDK NOT INIT"); p.reject("ERR", "SDK not init"); return; }
         lastResult = ""; hasResult = false; listening = true;
         log("startListening: listening=true, spawning thread");
+        // 同步 resolve, 后台线程自行管理生命周期
+        p.resolve(true);
         new Thread(() -> {
             SpeechRecognizer rec = null;
             try {
                 if (recognizer != null) { recognizer.cancel(); recognizer.destroy(); }
                 rec = SpeechRecognizer.createRecognizer(ctx, null);
-                if (rec == null) { log("createRecognizer NULL"); listening = false; p.reject("ERR", "create null"); return; }
+                if (rec == null) { log("createRecognizer NULL"); listening = false; return; }
                 recognizer = rec;
                 log("createRecognizer OK");
                 rec.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
@@ -114,9 +116,9 @@ public class AsrModule extends ReactContextBaseJavaModule {
                     }
                     @Override public void onEvent(int t, int a1, int a2, android.os.Bundle o) {}
                 });
-                if (ret != ErrorCode.SUCCESS) { listening = false; log("startListening failed: " + ret); p.reject("ERR", "err:" + ret); }
-                else { log("startListening OK"); p.resolve(true); }
-            } catch (Throwable e) { listening = false; log("startListening exception: " + e.getMessage()); p.reject("ERR", e.getMessage()); }
+                if (ret != ErrorCode.SUCCESS) { listening = false; log("startListening failed: " + ret); }
+                else { log("startListening OK, waiting for result..."); }
+            } catch (Throwable e) { listening = false; log("startListening exception: " + e.getMessage()); }
         }, "asr-start").start();
     }
 
