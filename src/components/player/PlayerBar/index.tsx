@@ -6,7 +6,6 @@ import Title from './components/Title'
 import PlayInfo from './components/PlayInfo'
 import ControlBtn from './components/ControlBtn'
 import { createStyle } from '@/utils/tools'
-import { scaleSizeH, scaleSizeW } from '@/utils/pixelRatio'
 import { useTheme } from '@/store/theme/hook'
 import { useSettingValue } from '@/store/setting/hook'
 import { Icon } from '@/components/common/Icon'
@@ -123,15 +122,14 @@ export default memo(({ componentId, isHome = false }: { componentId?: string, is
 const styles = createStyle({
   container: {
     width: '100%',
-    minHeight: scaleSizeH(68),
-    paddingVertical: 10,
+    height: 56,
     paddingLeft: 8,
     paddingRight: 8,
-    paddingBottom: 12,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
+    borderTopLeftRadius: 6,
+    borderTopRightRadius: 6,
     flexDirection: 'row',
     alignItems: 'center',
+    overflow: 'visible',
     elevation: 10,
   },
   left: {
@@ -139,7 +137,6 @@ const styles = createStyle({
     flexShrink: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: scaleSizeH(52),
   },
   center: {
     flexDirection: 'column',
@@ -155,11 +152,10 @@ const styles = createStyle({
     flexShrink: 0,
   },
   menuBtn: {
-    width: scaleSizeW(50),
-    height: scaleSizeH(50),
+    width: 46,
+    height: 46,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingLeft: 4,
   },
   // row: {
   //   flexDirection: 'row',

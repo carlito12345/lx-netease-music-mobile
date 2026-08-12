@@ -258466,10 +258466,10 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   var styles = (0, _$$_REQUIRE(_dependencyMap[7], "../../../../../utils/tools").createStyle)({
     searchBar: {
       flexDirection: 'row',
-      height: (0, _$$_REQUIRE(_dependencyMap[8], "../../../../../utils/pixelRatio").scaleSizeH)(54),
+      height: 50,
       zIndex: 2,
       paddingRight: 10,
-      borderBottomWidth: _$$_REQUIRE(_dependencyMap[9], "../../../../../theme").BorderWidths.normal,
+      borderBottomWidth: _$$_REQUIRE(_dependencyMap[8], "../../../../../theme").BorderWidths.normal,
       alignItems: 'center'
     },
     selector: {
@@ -258479,7 +258479,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       justifyContent: 'center'
     }
   });
-},1351,[11,65,20,1352,1356,106,986,549,990,1300],"src/screens/Home/Views/Search/HeaderBar/index.tsx");
+},1351,[11,65,20,1352,1356,106,986,549,1300],"src/screens/Home/Views/Search/HeaderBar/index.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
@@ -259017,10 +259017,10 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       onTouchStart: onTouchStart,
       onVoicePress: onVoicePress,
       voiceListening: voiceListening,
-      height: (0, _$$_REQUIRE(_dependencyMap[5], "../../../../../utils/pixelRatio").scaleSizeH)(42)
+      height: 38
     });
   });
-},1356,[11,12,65,1347,106,990],"src/screens/Home/Views/Search/HeaderBar/SearchInput.tsx");
+},1356,[11,12,65,1347,106],"src/screens/Home/Views/Search/HeaderBar/SearchInput.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   Object.defineProperty(exports, "__esModule", {
     value: true
@@ -293758,23 +293758,21 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   var styles = (0, _$$_REQUIRE(_dependencyMap[19], "../../../utils/tools").createStyle)({
     container: {
       width: '100%',
-      minHeight: (0, _$$_REQUIRE(_dependencyMap[20], "../../../utils/pixelRatio").scaleSizeH)(68),
-      paddingVertical: 10,
+      height: 56,
       paddingLeft: 8,
       paddingRight: 8,
-      paddingBottom: 12,
-      borderTopLeftRadius: 8,
-      borderTopRightRadius: 8,
+      borderTopLeftRadius: 6,
+      borderTopRightRadius: 6,
       flexDirection: 'row',
       alignItems: 'center',
+      overflow: 'visible',
       elevation: 10
     },
     left: {
       flexGrow: 1,
       flexShrink: 1,
       flexDirection: 'row',
-      alignItems: 'center',
-      minHeight: (0, _$$_REQUIRE(_dependencyMap[20], "../../../utils/pixelRatio").scaleSizeH)(52)
+      alignItems: 'center'
     },
     center: {
       flexDirection: 'column',
@@ -293790,11 +293788,10 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       flexShrink: 0
     },
     menuBtn: {
-      width: (0, _$$_REQUIRE(_dependencyMap[20], "../../../utils/pixelRatio").scaleSizeW)(50),
-      height: (0, _$$_REQUIRE(_dependencyMap[20], "../../../utils/pixelRatio").scaleSizeH)(50),
+      width: 46,
+      height: 46,
       justifyContent: 'center',
-      alignItems: 'center',
-      paddingLeft: 4
+      alignItems: 'center'
     }
     // row: {
     //   flexDirection: 'row',
@@ -293802,7 +293799,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     //   flexShrink: 0,
     // },
   });
-},1664,[11,65,20,1665,1666,1667,1669,726,1671,1674,651,106,1286,986,1370,1001,653,736,1035,549,990],"src/components/player/PlayerBar/index.tsx");
+},1664,[11,65,20,1665,1666,1667,1669,726,1671,1674,651,106,1286,986,1370,1001,653,736,1035,549],"src/components/player/PlayerBar/index.tsx");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {
