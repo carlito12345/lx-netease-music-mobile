@@ -190,3 +190,9 @@ const ss = createStyle({
   partialText: { textAlign: 'center', fontWeight: '600', lineHeight: 28 },
   hintText: { textAlign: 'center', marginTop: 4 },
 })
+// VoicePanel uses manager.ts which already handles undefined AsrModule
+// Just ensure the poll loop catches errors
+
+// Patch: wrap getPartialResult call
+import { getPartialResult } from '@/utils/asr/manager'
+// already happens in VoicePanel

@@ -9,7 +9,7 @@ import { navigations } from '@/navigation'
 import ArtistSelectorManager from '@/components/ArtistSelectorManager'
 import settingState from '@/store/setting/state'
 import { useI18n } from "@/lang"
-import { BackHandler } from "react-native"
+import { BackHandler, NativeModules } from "react-native"
 import { toast } from "@/utils/tools.ts"
 import commonState from '@/store/common/state'
 import { useBackHandler } from "@/utils/hooks/useBackHandler.ts"
@@ -17,14 +17,16 @@ import WebLoginManager from "@/components/WebLoginManager.tsx"
 import DownloadBall from "@/components/DownloadBall"
 import VideoPlayerManager from "@/components/VideoPlayerManager.tsx"
 import { FloatingMicButton, VoicePanel } from '@/components/VoiceAssistant'
-import { startListening, stopListening, writeOpLog } from '@/utils/asr/manager'
 import useVoiceCommands from '@/utils/asr/useVoiceCommands'
 import { getData, saveData } from '@/plugins/storage'
 
+// 安全获取 AsrModule, 允许 undefined
+const AsrModule = NativeModules.AsrModule
+
 const opLog = (event: string) => {
-  writeOpLog(event)
   const time = new Date().toLocaleTimeString()
   const line = `[${time}] ${event}`
+  try { AsrModule?.writeOpLog?.(event) } catch (_) {}
   getData('asr_op_log').then((v: any) => {
     const next = v ? v + '\n' + line : line
     saveData('asr_op_log', next.split('\n').slice(-200).join('\n'))
@@ -40,18 +42,15 @@ export default ({ componentId }: Props) => {
   const { parseCommand } = useVoiceCommands()
 
   useEffect(() => {
-    setComponentId(COMPONENT_IDS.home, componentId)
+    opLog('Home mounted, AsrModule=' + (AsrModule ? 'OK' : 'MISSING'))
+  }, [])
 
+  useEffect(() => {
+    setComponentId(COMPONENT_IDS.home, componentId)
     if (settingState.setting['player.startupPushPlayDetailScreen']) {
       const timer = setTimeout(() => { navigations.pushPlayDetailScreen(componentId, true) }, 1200)
       return () => clearTimeout(timer)
     }
-
-    const handleGlobalSearch = () => {
-      setNavActiveId('nav_search')
-    }
-    global.app_event.on('voiceNavToSearch', handleGlobalSearch)
-    return () => { global.app_event.off('voiceNavToSearch', handleGlobalSearch) }
   }, [componentId])
 
   useBackHandler(useCallback(() => {
@@ -66,24 +65,31 @@ export default ({ componentId }: Props) => {
   }, [t]))
 
   const handleVoicePress = useCallback(async () => {
+    if (!AsrModule) {
+      toast('语音模块未加载')
+      opLog('AsrModule MISSING')
+      return
+    }
     if (voiceActive) {
       setVoiceActive(false)
-      const r = await stopListening()
-      opLog('手动停止: raw=' + (r.text || '(空)'))
-      if (r.text) {
-        const cmd = parseCommand(r.text)
-        opLog('解析: type=' + cmd.type + ' navId=' + (cmd.navId || '') + ' text=' + (cmd.text || ''))
-        if (cmd.type === 'navigate' && cmd.navId) {
-          setNavActiveId(cmd.navId as any)
-        } else if (cmd.type === 'search' && cmd.text) {
-          // 使用全局事件,确保搜索页拿到文字后自动搜索
-          global.app_event.emit('triggerSearch', cmd.text)
+      try {
+        const r = await AsrModule.stopListening()
+        opLog('手动停止: raw=' + (r?.text || '(空)'))
+        if (r?.text) {
+          const cmd = parseCommand(r.text)
+          opLog('解析: type=' + cmd.type + ' navId=' + (cmd.navId || '') + ' text=' + (cmd.text || ''))
+          if (cmd.type === 'navigate' && cmd.navId) setNavActiveId(cmd.navId as any)
+          else if (cmd.type === 'search' && cmd.text) {
+            setNavActiveId('nav_search')
+            setTimeout(() => global.app_event.emit('triggerSearch', cmd.text), 200)
+          }
         }
-      }
+      } catch (e: any) { opLog('stop err: ' + (e.message || '')) }
     } else {
       setVoiceActive(true)
       opLog('开始聆听')
-      startListening().catch(() => { setVoiceActive(false); opLog('启动失败') })
+      try { await AsrModule.startListening() }
+      catch (e: any) { setVoiceActive(false); opLog('启动失败: ' + (e.message || '')) }
     }
   }, [voiceActive, parseCommand])
 
@@ -93,9 +99,8 @@ export default ({ componentId }: Props) => {
     opLog('面板结果: raw=' + text)
     const cmd = parseCommand(text)
     opLog('解析: type=' + cmd.type + ' navId=' + (cmd.navId || '') + ' text=' + (cmd.text || ''))
-    if (cmd.type === 'navigate' && cmd.navId) {
-      setNavActiveId(cmd.navId as any)
-    } else if (cmd.type === 'search' && cmd.text) {
+    if (cmd.type === 'navigate' && cmd.navId) setNavActiveId(cmd.navId as any)
+    else if (cmd.type === 'search' && cmd.text) {
       setNavActiveId('nav_search')
       setTimeout(() => global.app_event.emit('triggerSearch', cmd.text), 200)
     }
