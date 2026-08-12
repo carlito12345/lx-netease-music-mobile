@@ -70,6 +70,16 @@ public class AsrModule extends ReactContextBaseJavaModule {
         } catch (Throwable e) { log("init FAIL " + e.getMessage()); }
     }
 
+    @ReactMethod
+    public void hasRecordAudioPermission(Promise p) {
+        try {
+            boolean granted = ctx.checkSelfPermission(android.Manifest.permission.RECORD_AUDIO)
+                == android.content.pm.PackageManager.PERMISSION_GRANTED;
+            log("hasRecordAudioPermission: " + granted);
+            p.resolve(granted);
+        } catch (Throwable e) { p.reject("ERR", e.getMessage()); }
+    }
+
     @ReactMethod public void getStatus(Promise p) {
         WritableMap m = Arguments.createMap();
         m.putBoolean("modelReady", sdkInit);
