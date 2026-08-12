@@ -24,3 +24,16 @@
   **[] $VALUES;
   public *;
 }
+
+# ====== 讯飞 MSC SDK ======
+-keep class com.iflytek.** { *; }
+-dontwarn com.iflytek.**
+-keep class com.lxnetease.music.mobile.asr.** { *; }
+# JSON 解析 (AsrModule 用)
+-keep class org.json.** { *; }
+# CountDownLatch (唤醒用)
+-keep class java.util.concurrent.CountDownLatch { *; }
+# React Native 回调接口
+-keepclassmembers class * {
+    @com.facebook.react.bridge.ReactMethod *;
+}
