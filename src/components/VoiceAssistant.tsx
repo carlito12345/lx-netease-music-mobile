@@ -82,7 +82,7 @@ export function VoicePanel({ visible, onText }: { visible: boolean; onText: (tex
           setTimeout(() => onText(''), 600)
         }
       }, 15000)
-      const timer = setTimeout(() => { if (pollingRef.current) void poll() }, 600)
+      const timer = setTimeout(() => { if (pollingRef.current) void poll() }, 1200)
       return () => { pollingRef.current = false; clearTimeout(timer); if (timeoutRef.current) clearTimeout(timeoutRef.current) }
     } else {
       pollingRef.current = false
@@ -98,6 +98,7 @@ export function VoicePanel({ visible, onText }: { visible: boolean; onText: (tex
     if (!pollingRef.current || !visibleRef.current || closedRef.current) return
     try {
       const r = await getPartialResult()
+      try { const { writeOpLog } = require('@/utils/asr/manager'); writeOpLog('poll: done=' + r.done + ' text=[' + (r.text || '') + ']') } catch (_) {}
       if (!pollingRef.current || !visibleRef.current || closedRef.current) return
       if (r.done) {
         if (closedRef.current) return

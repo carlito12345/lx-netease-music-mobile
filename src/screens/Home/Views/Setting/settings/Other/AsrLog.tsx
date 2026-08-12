@@ -4,17 +4,23 @@ import { createStyle, toast } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
 import Text from '@/components/common/Text'
 import { getData, saveData } from '@/plugins/storage'
+import { readNativeLog } from '@/utils/asr/manager'
 
 const LOG_KEY = 'asr_op_log'
 
 export default memo(function AsrLog() {
   const theme = useTheme()
   const [log, setLog] = useState('')
+  const [nativeLog, setNativeLog] = useState('')
   const [expanded, setExpanded] = useState(false)
 
   const refresh = useCallback(async () => {
     const data = await getData(LOG_KEY) || ''
     setLog(data)
+    try {
+      const nl = await readNativeLog()
+      setNativeLog(nl)
+    } catch (_) { setNativeLog('(无法读取原生日志)') }
   }, [])
 
   useEffect(() => { void refresh() }, [refresh])
@@ -47,6 +53,11 @@ export default memo(function AsrLog() {
         <Text size={11} color={theme['c-font-label']} style={styles.logText}>
           {log || '暂无日志'}
         </Text>
+        <View style={{ height: 12 }} />
+        <Text size={11} color={theme['c-font-label']} bold style={{ marginBottom: 4 }}>--- 原生层日志 (asr.log) ---</Text>
+        <Text size={10} color={theme['c-font-label']} style={styles.logText}>
+          {nativeLog || '(空)'}
+        </Text>
       </ScrollView>
     </View>
   )
@@ -56,6 +67,6 @@ const styles = createStyle({
   container: { marginTop: 8, marginBottom: 12 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
   toggle: { paddingVertical: 10 },
-  scroll: { maxHeight: 200, backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: 6, padding: 8 },
-  logText: { fontFamily: 'monospace', lineHeight: 16 },
+  scroll: { maxHeight: 300, backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: 6, padding: 8 },
+  logText: { fontFamily: 'monospace', lineHeight: 15 },
 })

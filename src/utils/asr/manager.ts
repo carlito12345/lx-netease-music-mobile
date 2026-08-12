@@ -24,3 +24,5 @@ export const getPartialResult = (): Promise<{ text: string; done: boolean }> => 
 export const startWakeup = (word: string): Promise<boolean> => safeCall('startWakeup', word)
 export const stopWakeup = (): Promise<boolean> => safeCall('stopWakeup')
 export const writeOpLog = (line: string) => { try { AsrNative?.writeOpLog?.(line) } catch (_) {} }
+
+export const readNativeLog = (): Promise<string> => safeCall("readLog")

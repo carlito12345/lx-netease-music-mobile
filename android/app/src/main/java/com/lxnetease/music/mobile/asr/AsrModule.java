@@ -14,8 +14,7 @@ import com.iflytek.cloud.SpeechConstant;
 import com.iflytek.cloud.SpeechError;
 import com.iflytek.cloud.SpeechRecognizer;
 import com.iflytek.cloud.SpeechUtility;
-import java.io.File;
-import java.io.FileWriter;
+import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
@@ -30,27 +29,36 @@ public class AsrModule extends ReactContextBaseJavaModule {
     private volatile String lastResult = "";
     private volatile boolean listening = false;
     private volatile boolean hasResult = false;
-    private volatile boolean wakeupRunning = false;
-    private volatile String wakeupWord = "";
-    private static File logFile = null;
+    private File logFile;
 
-    public AsrModule(ReactApplicationContext ctx) { super(ctx); this.ctx = ctx; initSdk(); }
+    public AsrModule(ReactApplicationContext ctx) { super(ctx); this.ctx = ctx; Log.e(TAG,"=== CONSTRUCTOR ==="); initSdk(); }
 
-    @Override public String getName() { return NAME; }
+    @Override public String getName() { Log.e(TAG,"getName"); return NAME; }
 
-    private synchronized void logBoth(String msg) {
+    private void log(String msg) {
+        Log.e(TAG, msg);
         try {
-            if (logFile == null) {
-                logFile = new File("/storage/emulated/0/MT2/mcp/LXMUSIC-test/asr_module.log");
-                logFile.getParentFile().mkdirs();
-            }
+            if (logFile == null) logFile = new File(ctx.getFilesDir(), "asr.log");
             FileWriter fw = new FileWriter(logFile, true);
             fw.write(new SimpleDateFormat("MM-dd HH:mm:ss.SSS", Locale.getDefault()).format(new Date()) + " " + msg + "\n");
             fw.close();
-        } catch (Throwable ignored) {}
+        } catch (Throwable t) { Log.e(TAG, "log write err: " + t.getMessage()); }
     }
 
-    @ReactMethod public void writeOpLog(String line, Promise p) { logBoth(line); p.resolve(true); }
+    @ReactMethod public void writeOpLog(String line, Promise p) { log("JS " + line); p.resolve(true); }
+
+    @ReactMethod
+    public void readLog(Promise p) {
+        try {
+            if (logFile == null || !logFile.exists()) { p.resolve("(empty)"); return; }
+            BufferedReader br = new BufferedReader(new FileReader(logFile));
+            StringBuilder sb = new StringBuilder();
+            String line; while ((line = br.readLine()) != null) sb.append(line).append('\n');
+            br.close();
+            if (sb.length() > 8000) sb.setLength(8000);
+            p.resolve(sb.toString());
+        } catch (Throwable e) { p.reject("ERR", e.getMessage()); }
+    }
 
     private synchronized void initSdk() {
         if (sdkInit) return;
@@ -58,172 +66,83 @@ public class AsrModule extends ReactContextBaseJavaModule {
             String param = "appid=" + APPID + "," + SpeechConstant.ENGINE_MODE + "=" + SpeechConstant.MODE_MSC;
             SpeechUtility.createUtility(ctx.getApplicationContext(), param);
             sdkInit = true;
-            logBoth("init: SDK OK");
-            Log.i(TAG, "SDK init OK");
-        } catch (Throwable e) {
-            logBoth("init: FAIL " + e.getMessage());
-            Log.e(TAG, "SDK init fail", e);
-        }
+            log("init OK");
+        } catch (Throwable e) { log("init FAIL " + e.getMessage()); }
     }
 
     @ReactMethod public void getStatus(Promise p) {
         WritableMap m = Arguments.createMap();
         m.putBoolean("modelReady", sdkInit);
-        m.putString("loadStatus", sdkInit ? "就绪" : "失败");
+        m.putString("loadStatus", sdkInit ? "ready" : "fail");
         m.putInt("loadProgress", 100);
         p.resolve(m);
     }
-
     @ReactMethod public void loadModel(Promise p) { p.resolve(sdkInit); }
 
     @ReactMethod
     public void startListening(Promise p) {
-        Log.e(TAG, "startListening called from JS, sdkInit=" + sdkInit);
-        if (!sdkInit) { Log.e(TAG, "startListening: SDK NOT INIT"); logBoth("start: SDK not init"); p.reject("ERR", "SDK未初始化"); return; }
+        log("startListening: sdkInit=" + sdkInit);
+        if (!sdkInit) { log("startListening: SDK NOT INIT"); p.reject("ERR", "SDK not init"); return; }
         lastResult = ""; hasResult = false; listening = true;
-        Log.e(TAG, "startListening: listening=true, spawning thread");
+        log("startListening: listening=true, spawning thread");
         new Thread(() -> {
+            SpeechRecognizer rec = null;
             try {
-                if (recognizer != null) { recognizer.cancel(); recognizer.destroy(); recognizer = null; }
-                Log.e(TAG, "startListening: about to createRecognizer, sdkInit=" + sdkInit);
-                recognizer = SpeechRecognizer.createRecognizer(ctx, null);
-                if (recognizer == null) { Log.e(TAG, "start: createRecognizer RETURNED NULL"); logBoth("start: createRecognizer null"); listening = false; p.reject("ERR", "创建失败"); return; }
-                Log.e(TAG, "start: createRecognizer OK, setting parameters");
-                recognizer.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
-                recognizer.setParameter(SpeechConstant.RESULT_TYPE, "json");
-                recognizer.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
-                recognizer.setParameter(SpeechConstant.ACCENT, "mandarin");
-                recognizer.setParameter(SpeechConstant.ASR_PTT, "1");
-                recognizer.setParameter(SpeechConstant.VAD_BOS, "5000");
-                recognizer.setParameter(SpeechConstant.VAD_EOS, "1500");
-                logBoth("start: calling startListening");
-                int ret = recognizer.startListening(new RecognizerListener() {
-                    @Override public void onBeginOfSpeech() { logBoth("onBegin"); }
-                    @Override public void onEndOfSpeech() { logBoth("onEnd"); }
+                if (recognizer != null) { recognizer.cancel(); recognizer.destroy(); }
+                rec = SpeechRecognizer.createRecognizer(ctx, null);
+                if (rec == null) { log("createRecognizer NULL"); listening = false; p.reject("ERR", "create null"); return; }
+                recognizer = rec;
+                log("createRecognizer OK");
+                rec.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
+                rec.setParameter(SpeechConstant.RESULT_TYPE, "json");
+                rec.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
+                rec.setParameter(SpeechConstant.ACCENT, "mandarin");
+                rec.setParameter(SpeechConstant.ASR_PTT, "1");
+                rec.setParameter(SpeechConstant.VAD_BOS, "5000");
+                rec.setParameter(SpeechConstant.VAD_EOS, "1500");
+                log("params set, calling startListening");
+                int ret = rec.startListening(new RecognizerListener() {
+                    @Override public void onBeginOfSpeech() { log("onBegin"); }
+                    @Override public void onEndOfSpeech() { log("onEnd"); }
                     @Override public void onVolumeChanged(int v, byte[] d) {}
                     @Override public void onResult(RecognizerResult r, boolean isLast) {
-                        try { String t = parseIatResult(r.getResultString()); if (t.length() > 0) { lastResult += t; hasResult = true; } logBoth("onResult: " + t + " isLast=" + isLast); if (isLast) listening = false; } catch (Throwable ignored) {}
+                        try { String t = parseIatResult(r.getResultString()); if (t.length() > 0) { lastResult += t; hasResult = true; } log("onResult: [" + t + "] isLast=" + isLast); if (isLast) listening = false; } catch (Throwable e) { log("onResult err: " + e.getMessage()); }
                     }
                     @Override public void onError(SpeechError e) {
-                        logBoth("onError: " + e.getErrorCode() + " " + e.getMessage());
+                        log("onError: " + e.getErrorCode() + " " + (e.getMessage() != null ? e.getMessage() : ""));
                         listening = false;
                     }
                     @Override public void onEvent(int t, int a1, int a2, android.os.Bundle o) {}
                 });
-                if (ret != ErrorCode.SUCCESS) { listening = false; logBoth("start: error " + ret); p.reject("ERR", "error:" + ret); }
-                else { logBoth("start: OK"); p.resolve(true); }
-            } catch (Throwable e) { listening = false; logBoth("start: exception " + e.getMessage()); p.reject("ERR", e.getMessage()); }
+                if (ret != ErrorCode.SUCCESS) { listening = false; log("startListening failed: " + ret); p.reject("ERR", "err:" + ret); }
+                else { log("startListening OK"); p.resolve(true); }
+            } catch (Throwable e) { listening = false; log("startListening exception: " + e.getMessage()); p.reject("ERR", e.getMessage()); }
         }, "asr-start").start();
     }
 
     @ReactMethod
     public void stopListening(Promise p) {
+        log("stopListening");
         listening = false;
-        if (recognizer != null) { recognizer.stopListening(); try { Thread.sleep(300); } catch (InterruptedException ignored) {} }
+        if (recognizer != null) { recognizer.stopListening(); try { Thread.sleep(300); } catch (InterruptedException e) {} }
         String text = lastResult.replaceAll("[\\p{P}\\p{S}]", "").trim();
+        log("stopListening result: [" + text + "]");
         WritableMap m = Arguments.createMap();
         m.putString("text", text);
         m.putBoolean("done", true);
-        logBoth("stop: text=[" + text + "]");
         if (recognizer != null) { recognizer.cancel(); recognizer.destroy(); recognizer = null; }
         p.resolve(m);
     }
 
     @ReactMethod
     public void getPartialResult(Promise p) {
-        WritableMap m = Arguments.createMap();
         boolean done = !listening;
+        String text = done ? lastResult.replaceAll("[\\p{P}\\p{S}]", "").trim() : "";
+        WritableMap m = Arguments.createMap();
         m.putBoolean("done", done);
-        m.putString("text", done ? lastResult.replaceAll("[\\p{P}\\p{S}]", "").trim() : "");
+        m.putString("text", text);
+        // Don't log every poll to avoid spam
         p.resolve(m);
-    }
-
-    @ReactMethod
-    public void startWakeup(String keyword, Promise p) {
-        if (!sdkInit) { p.reject("ERR", "SDK未初始化"); return; }
-        wakeupWord = keyword != null ? keyword : "";
-        if (wakeupRunning) {
-            wakeupRunning = false;
-            if (recognizer != null) { recognizer.cancel(); recognizer.destroy(); recognizer = null; }
-            try { Thread.sleep(200); } catch (InterruptedException ignored) {}
-        }
-        wakeupRunning = true;
-        logBoth("wakeup start [" + wakeupWord + "]");
-        new Thread(() -> {
-            while (wakeupRunning) {
-                SpeechRecognizer rec = null;
-                try {
-                    rec = SpeechRecognizer.createRecognizer(ctx, null);
-                    if (rec == null) { Thread.sleep(500); continue; }
-                    rec.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
-                    rec.setParameter(SpeechConstant.RESULT_TYPE, "json");
-                    rec.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
-                    rec.setParameter(SpeechConstant.ACCENT, "mandarin");
-                    rec.setParameter(SpeechConstant.VAD_BOS, "3000");
-                    rec.setParameter(SpeechConstant.VAD_EOS, "800");
-                    final java.util.concurrent.CountDownLatch latch = new java.util.concurrent.CountDownLatch(1);
-                    final StringBuilder sb = new StringBuilder();
-                    rec.startListening(new RecognizerListener() {
-                        @Override public void onBeginOfSpeech() { logBoth("wakeup: voice"); }
-                        @Override public void onEndOfSpeech() {}
-                        @Override public void onVolumeChanged(int v, byte[] d) {}
-                        @Override public void onEvent(int t, int a1, int a2, android.os.Bundle o) {}
-                        @Override
-                        public void onResult(RecognizerResult result, boolean isLast) {
-                            try {
-                                String text = parseIatResult(result.getResultString());
-                                if (text.length() > 0) sb.append(text);
-                                if (isLast) latch.countDown();
-                            } catch (Throwable ignored) { if (isLast) latch.countDown(); }
-                        }
-                        @Override public void onError(SpeechError e) {
-                            logBoth("wakeup: err " + e.getErrorCode());
-                            latch.countDown();
-                        }
-                    });
-                    latch.await(8, java.util.concurrent.TimeUnit.SECONDS);
-                    if (!wakeupRunning) { if (rec != null) { rec.cancel(); rec.destroy(); } break; }
-                    String text = sb.toString();
-                    String kw = wakeupWord;
-                    logBoth("wakeup: [" + text + "] vs [" + kw + "]");
-                    if (text.length() > 0 && kw.length() >= 2 && text.contains(kw)) {
-                        logBoth("wakeup: MATCHED!");
-                        wakeupRunning = false;
-                        final String msg = text;
-                        ctx.runOnUiQueueThread(() -> {
-                            try {
-                                com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter emitter =
-                                    ctx.getJSModule(com.facebook.react.modules.core.DeviceEventManagerModule.RCTDeviceEventEmitter.class);
-                                if (emitter != null) {
-                                    WritableMap eventData = Arguments.createMap();
-                                    eventData.putString("text", msg);
-                                    emitter.emit("onAsrWakeup", eventData);
-                                }
-                            } catch (Exception ignored) {}
-                        });
-                        if (rec != null) { rec.cancel(); rec.destroy(); }
-                        break;
-                    }
-                    if (rec != null) { rec.cancel(); rec.destroy(); rec = null; }
-                    if (wakeupRunning) Thread.sleep(300);
-                } catch (Throwable e) {
-                    logBoth("wakeup: loop " + e.getMessage());
-                    if (rec != null) { rec.cancel(); rec.destroy(); }
-                    try { Thread.sleep(1000); } catch (InterruptedException ignored) { break; }
-                }
-            }
-            wakeupRunning = false;
-            logBoth("wakeup: end");
-        }, "asr-wakeup").start();
-        p.resolve(true);
-    }
-
-    @ReactMethod
-    public void stopWakeup(Promise p) {
-        logBoth("wakeup: stop");
-        wakeupRunning = false;
-        if (recognizer != null) { recognizer.cancel(); recognizer.destroy(); recognizer = null; }
-        p.resolve(true);
     }
 
     private String parseIatResult(String json) {
