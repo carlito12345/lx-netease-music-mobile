@@ -63,6 +63,7 @@ jobs:
         id: release_target
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_OPTIONS: --use-system-ca
         shell: bash
         run: |
           BASE_TAG="v${PACKAGE_VERSION}"
@@ -151,3 +152,4 @@ jobs:
             artifacts/lx-netease-music-mobile-v${{ needs.Android.outputs.package_version }}-universal.apk
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_OPTIONS: --use-system-ca
