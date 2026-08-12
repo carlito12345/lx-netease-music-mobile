@@ -1,4 +1,5 @@
 import { useCallback, useRef, forwardRef, useImperativeHandle, useState } from 'react'
+import { scaleSizeH } from '@/utils/pixelRatio'
 import BubbleSearch, { type BubbleSearchType } from '@/components/BubbleSearch'
 
 export interface SearchInputProps {
@@ -64,7 +65,7 @@ export default forwardRef<SearchInputType, SearchInputProps>(
         onTouchStart={onTouchStart}
         onVoicePress={onVoicePress}
         voiceListening={voiceListening}
-        height={36}
+        height={scaleSizeH(42)}
       />
     )
   }

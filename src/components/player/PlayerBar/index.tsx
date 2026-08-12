@@ -6,6 +6,7 @@ import Title from './components/Title'
 import PlayInfo from './components/PlayInfo'
 import ControlBtn from './components/ControlBtn'
 import { createStyle } from '@/utils/tools'
+import { scaleSizeH, scaleSizeW } from '@/utils/pixelRatio'
 import { useTheme } from '@/store/theme/hook'
 import { useSettingValue } from '@/store/setting/hook'
 import { Icon } from '@/components/common/Icon'
@@ -122,12 +123,13 @@ export default memo(({ componentId, isHome = false }: { componentId?: string, is
 const styles = createStyle({
   container: {
     width: '100%',
-    minHeight: 56,
+    minHeight: scaleSizeH(68),
     paddingVertical: 10,
-    paddingLeft: 5,
-    paddingBottom: 10,
-    borderTopLeftRadius: 6,
-    borderTopRightRadius: 6,
+    paddingLeft: 8,
+    paddingRight: 8,
+    paddingBottom: 12,
+    borderTopLeftRadius: 8,
+    borderTopRightRadius: 8,
     flexDirection: 'row',
     alignItems: 'center',
     elevation: 10,
@@ -137,31 +139,27 @@ const styles = createStyle({
     flexShrink: 1,
     flexDirection: 'row',
     alignItems: 'center',
-    minHeight: 46,
+    minHeight: scaleSizeH(52),
   },
   center: {
     flexDirection: 'column',
     flexGrow: 1,
     flexShrink: 1,
-    paddingLeft: 5,
-    height: '100%',
-    // justifyContent: 'space-evenly',
-    // height: 48,
-    // backgroundColor: 'rgba(0, 0, 0, .1)',
+    paddingLeft: 8,
+    justifyContent: 'center',
   },
   right: {
     flexDirection: 'row',
     alignItems: 'center',
     flexGrow: 0,
     flexShrink: 0,
-    paddingLeft: 5,
-    paddingRight: 5,
   },
   menuBtn: {
-    width: 46,
-    height: 46,
+    width: scaleSizeW(50),
+    height: scaleSizeH(50),
     justifyContent: 'center',
     alignItems: 'center',
+    paddingLeft: 4,
   },
   // row: {
   //   flexDirection: 'row',

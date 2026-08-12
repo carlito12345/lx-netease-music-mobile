@@ -10,6 +10,7 @@ import SourceSelector, {
 } from '@/components/SourceSelector'
 import SearchInput, { type SearchInputType, type SearchInputProps } from './SearchInput'
 import { createStyle } from '@/utils/tools'
+import { scaleSizeH } from '@/utils/pixelRatio'
 import { useTheme } from '@/store/theme/hook'
 import { type Source as MusicSource } from '@/store/search/music/state'
 import { type Source as SonglistSource } from '@/store/search/songlist/state'
@@ -78,14 +79,16 @@ export default forwardRef<HeaderBarType, HeaderBarProps>(
 const styles = createStyle({
   searchBar: {
     flexDirection: 'row',
-    height: 46,
+    height: scaleSizeH(54),
     zIndex: 2,
     paddingRight: 10,
     borderBottomWidth: BorderWidths.normal,
+    alignItems: 'center',
   },
   selector: {
-    width: 90,
+    width: 88,
     flexShrink: 0,
     flexGrow: 0,
+    justifyContent: 'center',
   },
 })
