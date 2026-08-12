@@ -78,8 +78,10 @@ public class AsrModule extends ReactContextBaseJavaModule {
 
     @ReactMethod
     public void startListening(Promise p) {
-        if (!sdkInit) { logBoth("start: SDK not init"); p.reject("ERR", "SDK未初始化"); return; }
+        Log.e(TAG, "startListening called from JS, sdkInit=" + sdkInit);
+        if (!sdkInit) { Log.e(TAG, "startListening: SDK NOT INIT"); logBoth("start: SDK not init"); p.reject("ERR", "SDK未初始化"); return; }
         lastResult = ""; hasResult = false; listening = true;
+        Log.e(TAG, "startListening: listening=true, spawning thread");
         new Thread(() -> {
             try {
                 if (recognizer != null) { recognizer.cancel(); recognizer.destroy(); recognizer = null; }
