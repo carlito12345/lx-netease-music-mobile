@@ -26,6 +26,7 @@ export interface ListMenuProps {
   onSimilarSongs: (selectInfo: SelectInfo) => void
   onLike: (selectInfo: SelectInfo) => void
   onPlayMv: (selectInfo: SelectInfo) => void
+  onMultiSelect?: () => void
   onMove?: (selectInfo: SelectInfo) => void
   onRemove?: (selectInfo: SelectInfo) => void
   listId?: string
@@ -70,6 +71,7 @@ export default forwardRef<ListMenuType, ListMenuProps>((props: ListMenuProps, re
   const menus = useMemo(() => {
     const menu = []
     if (menuSetting.playLater) menu.push({ action: 'playLater', label: t('play_later') });
+    menu.push({ action: 'multiSelect', label: '多选' });
     menu.push({ action: 'download', label: t('download') });
     // if (menuSetting.addTo) menu.push({ action: 'add', label: t('add_to') });
     menu.push({ action: 'add', label: t('add_to') });
@@ -140,6 +142,9 @@ export default forwardRef<ListMenuType, ListMenuProps>((props: ListMenuProps, re
         break
       case 'playMv':
         props.onPlayMv(selectInfo);
+        break;
+      case 'multiSelect':
+        props.onMultiSelect?.();
         break;
       case 'move':
         props.onMove?.(selectInfo);

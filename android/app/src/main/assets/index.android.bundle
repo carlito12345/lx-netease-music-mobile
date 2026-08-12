@@ -259928,6 +259928,9 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         ref: listMenuRef,
         listId: listId,
         isCreator: isCreator,
+        onMultiSelect: function onMultiSelect() {
+          return hancelMultiSelect();
+        },
         onPlay: function onPlay(info) {
           (0, _$$_REQUIRE(_dependencyMap[16], "./listAction").handlePlay)(info.musicInfo);
         },
@@ -262968,6 +262971,10 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         label: t('play_later')
       });
       menu.push({
+        action: 'multiSelect',
+        label: '多选'
+      });
+      menu.push({
         action: 'download',
         label: t('download')
       });
@@ -263061,6 +263068,9 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
           break;
         case 'playMv':
           props.onPlayMv(selectInfo);
+          break;
+        case 'multiSelect':
+          props.onMultiSelect == null ? void 0 : props.onMultiSelect();
           break;
         case 'move':
           props.onMove == null ? void 0 : props.onMove(selectInfo);

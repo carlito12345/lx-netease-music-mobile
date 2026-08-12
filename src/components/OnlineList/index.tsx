@@ -252,6 +252,7 @@ export default forwardRef<OnlineListType, OnlineListProps>(
           ref={listMenuRef}
           listId={listId}
           isCreator={isCreator}
+          onMultiSelect={() => hancelMultiSelect()}
           onPlay={(info) => {
             handlePlay(info.musicInfo)
           }}
