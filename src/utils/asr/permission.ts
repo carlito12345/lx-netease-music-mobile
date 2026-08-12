@@ -1,30 +1,21 @@
-import { Platform, Alert, Linking } from 'react-native'
+import { Platform, Linking } from 'react-native'
+import { toast } from '@/utils/tools'
 import { hasRecordAudioPermission } from './manager'
 
 export async function ensureRecordAudioPermission(): Promise<boolean> {
   if (Platform.OS !== 'android') return true
 
-  // 用原生 Java 检查 (跨双开/虚拟机环境可靠)
+  let granted = false
   try {
-    const granted = await hasRecordAudioPermission()
-    if (granted) return true
-  } catch (_) {}
+    granted = await hasRecordAudioPermission()
+  } catch (e: any) {
+    // 原生调用失败 — 保守起见认为没权限
+  }
 
-  // 未授权 → 弹 Alert 引导到系统设置
-  return new Promise(resolve => {
-    Alert.alert(
-      '需要麦克风权限',
-      '语音识别需要访问麦克风。\n请前往系统设置授予权限。',
-      [
-        { text: '暂不', style: 'cancel', onPress: () => resolve(false) },
-        {
-          text: '打开设置',
-          onPress: () => {
-            Linking.openSettings()
-            resolve(false)
-          },
-        },
-      ]
-    )
-  })
+  if (granted) return true
+
+  // 没权限 → toast 提示 + 直接跳设置
+  toast('请授予麦克风权限后重试')
+  try { Linking.openSettings() } catch (_) {}
+  return false
 }
