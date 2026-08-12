@@ -84,18 +84,14 @@ public class AsrModule extends ReactContextBaseJavaModule {
                 if (recognizer != null) { recognizer.cancel(); recognizer.destroy(); recognizer = null; }
                 recognizer = SpeechRecognizer.createRecognizer(ctx, null);
                 if (recognizer == null) { p.reject("ERR", "创建失败"); return; }
-                // 在线优先, 失败自动降级离线
+                // 在线云端识别 (Release 兼容: 显式 TYPE_CLOUD)
+                recognizer.setParameter(SpeechConstant.ENGINE_TYPE, SpeechConstant.TYPE_CLOUD);
                 recognizer.setParameter(SpeechConstant.RESULT_TYPE, "json");
                 recognizer.setParameter(SpeechConstant.LANGUAGE, "zh_cn");
                 recognizer.setParameter(SpeechConstant.ACCENT, "mandarin");
                 recognizer.setParameter(SpeechConstant.ASR_PTT, "1");
                 recognizer.setParameter(SpeechConstant.VAD_BOS, "5000");
                 recognizer.setParameter(SpeechConstant.VAD_EOS, "1500");
-                // 离线兜底资源
-                String res = ResourceUtil.generateResourcePath(ctx, ResourceUtil.RESOURCE_TYPE.assets, "iat/common.jet")
-                        + ";" + ResourceUtil.generateResourcePath(ctx, ResourceUtil.RESOURCE_TYPE.assets, "iat/sms_16k.jet");
-                recognizer.setParameter(ResourceUtil.ASR_RES_PATH, res);
-                recognizer.setParameter(SpeechConstant.KEY_REQUEST_FOCUS, "false");
                 lastResult = ""; hasResult = false; listening = true;
                 int ret = recognizer.startListening(new RecognizerListener() {
                     @Override public void onBeginOfSpeech() {}

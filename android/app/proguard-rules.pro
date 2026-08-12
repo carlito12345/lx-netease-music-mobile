@@ -25,15 +25,25 @@
   public *;
 }
 
-# ====== 讯飞 MSC SDK ======
+# ====== 讯飞 MSC SDK (完整保护 JNI + 反射) ======
+-keepattributes Signature,InnerClasses,EnclosingMethod,*Annotation*
 -keep class com.iflytek.** { *; }
+-keep class com.iflytek.cloud.** { *; }
+-keep class com.iflytek.msc.** { *; }
+-keep class com.iflytek.speech.** { *; }
 -dontwarn com.iflytek.**
 -keep class com.lxnetease.music.mobile.asr.** { *; }
-# JSON 解析 (AsrModule 用)
+-keep class com.lxnetease.music.mobile.voice.** { *; }
+# JSON 解析
 -keep class org.json.** { *; }
-# CountDownLatch (唤醒用)
--keep class java.util.concurrent.CountDownLatch { *; }
-# React Native 回调接口
+# JNI 回调类
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+# React Native 回调
 -keepclassmembers class * {
     @com.facebook.react.bridge.ReactMethod *;
 }
+# 防止 R8 移除讯飞资源文件
+-keep class com.iflytek.**.R { *; }
+-keep class com.iflytek.**.R$* { *; }
