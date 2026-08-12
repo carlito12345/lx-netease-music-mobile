@@ -78,12 +78,14 @@ export default forwardRef<HeaderBarType, HeaderBarProps>(
 const styles = createStyle({
   searchBar: {
     flexDirection: 'row',
-    height: 38,
+    height: 46,
     zIndex: 2,
     paddingRight: 10,
     borderBottomWidth: BorderWidths.normal,
   },
   selector: {
-    // width: 86,
+    width: 90,
+    flexShrink: 0,
+    flexGrow: 0,
   },
 })

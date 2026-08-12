@@ -122,7 +122,8 @@ export default memo(({ componentId, isHome = false }: { componentId?: string, is
 const styles = createStyle({
   container: {
     width: '100%',
-    paddingVertical: 8,
+    minHeight: 56,
+    paddingVertical: 10,
     paddingLeft: 5,
     paddingBottom: 10,
     borderTopLeftRadius: 6,

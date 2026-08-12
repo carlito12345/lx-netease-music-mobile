@@ -258466,13 +258466,15 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   var styles = (0, _$$_REQUIRE(_dependencyMap[7], "../../../../../utils/tools").createStyle)({
     searchBar: {
       flexDirection: 'row',
-      height: 38,
+      height: 46,
       zIndex: 2,
       paddingRight: 10,
       borderBottomWidth: _$$_REQUIRE(_dependencyMap[8], "../../../../../theme").BorderWidths.normal
     },
     selector: {
-      // width: 86,
+      width: 90,
+      flexShrink: 0,
+      flexGrow: 0
     }
   });
 },1351,[11,65,20,1352,1356,106,986,549,1300],"src/screens/Home/Views/Search/HeaderBar/index.tsx");
@@ -259013,7 +259015,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       onTouchStart: onTouchStart,
       onVoicePress: onVoicePress,
       voiceListening: voiceListening,
-      height: 30
+      height: 36
     });
   });
 },1356,[11,12,65,1347,106],"src/screens/Home/Views/Search/HeaderBar/SearchInput.tsx");
@@ -293754,7 +293756,8 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   var styles = (0, _$$_REQUIRE(_dependencyMap[19], "../../../utils/tools").createStyle)({
     container: {
       width: '100%',
-      paddingVertical: 8,
+      minHeight: 56,
+      paddingVertical: 10,
       paddingLeft: 5,
       paddingBottom: 10,
       borderTopLeftRadius: 6,

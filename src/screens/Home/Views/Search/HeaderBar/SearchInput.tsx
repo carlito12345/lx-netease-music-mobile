@@ -64,7 +64,7 @@ export default forwardRef<SearchInputType, SearchInputProps>(
         onTouchStart={onTouchStart}
         onVoicePress={onVoicePress}
         voiceListening={voiceListening}
-        height={30}
+        height={36}
       />
     )
   }
