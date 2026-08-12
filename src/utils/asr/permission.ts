@@ -6,41 +6,62 @@ export async function ensureRecordAudioPermission(): Promise<boolean> {
   if (hasRecordAudio) return true
   if (Platform.OS !== 'android') return true
 
-  const perm = PermissionsAndroid.PERMISSIONS.RECORD_AUDIO
-
-  // First check current status
+  // 先检查当前权限
   try {
-    const granted = await PermissionsAndroid.check(perm)
-    if (granted) { hasRecordAudio = true; return true }
+    const already = await PermissionsAndroid.check('android.permission.RECORD_AUDIO')
+    if (already) { hasRecordAudio = true; return true }
   } catch (_) {}
 
-  // Request
-  try {
-    const result = await PermissionsAndroid.request(perm, {
-      title: '需要麦克风权限',
-      message: '语音识别需要使用麦克风录制您的声音,请授予权限',
-      buttonPositive: '允许',
-      buttonNegative: '拒绝',
-    })
-    if (result === 'granted') { hasRecordAudio = true; return true }
+  // 先弹自己的对话框, 确保用户看到
+  return new Promise(resolve => {
+    Alert.alert(
+      '需要麦克风权限',
+      '语音识别需要访问麦克风, 请授权',
+      [
+        { text: '暂不', style: 'cancel', onPress: () => resolve(false) },
+        {
+          text: '去授权',
+          onPress: async () => {
+            try {
+              const result = await PermissionsAndroid.request(
+                'android.permission.RECORD_AUDIO',
+                {
+                  title: '需要麦克风权限',
+                  message: '语音识别需要使用麦克风录制您的声音',
+                  buttonPositive: '允许',
+                  buttonNegative: '拒绝',
+                }
+              )
+              if (result === 'granted') { hasRecordAudio = true; resolve(true); return }
 
-    // Check if "never ask again" — if denied without showing rationale, guide to settings
-    const shouldShow = await PermissionsAndroid.shouldShowRequestPermissionRationale(perm)
-    if (!shouldShow) {
-      // User selected "never ask again"
-      Alert.alert(
-        '需要麦克风权限',
-        '语音识别需要麦克风权限,但该权限已被永久拒绝。\n\n请前往"设置 → 应用管理 → LX Music → 权限"中手动开启麦克风权限。',
-        [
-          { text: '取消', style: 'cancel' },
-          { text: '前往设置', onPress: () => Linking.openSettings() },
-        ]
-      )
-    } else {
-      Alert.alert('权限被拒绝', '未授予麦克风权限,无法使用语音识别功能')
-    }
-    return false
-  } catch (e) {
-    return false
-  }
+              // 系统弹窗被拒绝, 检查是否永久拒绝
+              const rationale = await PermissionsAndroid.shouldShowRequestPermissionRationale('android.permission.RECORD_AUDIO')
+              if (!rationale) {
+                Alert.alert(
+                  '权限被永久拒绝',
+                  '请前往系统设置, 在"应用管理 → LX Music → 权限"中开启麦克风权限',
+                  [
+                    { text: '取消', onPress: () => resolve(false) },
+                    { text: '打开设置', onPress: () => { Linking.openSettings(); resolve(false) } },
+                  ]
+                )
+              } else {
+                resolve(false)
+              }
+            } catch (_) {
+              // 静默失败 — 直接引导到设置页
+              Alert.alert(
+                '无法弹出权限请求',
+                '请手动前往系统设置开启麦克风权限',
+                [
+                  { text: '取消', onPress: () => resolve(false) },
+                  { text: '打开设置', onPress: () => { Linking.openSettings(); resolve(false) } },
+                ]
+              )
+            }
+          },
+        },
+      ]
+    )
+  })
 }
