@@ -1,5 +1,5 @@
 import { memo, useCallback, useMemo, useRef } from 'react'
-import { PanResponder, View, TouchableOpacity } from 'react-native'
+import { PanResponder, View, TouchableOpacity, StyleSheet } from 'react-native'
 import { useKeyboard } from '@/utils/hooks'
 import Pic from './components/Pic'
 import Title from './components/Title'
@@ -79,15 +79,22 @@ export default memo(({ componentId, isHome = false }: { componentId?: string; is
       }}
       {...panResponder.panHandlers}
     >
+      {/* 底层透明点击层: 点击 bar 任何空白区域 → 打开播放详情 */}
+      <TouchableOpacity
+        style={StyleSheet.absoluteFill}
+        activeOpacity={1}
+        onPress={handleNavigate}
+        onLongPress={handleLongPress}
+      />
       <MiniProgressBar />
-      <TouchableOpacity style={styles.left} onPress={handleNavigate} onLongPress={handleLongPress} activeOpacity={0.8}>
+      <View style={styles.left} pointerEvents="none">
         <Pic isHome={isHome} />
         <View style={styles.center}>
           <Title isHome={isHome} />
           <PlayInfo isHome={isHome} />
         </View>
-      </TouchableOpacity>
-      <View style={styles.right}>
+      </View>
+      <View style={styles.right} pointerEvents="box-none">
         <ControlBtn />
         <TouchableOpacity style={styles.menuBtn} onPress={handleShowPlaylist}>
           <Icon name="menu" color={bgPic ? '#fff' : theme['c-button-font']} size={20} />

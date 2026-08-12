@@ -293842,11 +293842,14 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
           borderColor: theme['c-border-background']
         })
       }, panResponder.panHandlers, {
-        children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_MiniProgressBar.default, {}), /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.TouchableOpacity, {
-          style: styles.left,
+        children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.TouchableOpacity, {
+          style: _reactNative.StyleSheet.absoluteFill,
+          activeOpacity: 1,
           onPress: handleNavigate,
-          onLongPress: handleLongPress,
-          activeOpacity: 0.8,
+          onLongPress: handleLongPress
+        }), /*#__PURE__*/(0, _jsxRuntime.jsx)(_MiniProgressBar.default, {}), /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
+          style: styles.left,
+          pointerEvents: "none",
           children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_Pic.default, {
             isHome: isHome
           }), /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
@@ -293859,6 +293862,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
           })]
         }), /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.View, {
           style: styles.right,
+          pointerEvents: "box-none",
           children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_ControlBtn.default, {}), /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.TouchableOpacity, {
             style: styles.menuBtn,
             onPress: handleShowPlaylist,
