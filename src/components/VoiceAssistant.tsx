@@ -28,8 +28,8 @@ export function FloatingMicButton({ onPress, active }: { onPress: () => void; ac
     <TouchableOpacity
       style={{
         position: 'absolute',
-        bottom: 100,
-        right: 16,
+        bottom: 110,
+        right: 21,
         zIndex: 1000,
       }}
       onPress={onPress}
@@ -38,9 +38,9 @@ export function FloatingMicButton({ onPress, active }: { onPress: () => void; ac
       <Animated.View
         style={[
           {
-            width: 56,
-            height: 56,
-            borderRadius: 28,
+            width: 64,
+            height: 64,
+            borderRadius: 32,
             backgroundColor: active ? '#DC2626' : '#2563EB',
             justifyContent: 'center',
             alignItems: 'center',
@@ -61,9 +61,9 @@ export function FloatingMicButton({ onPress, active }: { onPress: () => void; ac
             position: 'absolute',
             top: -6,
             left: -6,
-            width: 68,
-            height: 68,
-            borderRadius: 34,
+            width: 76,
+            height: 76,
+            borderRadius: 38,
             borderWidth: 2,
             borderColor: '#DC2626',
             opacity: 0.5,

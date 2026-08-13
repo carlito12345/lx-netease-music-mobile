@@ -268871,17 +268871,17 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     return /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.TouchableOpacity, {
       style: {
         position: 'absolute',
-        bottom: 100,
-        right: 16,
+        bottom: 110,
+        right: 21,
         zIndex: 1000
       },
       onPress: onPress,
       activeOpacity: 0.8,
       children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Animated.View, {
         style: [{
-          width: 56,
-          height: 56,
-          borderRadius: 28,
+          width: 64,
+          height: 64,
+          borderRadius: 32,
           backgroundColor: active ? '#DC2626' : '#2563EB',
           justifyContent: 'center',
           alignItems: 'center',
@@ -268907,9 +268907,9 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
           position: 'absolute',
           top: -6,
           left: -6,
-          width: 68,
-          height: 68,
-          borderRadius: 34,
+          width: 76,
+          height: 76,
+          borderRadius: 38,
           borderWidth: 2,
           borderColor: '#DC2626',
           opacity: 0.5
