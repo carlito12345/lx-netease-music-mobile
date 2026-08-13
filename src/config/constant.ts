@@ -168,7 +168,7 @@ export const DEFAULT_SETTING = {
   },
 
   viewPrevState: {
-    id: 'nav_search' as NAV_ID_Type,
+    id: 'nav_songlist' as NAV_ID_Type,
     // query: {},
   },
 }

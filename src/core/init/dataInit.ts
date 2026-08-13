@@ -83,7 +83,14 @@ export default async (appSetting: LX.AppSetting) => {
       })
   }
 
-  setNavActiveId((await getViewPrevState()).id)
+  // 默认页面固定为歌曲页(除非用户手动切换过其他页面)
+  const prevId = (await getViewPrevState()).id
+  if (prevId === 'nav_search' || prevId === 'nav_my_playlist') {
+    // 旧版本遗留的默认搜索页/歌单页状态, 强制改为歌曲页
+    setNavActiveId('nav_songlist')
+  } else {
+    setNavActiveId(prevId)
+  }
   void unlink(TEMP_FILE_PATH)
   // await initPrevPlayInfo(appSetting).catch(err => log.error(err)) // 初始化上次的歌曲播放信息
 }

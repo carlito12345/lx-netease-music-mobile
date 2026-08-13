@@ -2,7 +2,7 @@ import { useCallback } from 'react'
 import { toast } from '@/utils/tools'
 
 export interface VoiceCommandResult {
-  type: 'search' | 'navigate' | 'none'
+  type: 'search' | 'navigate' | 'exit' | 'none'
   text: string
   navId?: string
 }
@@ -33,6 +33,11 @@ export default function useVoiceCommands() {
   const parseCommand = useCallback((text: string): VoiceCommandResult => {
     const raw = text.trim()
     if (!raw) return { type: 'none', text: '' }
+
+    // 0) 退出命令(最高优先级)
+    if (/^(?:退出|关闭|退出应用|退出程序|退出app|exit|quit)$/i.test(raw)) {
+      return { type: 'exit', text: raw }
+    }
 
     // 1) 播放控制(最高优先级)
     for (const [re, action] of PLAY_CMDS) {

@@ -156798,7 +156798,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       type: 'music'
     },
     viewPrevState: {
-      id: 'nav_search'
+      id: 'nav_songlist'
       // query: {},
     }
   };
@@ -185655,8 +185655,8 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
     fontSize: global.lx.fontSize,
     statusbarHeight: 0,
     componentIds: [],
-    navActiveId: 'nav_search',
-    lastNavActiveId: 'nav_search',
+    navActiveId: 'nav_songlist',
+    lastNavActiveId: 'nav_songlist',
     sourceNames: initData,
     bgPic: null
   };
@@ -255633,6 +255633,13 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
           if (r != null && r.text) {
             var cmd = parseCommand(r.text);
             opLog('解析: type=' + cmd.type + ' navId=' + (cmd.navId || '') + ' text=' + (cmd.text || ''));
+            if (cmd.type === 'exit') {
+              opLog('操作: 退出应用');
+              try {
+                _reactNative.BackHandler.exitApp();
+              } catch (_) {}
+              return;
+            }
             if (cmd.type === 'navigate' && cmd.navId) (0, _$$_REQUIRE(_dependencyMap[20], "../../core/common").setNavActiveId)(cmd.navId);else if (cmd.type === 'search' && cmd.text) {
               (0, _$$_REQUIRE(_dependencyMap[20], "../../core/common").setNavActiveId)('nav_search');
               setTimeout(function () {
@@ -255669,6 +255676,15 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       opLog('面板结果: raw=' + text);
       var cmd = parseCommand(text);
       opLog('解析: type=' + cmd.type + ' navId=' + (cmd.navId || '') + ' text=' + (cmd.text || ''));
+      if (cmd.type === 'exit') {
+        opLog('操作: 退出应用');
+        try {
+          var _require2 = _$$_REQUIRE(_dependencyMap[9], "react-native"),
+            _BackHandler = _require2.BackHandler;
+          _BackHandler.exitApp();
+        } catch (_) {}
+        return;
+      }
       if (cmd.type === 'navigate' && cmd.navId) (0, _$$_REQUIRE(_dependencyMap[20], "../../core/common").setNavActiveId)(cmd.navId);else if (cmd.type === 'search' && cmd.text) {
         (0, _$$_REQUIRE(_dependencyMap[20], "../../core/common").setNavActiveId)('nav_search');
         setTimeout(function () {
@@ -268843,6 +268859,19 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
   var _Text = _interopRequireDefault(_$$_REQUIRE(_dependencyMap[5], "./common/Text"));
   var _jsxRuntime = _$$_REQUIRE(_dependencyMap[6], "react/jsx-runtime");
   var _jsxFileName = "/data/data/com.termux/files/home/lx-netease-music-mobile/src/components/VoiceAssistant.tsx";
+  /** 大屏判断: dp 宽度 > 800 视为车机/平板 (1440x1920 dpi182 → ~1266dp) */
+  var isLargeScreen = function () {
+    try {
+      var _require = _$$_REQUIRE(_dependencyMap[4], "react-native"),
+        Dimensions = _require.Dimensions;
+      var win = Dimensions.get('window');
+      var w = Math.min(win.width, win.height);
+      var dp = w / _reactNative.PixelRatio.get();
+      return dp > 800;
+    } catch (_) {
+      return false;
+    }
+  }();
   function FloatingMicButton(_ref) {
     var onPress = _ref.onPress,
       active = _ref.active;
@@ -268868,20 +268897,25 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         pulse.setValue(1);
       }
     }, [active]);
+    var SIZE = isLargeScreen ? 144 : 56;
+    var R = SIZE / 2;
+    var ICON = isLargeScreen ? 60 : 28;
+    var BOTTOM = isLargeScreen ? 180 : 100;
+    var RIGHT = isLargeScreen ? 21 : 16;
     return /*#__PURE__*/(0, _jsxRuntime.jsxs)(_reactNative.TouchableOpacity, {
       style: {
         position: 'absolute',
-        bottom: 110,
-        right: 21,
+        bottom: BOTTOM,
+        right: RIGHT,
         zIndex: 1000
       },
       onPress: onPress,
       activeOpacity: 0.8,
       children: [/*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.Animated.View, {
         style: [{
-          width: 64,
-          height: 64,
-          borderRadius: 32,
+          width: SIZE,
+          height: SIZE,
+          borderRadius: R,
           backgroundColor: active ? '#DC2626' : '#2563EB',
           justifyContent: 'center',
           alignItems: 'center',
@@ -268899,7 +268933,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         }],
         children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_$$_REQUIRE(_dependencyMap[7], "./common/SvgIcon").SvgIcon, {
           name: "mic",
-          rawSize: 28,
+          rawSize: ICON,
           color: "#FFFFFF"
         })
       }), active && /*#__PURE__*/(0, _jsxRuntime.jsx)(_reactNative.View, {
@@ -268907,9 +268941,9 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
           position: 'absolute',
           top: -6,
           left: -6,
-          width: 76,
-          height: 76,
-          borderRadius: 38,
+          width: SIZE + 16,
+          height: SIZE + 16,
+          borderRadius: (SIZE + 16) / 2,
           borderWidth: 2,
           borderColor: '#DC2626',
           opacity: 0.5
@@ -269021,8 +269055,8 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         try {
           var r = yield (0, _$$_REQUIRE(_dependencyMap[9], "../utils/asr/manager").getPartialResult)();
           try {
-            var _require = _$$_REQUIRE(_dependencyMap[9], "../utils/asr/manager"),
-              writeOpLog = _require.writeOpLog;
+            var _require2 = _$$_REQUIRE(_dependencyMap[9], "../utils/asr/manager"),
+              writeOpLog = _require2.writeOpLog;
             writeOpLog('poll: done=' + r.done + ' text=[' + (r.text || '') + ']');
           } catch (_) {}
           if (!pollingRef.current || !visibleRef.current || closedRef.current) return;
@@ -269109,7 +269143,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
             }],
             children: /*#__PURE__*/(0, _jsxRuntime.jsx)(_$$_REQUIRE(_dependencyMap[7], "./common/SvgIcon").SvgIcon, {
               name: "mic",
-              rawSize: 40,
+              rawSize: 48,
               color: colors[voiceState]
             })
           }), WAVE_BARS.map(function (_, i) {
@@ -302246,6 +302280,14 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
         text: ''
       };
 
+      // 0) 退出命令(最高优先级)
+      if (/^(?:退出|关闭|退出应用|退出程序|退出app|exit|quit)$/i.test(raw)) {
+        return {
+          type: 'exit',
+          text: raw
+        };
+      }
+
       // 1) 播放控制(最高优先级)
       for (var _ref of PLAY_CMDS) {
         var _ref2 = (0, _slicedToArray2.default)(_ref, 2);
@@ -323797,7 +323839,15 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
           (0, _$$_REQUIRE(_dependencyMap[5], "../../utils/bootLog").bootLog)(`Wy like list init failed: ${err.message}`);
         });
       }
-      (0, _$$_REQUIRE(_dependencyMap[10], "../common").setNavActiveId)((yield (0, _$$_REQUIRE(_dependencyMap[11], "../../utils/data").getViewPrevState)()).id);
+
+      // 默认页面固定为歌曲页(除非用户手动切换过其他页面)
+      var prevId = (yield (0, _$$_REQUIRE(_dependencyMap[10], "../../utils/data").getViewPrevState)()).id;
+      if (prevId === 'nav_search' || prevId === 'nav_my_playlist') {
+        // 旧版本遗留的默认搜索页/歌单页状态, 强制改为歌曲页
+        (0, _$$_REQUIRE(_dependencyMap[11], "../common").setNavActiveId)('nav_songlist');
+      } else {
+        (0, _$$_REQUIRE(_dependencyMap[11], "../common").setNavActiveId)(prevId);
+      }
       void (0, _$$_REQUIRE(_dependencyMap[12], "../../utils/fs").unlink)(_$$_REQUIRE(_dependencyMap[13], "../../utils/tools").TEMP_FILE_PATH);
       // await initPrevPlayInfo(appSetting).catch(err => log.error(err)) // 初始化上次的歌曲播放信息
     });
@@ -323805,7 +323855,7 @@ __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, e
       return _ref.apply(this, arguments);
     };
   }();
-},1918,[11,18,1373,1315,554,1899,663,1377,1015,1374,720,654,544,549],"src/core/init/dataInit.ts");
+},1918,[11,18,1373,1315,554,1899,663,1377,1015,1374,654,720,544,549],"src/core/init/dataInit.ts");
 __d(function (global, _$$_REQUIRE, _$$_IMPORT_DEFAULT, _$$_IMPORT_ALL, module, exports, _dependencyMap) {
   var _interopRequireDefault = _$$_REQUIRE(_dependencyMap[0], "@babel/runtime/helpers/interopRequireDefault");
   Object.defineProperty(exports, "__esModule", {

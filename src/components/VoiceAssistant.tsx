@@ -8,6 +8,17 @@ import { toast } from '@/utils/tools'
 
 type VoiceState = 'idle' | 'listening' | 'recognizing' | 'speaking' | 'done' | 'error'
 
+/** 大屏判断: dp 宽度 > 800 视为车机/平板 (1440x1920 dpi182 → ~1266dp) */
+const isLargeScreen = (() => {
+  try {
+    const { Dimensions } = require('react-native')
+    const win = Dimensions.get('window')
+    const w = Math.min(win.width, win.height)
+    const dp = w / PixelRatio.get()
+    return dp > 800
+  } catch (_) { return false }
+})()
+
 export function FloatingMicButton({ onPress, active }: { onPress: () => void; active: boolean }) {
   const pulse = useRef(new Animated.Value(1)).current
   useEffect(() => {
@@ -24,12 +35,17 @@ export function FloatingMicButton({ onPress, active }: { onPress: () => void; ac
       pulse.setValue(1)
     }
   }, [active])
+  const SIZE = isLargeScreen ? 144 : 56
+  const R = SIZE / 2
+  const ICON = isLargeScreen ? 60 : 28
+  const BOTTOM = isLargeScreen ? 180 : 100
+  const RIGHT = isLargeScreen ? 21 : 16
   return (
     <TouchableOpacity
       style={{
         position: 'absolute',
-        bottom: 110,
-        right: 21,
+        bottom: BOTTOM,
+        right: RIGHT,
         zIndex: 1000,
       }}
       onPress={onPress}
@@ -38,9 +54,9 @@ export function FloatingMicButton({ onPress, active }: { onPress: () => void; ac
       <Animated.View
         style={[
           {
-            width: 64,
-            height: 64,
-            borderRadius: 32,
+            width: SIZE,
+            height: SIZE,
+            borderRadius: R,
             backgroundColor: active ? '#DC2626' : '#2563EB',
             justifyContent: 'center',
             alignItems: 'center',
@@ -53,7 +69,7 @@ export function FloatingMicButton({ onPress, active }: { onPress: () => void; ac
           },
         ]}
       >
-        <SvgIcon name="mic" rawSize={28} color="#FFFFFF" />
+        <SvgIcon name="mic" rawSize={ICON} color="#FFFFFF" />
       </Animated.View>
       {active && (
         <View
@@ -61,9 +77,9 @@ export function FloatingMicButton({ onPress, active }: { onPress: () => void; ac
             position: 'absolute',
             top: -6,
             left: -6,
-            width: 76,
-            height: 76,
-            borderRadius: 38,
+            width: SIZE + 16,
+            height: SIZE + 16,
+            borderRadius: (SIZE + 16) / 2,
             borderWidth: 2,
             borderColor: '#DC2626',
             opacity: 0.5,
@@ -193,7 +209,7 @@ export function VoicePanel({ visible, onText }: { visible: boolean; onText: (tex
             }]} />
           ))}
           <View style={[ss.panelMicWrap, { borderColor: colors[voiceState] }]}>
-            <SvgIcon name="mic" rawSize={40} color={colors[voiceState]} />
+            <SvgIcon name="mic" rawSize={48} color={colors[voiceState]} />
           </View>
           {WAVE_BARS.map((_, i) => (
             <Animated.View key={i + 100} style={[ss.waveBar, {

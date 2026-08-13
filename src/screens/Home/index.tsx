@@ -72,6 +72,11 @@ export default ({ componentId }: Props) => {
         if (r?.text) {
           const cmd = parseCommand(r.text)
           opLog('解析: type=' + cmd.type + ' navId=' + (cmd.navId || '') + ' text=' + (cmd.text || ''))
+          if (cmd.type === 'exit') {
+            opLog('操作: 退出应用')
+            try { BackHandler.exitApp() } catch (_) {}
+            return
+          }
           if (cmd.type === 'navigate' && cmd.navId) setNavActiveId(cmd.navId as any)
           else if (cmd.type === 'search' && cmd.text) {
             setNavActiveId('nav_search')
@@ -95,6 +100,14 @@ export default ({ componentId }: Props) => {
     opLog('面板结果: raw=' + text)
     const cmd = parseCommand(text)
     opLog('解析: type=' + cmd.type + ' navId=' + (cmd.navId || '') + ' text=' + (cmd.text || ''))
+    if (cmd.type === 'exit') {
+      opLog('操作: 退出应用')
+      try {
+        const { BackHandler } = require('react-native')
+        BackHandler.exitApp()
+      } catch (_) {}
+      return
+    }
     if (cmd.type === 'navigate' && cmd.navId) setNavActiveId(cmd.navId as any)
     else if (cmd.type === 'search' && cmd.text) {
       setNavActiveId('nav_search')
