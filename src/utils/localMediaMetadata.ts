@@ -13,12 +13,19 @@ export {
 let cleared = false
 const picCachePath = privateStorageDirectoryPath + '/local-media-covers';
 
+// 常见音频扩展名(ffmpeg 可解码的兜底, 部分格式 mimeType 识别不全)
+const AUDIO_EXTS = new Set([
+  'mp3', 'wav', 'flac', 'aac', 'm4a', 'ogg', 'opus', 'ape', 'wv', 'tta',
+  'dsf', 'dff', 'alac', 'mka', 'amr', 'mid', 'midi', 'aiff', 'aif', 'au',
+])
+
 export const scanAudioFiles = async (dirPath: string) => {
   const files = await readDir(dirPath)
   return files
     .filter((file) => {
       if (file.mimeType?.startsWith('audio/')) return true
-      if (extname(file?.name ?? '') === 'ogg') return true
+      const ext = extname(file?.name ?? '').toLowerCase()
+      if (AUDIO_EXTS.has(ext)) return true
       return false
     })
     .map((file) => file)
