@@ -3,6 +3,7 @@ import { View, ScrollView, TouchableOpacity } from 'react-native'
 import { createStyle, toast } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
 import Text from '@/components/common/Text'
+import { DESIGN } from '@/theme/design'
 import { getData, saveData } from '@/plugins/storage'
 import { readNativeLog } from '@/utils/asr/manager'
 
@@ -53,7 +54,7 @@ export default memo(function AsrLog() {
         <Text size={11} color={theme['c-font-label']} style={styles.logText}>
           {log || '暂无日志'}
         </Text>
-        <View style={{ height: 12 }} />
+        <View style={{ height: DESIGN.spacing.md }} />
         <Text size={11} color={theme['c-font-label']} bold style={{ marginBottom: 4 }}>--- 原生层日志 (asr.log) ---</Text>
         <Text size={10} color={theme['c-font-label']} style={styles.logText}>
           {nativeLog || '(空)'}
@@ -67,6 +68,6 @@ const styles = createStyle({
   container: { marginTop: 8, marginBottom: 12 },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
   toggle: { paddingVertical: 10 },
-  scroll: { maxHeight: 300, backgroundColor: 'rgba(0,0,0,0.06)', borderRadius: 6, padding: 8 },
+  scroll: { maxHeight: 300, backgroundColor: DESIGN.chipBg, borderRadius: DESIGN.radius.sm, padding: DESIGN.spacing.sm },
   logText: { fontFamily: 'monospace', lineHeight: 15 },
 })

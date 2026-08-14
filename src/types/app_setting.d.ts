@@ -142,6 +142,18 @@ declare global {
       'playDetail.effect.wallpaper.color': string
       'playDetail.effect.slideshow.enabled': boolean
       'playDetail.effect.spectrum.enabled': boolean
+      /** 液态铬触摸交互背景 */
+      'playDetail.effect.liquidChrome.enabled': boolean
+      /** 音频城市独立开关(echo = 音域回响近景) */
+      'playDetail.effect.echoNear.enabled': boolean
+      /** 密集频谱柱背景(echoplus = 可调音域回响) */
+      'playDetail.effect.denseWave.enabled': boolean
+      /** 密集频谱柱金属感 0-1 */
+      'playDetail.effect.denseWave.metalness': number
+      /** 密集频谱柱荧光 0-1 */
+      'playDetail.effect.denseWave.neon': number
+      /** 密集频谱柱参数面板配置(JSON) */
+      'playDetail.effect.denseWave.params': string
 
       /** 歌词渐变色 */
       'playDetail.effect.lyricGradient.enabled': boolean

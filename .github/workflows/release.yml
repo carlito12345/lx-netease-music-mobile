@@ -34,6 +34,15 @@ jobs:
         shell: bash
         run: |
           cd android
+          # 安装 NDK 26(reanimated 3.16 在 NDK 29 下 C++ 编译失败: std::char_traits<unsigned char>)
+          # 并用 local.properties 的 ndk.dir 覆盖 gradle 的 ndkVersion(29)
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          if [ ! -x "$SDKMANAGER" ]; then SDKMANAGER="$(ls $ANDROID_HOME/cmdline-tools/*/bin/sdkmanager 2>/dev/null | head -1)"; fi
+          if [ -n "$SDKMANAGER" ] && [ ! -d "$ANDROID_HOME/ndk/26.3.11579264" ]; then
+            yes | "$SDKMANAGER" --licenses >/dev/null 2>&1 || true
+            "$SDKMANAGER" --install "ndk;26.3.11579264" >/dev/null 2>&1 || true
+          fi
+          echo "ndk.dir=$ANDROID_HOME/ndk/26.3.11579264" > local.properties
           # GitHub Actions 免费 runner 仅 7GB 内存,release 全量编译 5 个 ABI 时
           # Gradle daemon(-Xmx4096m) + Kotlin daemon + Metro 并行峰值会超限被 OOM 杀掉。
           # 限制 daemon 堆/元空间、关闭并行、限制 worker 数,避免 JVM 崩溃。

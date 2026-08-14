@@ -7,6 +7,7 @@ import { memo, useState, useCallback, useEffect } from 'react'
 import { AppState, View, TouchableOpacity } from 'react-native'
 import { createStyle, toast } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
+import { DESIGN } from '@/theme/design'
 import Text from '@/components/common/Text'
 import { useI18n } from '@/lang'
 
@@ -130,9 +131,9 @@ const styles = createStyle({
     alignItems: 'center',
     justifyContent: 'space-between',
     paddingVertical: 10,
-    paddingHorizontal: 4,
+    paddingHorizontal: DESIGN.spacing.xl,
     borderBottomWidth: 0.5,
-    borderBottomColor: 'rgba(128,128,128,0.2)',
+    borderBottomColor: DESIGN.separator,
   },
   itemLeft: {
     flex: 1,

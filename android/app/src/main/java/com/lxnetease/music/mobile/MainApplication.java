@@ -10,6 +10,8 @@ import com.reactnativenavigation.react.NavigationReactNativeHost;
 import java.util.List;
 
 import com.lxnetease.music.mobile.cache.CachePackage;
+import com.lxnetease.music.mobile.spectrum.AudioSpectrumPackage;
+import com.lxnetease.music.mobile.glshader.GLShaderPackage;
 import com.lxnetease.music.mobile.crypto.CryptoPackage;
 import com.lxnetease.music.mobile.lyric.LyricPackage;
 import com.lxnetease.music.mobile.userApi.UserApiPackage;
@@ -36,6 +38,8 @@ public class MainApplication extends NavigationApplication {
           // Packages that cannot be autolinked yet can be added manually here, for example:
           // packages.add(new MyReactNativePackage());
           packages.add(new CachePackage());
+          packages.add(new AudioSpectrumPackage());
+          packages.add(new GLShaderPackage());
           packages.add(new LyricPackage());
           packages.add(new UtilsPackage());
           packages.add(new CryptoPackage());

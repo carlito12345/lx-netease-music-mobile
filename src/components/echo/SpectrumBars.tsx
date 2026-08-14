@@ -1,19 +1,44 @@
 /**
- * SpectrumBars - 频谱柱状条(圆顶渐变,纯 View 实现,兼容所有 RN 版本)
+ * SpectrumBars - 频谱柱状条(圆顶渐变,纯 View 实现)
+ * 数据源: 真实频谱 (原生 AudioSpectrum 64 bins) → 降级模拟
  */
-import React, { memo, useEffect, useRef } from 'react'
+import React, { memo, useEffect, useRef, useState } from 'react'
 import { View, Animated, Easing, StyleSheet } from 'react-native'
 import { useIsPlay } from '@/store/player/hook'
+import { useAudioSpectrum } from './useAudioSpectrum'
 
 const BAR_COUNT = 16
 
 export const SpectrumBars = memo(({ primaryColor }: { primaryColor: string }) => {
   const isPlay = useIsPlay()
+  const { bins, available } = useAudioSpectrum()
   const barAnims = useRef(
     Array.from({ length: BAR_COUNT }, () => new Animated.Value(0.05))
   ).current
+  const [realMode, setRealMode] = useState(false)
 
+  // 真实频谱模式: bins 更新时驱动柱高
   useEffect(() => {
+    if (bins && bins.length >= BAR_COUNT) {
+      setRealMode(true)
+      // 64 bins → 16 柱 (每 4 个取均值)
+      for (let i = 0; i < BAR_COUNT; i++) {
+        let sum = 0
+        for (let j = 0; j < 4; j++) sum += bins[i * 4 + j]
+        const v = Math.max(Math.min(sum / 4, 1), 0.05)
+        Animated.timing(barAnims[i], {
+          toValue: v,
+          duration: 60,
+          easing: Easing.linear,
+          useNativeDriver: false,
+        }).start()
+      }
+    }
+  }, [bins, barAnims])
+
+  // 模拟模式: 无真实数据或无权限时
+  useEffect(() => {
+    if (realMode) return
     if (!isPlay) {
       barAnims.forEach(a => {
         Animated.timing(a, { toValue: 0.05, duration: 300, useNativeDriver: false }).start()
@@ -35,7 +60,7 @@ export const SpectrumBars = memo(({ primaryColor }: { primaryColor: string }) =>
     }
     simulate()
     return () => clearTimeout(timeoutId)
-  }, [isPlay])
+  }, [isPlay, realMode, barAnims])
 
   return (
     <View style={styles.container} pointerEvents="none">

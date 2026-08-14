@@ -1,5 +1,5 @@
 import {memo, useState, useRef, useMemo, useEffect, useCallback} from 'react'
-import { View, AppState } from 'react-native'
+import { View, AppState, StyleSheet, PanResponder, Dimensions } from 'react-native'
 
 import Header from './components/Header'
 // import Aside from './components/Aside'
@@ -16,6 +16,9 @@ import { useSettingValue } from '@/store/setting/hook'
 import { useTheme } from '@/store/theme/hook'
 import { StarfieldBackground } from '@/components/starfield/StarfieldBackground'
 import { SpectrumBars } from '@/components/echo/SpectrumBars'
+import LiquidChrome, { type LiquidChromeHandle } from '@/components/common/GLShader/LiquidChrome'
+import AudioCity from '@/components/common/GLShader/AudioCity'
+import DenseWave, { type DenseWaveHandle } from '@/components/common/GLShader/DenseWave'
 import { WallpaperView } from '@/components/wallpaper/WallpaperView'
 import { SlideshowBg } from '@/components/slideshow/SlideshowBg'
 import { PlayDetailBackground } from '@/components/common/PlayDetailBackground'
@@ -46,6 +49,46 @@ export default memo(({ componentId }: { componentId: string }) => {
   const theme = useTheme()
   const starfieldEnabled = useSettingValue('playDetail.effect.starfield.enabled')
   const spectrumEnabled = useSettingValue('playDetail.effect.spectrum.enabled')
+  const liquidChromeEnabled = useSettingValue('playDetail.effect.liquidChrome.enabled')
+  const echoNearEnabled = useSettingValue('playDetail.effect.echoNear.enabled')
+  const denseWaveEnabled = useSettingValue('playDetail.effect.denseWave.enabled')
+  const denseWaveMetal = useSettingValue('playDetail.effect.denseWave.metalness')
+  const denseWaveNeon = useSettingValue('playDetail.effect.denseWave.neon')
+  const denseWaveParamsJson = useSettingValue('playDetail.effect.denseWave.params')
+  const denseWaveRef = useRef<DenseWaveHandle>(null)
+
+  // 解析参数面板配置(JSON)
+  const denseWaveParams = useMemo(() => {
+    if (!denseWaveParamsJson) return undefined
+    try {
+      return JSON.parse(denseWaveParamsJson)
+    } catch {
+      return undefined
+    }
+  }, [denseWaveParamsJson])
+  const liquidChromeRef = useRef<LiquidChromeHandle>(null)
+
+  // 液态铬触摸: 只捕获滑动手势, 点击(短按)透传给下层按钮
+  // 屏幕尺寸(用于归一化触摸坐标)
+  const screenW = Dimensions.get('window').width
+  const screenH = Dimensions.get('window').height
+  const liquidChromePan = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => false,       // 点击不拦截(透传)
+      onMoveShouldSetPanResponder: () => true,         // 滑动时接管
+      onPanResponderGrant: (evt) => {
+        const { locationX, locationY } = evt.nativeEvent
+        liquidChromeRef.current?.setMouse(locationX / screenW, locationY / screenH)
+      },
+      onPanResponderMove: (evt) => {
+        const { locationX, locationY } = evt.nativeEvent
+        liquidChromeRef.current?.setMouse(locationX / screenW, locationY / screenH)
+        // 音域地形涟漪(滑动触发)
+        denseWaveRef.current?.addRipple(locationX / screenW, locationY / screenH)
+      },
+      onPanResponderTerminationRequest: () => false,
+    }),
+  ).current
   const wallpaperEnabled = useSettingValue('playDetail.effect.wallpaper.enabled')
   const slideshowEnabled = useSettingValue('playDetail.effect.slideshow.enabled')
 
@@ -99,13 +142,36 @@ export default memo(({ componentId }: { componentId: string }) => {
   }, [])
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1 }} {...liquidChromePan.panHandlers}>
       {/* 背景模式(最外层, 覆盖 Header) */}
       <PlayDetailBackground />
+      {/* 音域回响近景(echo 音频城市, 覆盖 Header) */}
+      {echoNearEnabled && <AudioCity style={StyleSheet.absoluteFill} />}
+      {/* 可调音域回响(echoplus 密集频谱柱, 覆盖 Header) */}
+      {denseWaveEnabled && !echoNearEnabled && (
+        <DenseWave
+          ref={denseWaveRef}
+          metalness={denseWaveMetal}
+          neon={denseWaveNeon}
+          params={denseWaveParams}
+          style={StyleSheet.absoluteFill}
+        />
+      )}
       <Header />
       <View style={styles.container}>
         {/* 特效层(绝对定位背景) */}
         {starfieldEnabled && <StarfieldBackground />}
+        {/* 液态铬触摸背景(下层特效, 不拦截控件) */}
+        {liquidChromeEnabled && (
+          <LiquidChrome
+            ref={liquidChromeRef}
+            baseColor={theme.isDark ? [0.25, 0.4, 0.8] : [0.3, 0.5, 0.9]}
+            amplitude={0.06}
+            frequencyX={2.2}
+            frequencyY={1.6}
+            style={StyleSheet.absoluteFill}
+          />
+        )}
         {spectrumEnabled && <SpectrumBars primaryColor={theme['c-primary']} />}
         {wallpaperEnabled && <WallpaperView />}
         {slideshowEnabled && <SlideshowBg />}

@@ -145,7 +145,13 @@ const defaultSetting: LX.AppSetting = {
   'playDetail.effect.wallpaper.enabled': false,
   'playDetail.effect.wallpaper.color': '',
   'playDetail.effect.slideshow.enabled': false,
-  'playDetail.effect.spectrum.enabled': false,
+  'playDetail.effect.spectrum.enabled': true,  // 真实频谱(原生 AudioSpectrum)
+  'playDetail.effect.liquidChrome.enabled': false,  // 液态铬触摸背景(默认关, 性能敏感)
+  'playDetail.effect.echoNear.enabled': false,  // 音频城市(echo 音域回响近景, 独立单选)
+  'playDetail.effect.denseWave.enabled': true,  // 可调音域回响(echoplus 密集频谱柱)
+  'playDetail.effect.denseWave.metalness': 0.8,  // 金属感(白热高光)
+  'playDetail.effect.denseWave.neon': 0.5,       // 荧光(柱身光晕)
+  'playDetail.effect.denseWave.params': '',       // 参数面板配置(JSON)
 
   // 歌词渐变色
   'playDetail.effect.lyricGradient.enabled': false,
