@@ -71,7 +71,7 @@ export default forwardRef<SettingPopupType, SettingPopupProps>(({ direction, ...
   }))
 
   return visible ? (
-    <Popup ref={popupRef} title={t('play_detail_setting_title')} {...props}>
+    <Popup ref={popupRef} title={t('play_detail_setting_title')} hideTitle {...props} bgHide={false} panelStyle={{ backgroundColor: 'transparent' }}>
       <ScrollView>
         <View onStartShouldSetResponder={() => true}>
           {/* 基础设置组: App 设置同款折叠卡片(深色背景+白字, 折叠状态持久化) */}

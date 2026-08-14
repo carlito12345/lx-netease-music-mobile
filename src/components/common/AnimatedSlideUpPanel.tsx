@@ -9,9 +9,11 @@ export interface AnimatedSlideUpPanelType {
 interface Props {
   children: React.ReactNode;
   onHide?: () => void;
+  /** 遮罩背景透明度 0-1, 默认 0.3; 传 0 则完全透明(透出下层播放器背景) */
+  bgOpacity?: number;
 }
 
-const AnimatedSlideUpPanel = forwardRef<AnimatedSlideUpPanelType, Props>(({ children, onHide }, ref) => {
+const AnimatedSlideUpPanel = forwardRef<AnimatedSlideUpPanelType, Props>(({ children, onHide, bgOpacity = 0.3 }, ref) => {
   const { height: windowHeight } = useWindowSize();
   const [isVisible, setIsVisible] = useState(false);
   const animatedValue = useRef(new Animated.Value(windowHeight)).current;
@@ -69,7 +71,7 @@ const AnimatedSlideUpPanel = forwardRef<AnimatedSlideUpPanelType, Props>(({ chil
           style={[
             StyleSheet.absoluteFill,
             {
-              backgroundColor: 'rgba(0, 0, 0, 0.3)',
+              backgroundColor: `rgba(0, 0, 0, ${bgOpacity})`,
               opacity: animatedValue.interpolate({
                 inputRange: [0, windowHeight],
                 outputRange: [1, 0],

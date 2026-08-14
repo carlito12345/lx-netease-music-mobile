@@ -1,7 +1,7 @@
 import { memo } from 'react'
 import { View } from 'react-native'
 
-import Progress from '@/components/player/ProgressBar'
+import WaveProgress from '@/components/player/WaveProgress'
 import Status from './Status'
 import { useProgress } from '@/store/player/hook'
 import { useTheme } from '@/store/theme/hook'
@@ -37,7 +37,9 @@ export default () => {
   return (
     <>
       <View style={styles.progress}>
-        <Progress progress={progress} duration={maxPlayTime} buffered={buffered} />
+        <WaveProgress progress={progress} duration={maxPlayTime} buffered={buffered} nowTimeStr={nowPlayTimeStr} onSeek={(p) => {
+          global.app_event.setProgress(p * maxPlayTime)
+        }} />
       </View>
       <View style={styles.info}>
         <PlayTimeCurrent timeStr={nowPlayTimeStr} />

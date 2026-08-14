@@ -14,11 +14,8 @@ import { setSpText } from '@/utils/pixelRatio'
 import Chip from '@/components/common/Chip'
 
 const COVER_STYLES = [
-  { id: 'circle', label: '圆形' },
-  { id: 'square', label: '方形' },
-  { id: 'rounded', label: '圆角' },
+  { id: 'rounded', label: '方形圆角' },
   { id: 'vinyl', label: '黑胶' },
-  { id: 'hidden', label: '隐藏' },
 ] as const
 
 const EFFECTS = [

@@ -4,7 +4,7 @@ import { View, AppState } from 'react-native'
 import Header from './components/Header'
 // import Aside from './components/Aside'
 // import Main from './components/Main'
-import MiniLyric from '../components/MiniLyric';
+import MiniLyricPreview from '@/components/player/MiniLyricPreview'
 import Player from './Player'
 import PagerView, { type PagerViewOnPageSelectedEvent } from 'react-native-pager-view'
 import Pic from './Pic'
@@ -98,13 +98,6 @@ export default memo(({ componentId }: { componentId: string }) => {
     }
   }, [])
 
-  // MF 布局切换(完整组件) - 放在所有 Hook 之后, 避免 Rendered fewer hooks
-  const layoutType = (() => { try { return require('@/plugins/layoutManager').getLayout() } catch { return 'default' } })()
-  if (layoutType === 'musicfree') {
-    const MFL = require('./layouts/MusicFree').default
-    return <MFL key={'mf-' + layoutVer} componentId={componentId} />
-  }
-
   return (
     <View style={{ flex: 1 }}>
       {/* 背景模式(最外层, 覆盖 Header) */}
@@ -123,12 +116,17 @@ export default memo(({ componentId }: { componentId: string }) => {
           ref={pagerViewRef}
         >
           <View collapsable={false}>
-            <View collapsable={false} style={styles.picPageContainer}>
-              <Pic componentId={componentId} />
-              <MiniLyric
-                onPress={handleSwitchToLyricPage}
-                style={styles.miniLyricContainer}
-              />
+            {/* 左右并列: 封面(左) + 迷你歌词(右, 点击展开歌词页) */}
+            <View collapsable={false} style={styles.sideBySideContainer}>
+              <View style={styles.sideLeft}>
+                <Pic componentId={componentId} />
+              </View>
+              <View style={styles.sideRight}>
+                <MiniLyricPreview
+                  onPress={handleSwitchToLyricPage}
+                  lineCount={5}
+                />
+              </View>
             </View>
           </View>
           <View collapsable={false}>
@@ -157,6 +155,34 @@ const styles = createStyle({
     flex: 1,
     justifyContent: 'center',
     position: 'relative',
+  },
+  // 左右并列: 封面(左) + 歌词(右), 上下留安全空间
+  sideBySideContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingTop: 8,
+    paddingBottom: 8,
+    paddingHorizontal: 16,
+  },
+  sideLeft: {
+    flex: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    // 封面缩小: 容器约束宽度, Pic 内部按窗口尺寸自适应
+  },
+  sideRight: {
+    flex: 1,
+    justifyContent: 'center',
+    paddingLeft: 4,
+    // 允许与封面轻微堆叠
+    marginLeft: -8,
+  },
+  // 右侧迷你歌词: 与封面顶部齐平
+  sideMiniLyric: {
+    flex: 1,
+    alignSelf: 'flex-start',
+    alignItems: 'center',
   },
   miniLyricContainer: {
     // 封面下方居中显示, 与封面形成紧凑整体

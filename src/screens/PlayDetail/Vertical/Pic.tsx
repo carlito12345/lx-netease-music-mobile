@@ -26,6 +26,8 @@ export default memo(({ componentId }: { componentId: string }) => {
   const statusBarHeight = useStatusbarHeight();
   const isPlay = useIsPlay();
   const isCoverSpin = useSettingValue('playDetail.isCoverSpin');
+  const coverStyle = useSettingValue('playDetail.cover.style')
+  const shouldSpin = isCoverSpin && coverStyle === 'vinyl' // 仅黑胶旋转, 方形圆角不旋转
   const theme = useTheme();
   const spinValue = useRef(new Animated.Value(0)).current;
   const animationRef = useRef<Animated.CompositeAnimation | null>(null);
@@ -67,32 +69,32 @@ export default memo(({ componentId }: { componentId: string }) => {
   }, [spinValue]);
 
   useEffect(() => {
-    if (isPlay && isCoverSpin) {
+    if (isPlay && shouldSpin) {
       startAnimation();
     } else {
       stopAnimation();
     }
-  }, [isPlay, isCoverSpin, startAnimation, stopAnimation]);
+  }, [isPlay, shouldSpin, startAnimation, stopAnimation]);
 
   useEffect(() => {
     stopAnimation();
-    if (isPlay && isCoverSpin) {
+    if (isPlay && shouldSpin) {
       startAnimation();
     }
-  }, [musicInfo.musicInfo?.id, isCoverSpin, startAnimation, stopAnimation]);
+  }, [musicInfo.musicInfo?.id, shouldSpin, startAnimation, stopAnimation]);
 
   const spin = spinValue.interpolate({
     inputRange: [0, 1],
     outputRange: ['0deg', '360deg'],
   });
+  const spinTransform = shouldSpin ? [{ rotate: spin }] : undefined
 
-  const coverStyle = useSettingValue('playDetail.cover.style')
   const { imgWidth, borderRadius, ringSize } = useMemo(() => {
     // 封面尺寸: 大屏(车机)限制到 38% 屏宽, 手机 60% 屏宽 —— 避免封面过大太空
     const isLarge = Math.min(winWidth, winHeight) >= 1000
     const w = isLarge
-      ? 750 // 车机固定 750dp
-      : Math.min(winWidth * 0.60, (winHeight - statusBarHeight - HEADER_HEIGHT) * 0.5);
+      ? 500 // 车机: 缩小封面, 为右侧歌词留空间
+      : Math.min(winWidth * 0.42, (winHeight - statusBarHeight - HEADER_HEIGHT) * 0.4);
     let br: number
     switch (coverStyle) {
       case 'circle': br = w / 2; break
@@ -196,7 +198,7 @@ export default memo(({ componentId }: { componentId: string }) => {
         <View ref={coverRef} style={[styles.content, { opacity: coverStyle === 'hidden' ? 0 : 1 }]}>
           <View style={{ position: 'relative' }}>
             <CoverEffects imgWidth={imgWidth}>
-              <Animated.View style={{ transform: [{ rotate: spin }] }}>
+              <Animated.View style={spinTransform ? { transform: spinTransform } : {}}>
                 <View style={{
                   width: ringSize, height: ringSize, borderRadius: ringSize / 2,
                   borderWidth: coverStyle === 'vinyl' ? 3 : 1,

@@ -41,7 +41,7 @@ const LrcFontSize = ({ direction }: { direction: 'horizontal' | 'vertical' }) =>
         </Text>
         <Slider
           minimumValue={100}
-          maximumValue={300}
+          maximumValue={350}
           onSlidingComplete={handleSlidingComplete}
           onValueChange={handleValueChange}
           onSlidingStart={handleSlidingStart}

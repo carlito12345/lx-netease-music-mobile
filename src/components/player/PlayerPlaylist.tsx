@@ -1,5 +1,6 @@
 import {forwardRef, useImperativeHandle, useRef, useState, useEffect, useCallback, memo, useMemo} from 'react';
 import AnimatedSlideUpPanel, { type AnimatedSlideUpPanelType } from '@/components/common/AnimatedSlideUpPanel';
+import LiquidGlass from '@/components/common/LiquidGlass';
 import { useI18n } from '@/lang';
 import { FlatList, View, TouchableOpacity } from 'react-native';
 import Text from '@/components/common/Text';
@@ -45,6 +46,8 @@ export default forwardRef<PlayerPlaylistType, {}>((props, ref) => {
   const theme = useTheme();
   const playerInfo = usePlayInfo();
   const playerMusicInfo = usePlayerMusicInfo();
+  // 当前歌曲封面(做磨砂玻璃背景, 取值与 Pic 组件一致)
+  const glassPic = playerState.musicInfo.pic || (playerMusicInfo as any)?.musicInfo?.meta?.picUrl || (playerMusicInfo as any)?.meta?.picUrl || null
   const [playlist, setPlaylist] = useState<LX.Player.PlayMusic[]>([]);
   const [isVisible, setIsVisible] = useState(false);
   const musicDownloadModalRef = useRef<MusicDownloadModalType>(null);
@@ -247,8 +250,9 @@ export default forwardRef<PlayerPlaylistType, {}>((props, ref) => {
 
   return (
     <>
-      <AnimatedSlideUpPanel ref={panelRef} onHide={handlePanelHide}>
-        <View style={{ ...styles.panelContent, backgroundColor: theme['c-content-background'] }}>
+      <AnimatedSlideUpPanel ref={panelRef} onHide={handlePanelHide} bgOpacity={0}>
+        <View style={styles.panelContent}>
+          <LiquidGlass tone="light" opacity={0.22} radius={16} glowIntensity={0.8} blurRadius={20} source={glassPic ? { uri: glassPic } : null} style={{ flex: 1 }}>
           <View style={{ ...styles.header, borderBottomColor: theme['c-border-background'] }}>
             <View style={styles.headerTitleContainer}>
               <Text style={styles.panelTitle}>{t('list_name_temp')}</Text>
@@ -271,6 +275,7 @@ export default forwardRef<PlayerPlaylistType, {}>((props, ref) => {
             initialNumToRender={10}
             getItemLayout={getItemLayout}
           />
+          </LiquidGlass>
         </View>
       </AnimatedSlideUpPanel>
 
@@ -299,8 +304,8 @@ export default forwardRef<PlayerPlaylistType, {}>((props, ref) => {
 const styles = createStyle({
   panelContent: {
     flex: 1,
-    borderTopLeftRadius: 8,
-    borderTopRightRadius: 8,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
     overflow: 'hidden',
   },
   header: {

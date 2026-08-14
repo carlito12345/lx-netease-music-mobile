@@ -157,13 +157,13 @@ const defaultSetting: LX.AppSetting = {
   'playDetail.effect.lyricWheel.enabled': false,
 
   // 背景模式
-  'playDetail.background.type': 'theme',
+  'playDetail.background.type': 'blur',  // 毛玻璃(封面模糊)
   'playDetail.background.solidColor': '#000000',
   'playDetail.background.followCover': false,
   'playDetail.background.blurRadius': 20,
 
   // 封面样式
-  'playDetail.cover.style': 'circle',
+  'playDetail.cover.style': 'rounded',
   'playDetail.cover.effect.glow': false,
   'playDetail.cover.effect.particles': false,
   'playDetail.cover.effect.rotate': false,

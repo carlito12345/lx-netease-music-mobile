@@ -17,6 +17,7 @@ import { removeTempPlayList, clearTempPlayeList } from '@/core/player/tempPlayLi
 import { getListMusicSync } from '@/utils/listManage'
 import { LIST_IDS } from '@/config/constant'
 import StatusBar from '@/components/common/StatusBar'
+import LiquidGlass from '@/components/common/LiquidGlass'
 import playerState from '@/store/player/state'
 import { useBgPic } from '@/store/common/hook'
 import { scanAudioFiles } from '@/utils/localMediaMetadata'
@@ -190,7 +191,9 @@ export default memo(({ componentId, initialQueue = [] }: PlayQueueProps) => {
   }
 
   return (
-    <View style={[styles.container, { backgroundColor: bgRgba }]}>
+    <View style={styles.container}>
+      {/* 磨砂柔光层: 透明透出播放器页背景 + 白色玻璃罩 + 光感 */}
+      <LiquidGlass tone="light" opacity={0.28} radius={0} glowIntensity={0.85} style={{ flex: 1 }}>
       <StatusBar />
       <View style={styles.headerContent}>
         <TouchableOpacity onPress={handleBack} style={styles.backBtn}>
@@ -214,6 +217,7 @@ export default memo(({ componentId, initialQueue = [] }: PlayQueueProps) => {
       ) : (
         <FlatList data={allQueue} keyExtractor={(_, i) => String(i)} renderItem={renderItem} style={styles.list} contentContainerStyle={{ paddingBottom: 40 }} />
       )}
+      </LiquidGlass>
     </View>
   )
 })

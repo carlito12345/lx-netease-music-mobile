@@ -56,6 +56,10 @@ export interface PopupProps {
   closeBtn?: boolean
   position?: 'top' | 'left' | 'right' | 'bottom'
   title?: string
+  /** 覆盖面板背景样式(磨砂玻璃等), 不传则用主题背景 */
+  panelStyle?: object
+  /** 隐藏标题文字(保留关闭按钮) */
+  hideTitle?: boolean
   children: React.ReactNode
 }
 
@@ -72,6 +76,8 @@ export default forwardRef<PopupType, PopupProps>(
       closeBtn = true,
       position = 'bottom',
       title = '',
+      panelStyle,
+      hideTitle = false,
       children,
     }: PopupProps,
     ref
@@ -202,13 +208,16 @@ export default forwardRef<PopupType, PopupProps>(
               ...styles.modalView,
               ...modalViewStyle,
               backgroundColor: theme['c-content-background'],
+              ...panelStyle,
             }}
             onStartShouldSetResponder={() => true}
           >
             <View style={styles.header}>
-              <Text size={13} style={styles.title} numberOfLines={1}>
-                {title}
-              </Text>
+              {hideTitle ? null : (
+                <Text size={13} style={styles.title} numberOfLines={1}>
+                  {title}
+                </Text>
+              )}
               {closeBtnComponent}
             </View>
             {children}

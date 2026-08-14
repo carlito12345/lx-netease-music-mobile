@@ -51,13 +51,31 @@ export const PlayDetailBackground = memo(() => {
     <View style={[StyleSheet.absoluteFill, { backgroundColor }]} pointerEvents="none">
       {showBlur ? (
         <>
+          {/* 毛玻璃背景: 封面模糊 */}
           <Image
             source={{ uri: picUrl }}
             style={StyleSheet.absoluteFill}
             resizeMode="cover"
             blurRadius={blurRadius}
           />
-          <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.3)' }]} />
+          {/* 深色罩: 保证前景可读 */}
+          <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(0,0,0,0.35)' }]} />
+          {/* 光感: 左上定向光源 */}
+          <View
+            style={{
+              position: 'absolute', left: -80, top: -100,
+              width: 320, height: 320, borderRadius: 160,
+              backgroundColor: 'rgba(255,255,255,0.06)',
+            }}
+          />
+          {/* 顶部反光 */}
+          <View
+            style={{
+              position: 'absolute', left: 40, top: 0, right: 40, height: 1.5,
+              borderRadius: 1,
+              backgroundColor: 'rgba(255,255,255,0.12)',
+            }}
+          />
         </>
       ) : null}
     </View>

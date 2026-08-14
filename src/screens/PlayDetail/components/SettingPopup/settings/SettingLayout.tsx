@@ -1,6 +1,6 @@
 /**
- * SettingLayout - 播放器布局选择(完整组件)
- * 经典 / MusicFree 风格 切换, 自包含无外部依赖
+ * SettingLayout - 播放器布局选择
+ * 播放器布局选择(完整组件)
  */
 import { memo, useState, useEffect } from 'react'
 import { View } from 'react-native'
@@ -10,7 +10,6 @@ import Chip from '@/components/common/Chip'
 
 const LAYOUTS = [
   { key: 'default', label: '经典' },
-  { key: 'musicfree', label: 'MusicFree 风格' },
 ]
 
 export default memo(() => {

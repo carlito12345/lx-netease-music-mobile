@@ -15,11 +15,7 @@ import Chip from '@/components/common/Chip'
 import { DESIGN } from '@/theme/design'
 
 const BG_TYPES = [
-  { id: 'theme', label: '主题' },
-  { id: 'solid', label: '纯色' },
-  { id: 'follow', label: '封面主色' },
   { id: 'blur', label: '封面模糊' },
-  { id: 'wallpaper', label: '星云壁纸' },
 ] as const
 
 const SOLID_COLORS = [

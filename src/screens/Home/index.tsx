@@ -9,7 +9,8 @@ import { navigations } from '@/navigation'
 import ArtistSelectorManager from '@/components/ArtistSelectorManager'
 import settingState from '@/store/setting/state'
 import { useI18n } from "@/lang"
-import { BackHandler } from "react-native"
+import Text from "@/components/common/Text"
+import { BackHandler, View, TouchableOpacity } from "react-native"
 import { toast } from "@/utils/tools.ts"
 import commonState from '@/store/common/state'
 import { useBackHandler } from "@/utils/hooks/useBackHandler.ts"
