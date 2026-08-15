@@ -72,6 +72,14 @@ public class GLShaderView extends GLSurfaceView {
     renderer.setVolume(volume);
   }
 
+  public void setPresence(float v) {
+    renderer.setPresence(v);
+  }
+
+  public void setBrilliance(float v) {
+    renderer.setBrilliance(v);
+  }
+
   public void setBaseColor(float r, float g, float b) {
     renderer.setBaseColor(r, g, b);
   }

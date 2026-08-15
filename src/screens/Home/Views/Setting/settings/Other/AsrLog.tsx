@@ -65,9 +65,9 @@ export default memo(function AsrLog() {
 })
 
 const styles = createStyle({
-  container: { marginTop: 8, marginBottom: 12 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
-  toggle: { paddingVertical: 10 },
+  container: { marginTop: DESIGN.spacing.sm, marginBottom: DESIGN.spacing.md, paddingHorizontal: DESIGN.spacing.xl },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: DESIGN.spacing.xs },
+  toggle: { paddingVertical: DESIGN.spacing.sm },
   scroll: { maxHeight: 300, backgroundColor: DESIGN.chipBg, borderRadius: DESIGN.radius.sm, padding: DESIGN.spacing.sm },
   logText: { fontFamily: 'monospace', lineHeight: 15 },
 })

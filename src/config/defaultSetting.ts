@@ -52,6 +52,7 @@ const defaultSetting: LX.AppSetting = {
   'playDetail.isCoverSpin': true,
   'playDetail.style.align': 'center',
   'playDetail.vertical.style.lrcFontSize': 200,
+  'playDetail.style.miniLyricLineCount': 5,  // 迷你歌词显示行数
   'playDetail.horizontal.style.lrcFontSize': 220,
   'playDetail.isShowLyricProgressSetting': true,
 
@@ -147,6 +148,8 @@ const defaultSetting: LX.AppSetting = {
   'playDetail.effect.slideshow.enabled': false,
   'playDetail.effect.spectrum.enabled': true,  // 真实频谱(原生 AudioSpectrum)
   'playDetail.effect.liquidChrome.enabled': false,  // 液态铬触摸背景(默认关, 性能敏感)
+  'playDetail.effect.kaleido.enabled': false,  // 万花筒(ShiningStars 分形星云)
+  'playDetail.effect.galaxy.enabled': false,   // 星河星云(粒子星河+粒子歌词)
   'playDetail.effect.echoNear.enabled': false,  // 音频城市(echo 音域回响近景, 独立单选)
   'playDetail.effect.denseWave.enabled': true,  // 可调音域回响(echoplus 密集频谱柱)
   'playDetail.effect.denseWave.metalness': 0.8,  // 金属感(白热高光)

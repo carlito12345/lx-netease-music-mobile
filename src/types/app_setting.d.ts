@@ -144,6 +144,10 @@ declare global {
       'playDetail.effect.spectrum.enabled': boolean
       /** 液态铬触摸交互背景 */
       'playDetail.effect.liquidChrome.enabled': boolean
+      /** 万花筒(原星河星云分形, ShiningStars) */
+      'playDetail.effect.kaleido.enabled': boolean
+      /** 星河星云(粒子星河 + 粒子歌词 + 360旋转) */
+      'playDetail.effect.galaxy.enabled': boolean
       /** 音频城市独立开关(echo = 音域回响近景) */
       'playDetail.effect.echoNear.enabled': boolean
       /** 密集频谱柱背景(echoplus = 可调音域回响) */
@@ -298,6 +302,8 @@ declare global {
        * 竖屏歌词字体大小
        */
       'playDetail.vertical.style.lrcFontSize': number
+      /** 迷你歌词显示行数 */
+      'playDetail.style.miniLyricLineCount': number
 
       /**
        * 横屏歌词字体大小

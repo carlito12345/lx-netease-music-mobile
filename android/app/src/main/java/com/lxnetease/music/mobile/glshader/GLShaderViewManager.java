@@ -20,6 +20,8 @@ public class GLShaderViewManager extends SimpleViewManager<GLShaderView> {
   public static final String REACT_CLASS = "GLShaderView";
   public static final int COMMAND_SET_BANDS = 1;
   public static final int COMMAND_SET_VOLUME = 2;
+  public static final int COMMAND_SET_PRESENCE = 6;
+  public static final int COMMAND_SET_BRILLIANCE = 7;
   public static final int COMMAND_SET_MOUSE = 3;
   public static final int COMMAND_ADD_RIPPLE = 4;
   public static final int COMMAND_SPAWN_METEOR = 5;
@@ -120,11 +122,23 @@ public class GLShaderViewManager extends SimpleViewManager<GLShaderView> {
     }
   }
 
+  @ReactProp(name = "presence", defaultFloat = 0.0f)
+  public void setPresence(GLShaderView view, float v) {
+    view.getRenderer().setPresence(v);
+  }
+
+  @ReactProp(name = "brilliance", defaultFloat = 0.0f)
+  public void setBrilliance(GLShaderView view, float v) {
+    view.getRenderer().setBrilliance(v);
+  }
+
   @Override
   public Map<String, Integer> getCommandsMap() {
     return MapBuilder.of(
         "setBands", COMMAND_SET_BANDS,
         "setVolume", COMMAND_SET_VOLUME,
+        "setPresence", COMMAND_SET_PRESENCE,
+        "setBrilliance", COMMAND_SET_BRILLIANCE,
         "setMouse", COMMAND_SET_MOUSE,
         "addRipple", COMMAND_ADD_RIPPLE,
         "spawnMeteor", COMMAND_SPAWN_METEOR
@@ -147,6 +161,18 @@ public class GLShaderViewManager extends SimpleViewManager<GLShaderView> {
       case COMMAND_SET_VOLUME: {
         if (args != null && args.size() >= 1) {
           view.setVolume((float) args.getDouble(0));
+        }
+        break;
+      }
+      case COMMAND_SET_PRESENCE: {
+        if (args != null && args.size() >= 1) {
+          view.setPresence((float) args.getDouble(0));
+        }
+        break;
+      }
+      case COMMAND_SET_BRILLIANCE: {
+        if (args != null && args.size() >= 1) {
+          view.setBrilliance((float) args.getDouble(0));
         }
         break;
       }

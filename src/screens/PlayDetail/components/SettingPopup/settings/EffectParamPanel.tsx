@@ -3,7 +3,7 @@
  * 滑块调参 → 实时预览; 导出/导入 JSON 配置
  */
 import { memo, useState, useCallback } from 'react'
-import { View, Pressable, ScrollView } from 'react-native'
+import { View, Pressable } from 'react-native'
 import { createStyle } from '@/utils/tools'
 import { useTheme } from '@/store/theme/hook'
 import Text from '@/components/common/Text'
@@ -12,6 +12,7 @@ import type { DenseParams } from '@/components/common/GLShader/GLShaderView'
 import { DESIGN } from '@/theme/design'
 import { updateSetting } from '@/core/common'
 import { exportFxConfig, listFxConfigs, readFxConfigFile } from './echoFxConfig'
+import ColorPicker from '@/components/common/ColorPicker'
 
 export interface ParamState extends DenseParams {
   camHeight: number
@@ -23,12 +24,32 @@ export interface ParamState extends DenseParams {
   pillarHeight: number
   metalness: number
   neon: number
+  /** 主色(低频玫红, hex) */
+  warmColorHex: string
+  /** 中频绿(hex) */
+  greenColorHex: string
+  /** 高频紫蓝(hex) */
+  coolColorHex: string
+  /** 背景色(hex) */
+  bgColorHex: string
+}
+
+// hex → [r,g,b] 0-1 (shader uniform)
+const hexToRgb01 = (hex: string): [number, number, number] => {
+  const m = hex.replace('#', '').match(/^([0-9a-f]{6})$/i)
+  if (!m) return [0.5, 0.3, 1.2]
+  const v = parseInt(m[1], 16)
+  return [((v >> 16) & 255) / 255, ((v >> 8) & 255) / 255, (v & 255) / 255]
 }
 
 const DEFAULTS: ParamState = {
   camHeight: 6.5, camDist: 12.5, camSpeed: 0.06, fov: 1.7,
   pillarCell: 0.5, pillarWidth: 0.15, pillarHeight: 1.0,
   metalness: 0.8, neon: 0.5,
+  warmColorHex: '#FF4D8C',   // 玫红(原 1.0, 0.3, 0.55)
+  greenColorHex: '#33FF80',  // 荧光绿(原 0.2, 1.0, 0.5)
+  coolColorHex: '#8073FF',   // 紫蓝(原 0.5, 0.45, 1.5)
+  bgColorHex: '#05070C',     // 深色基底
 }
 
 interface RowProps {
@@ -100,7 +121,17 @@ const EffectParamPanel = memo(({ params, onChange }: Props) => {
   }, [onChange])
 
   return (
-    <ScrollView style={styles.container} nestedScrollEnabled>
+    <View style={styles.container}>
+      <Text size={12} color={theme['c-primary']} style={styles.section}>颜色</Text>
+      <Text size={11} color={theme['c-font-label']} style={styles.colorLabel}>低频主色</Text>
+      <ColorPicker value={params.warmColorHex} onChange={(c) => set({ warmColorHex: c })} />
+      <Text size={11} color={theme['c-font-label']} style={styles.colorLabel}>中频色</Text>
+      <ColorPicker value={params.greenColorHex} onChange={(c) => set({ greenColorHex: c })} />
+      <Text size={11} color={theme['c-font-label']} style={styles.colorLabel}>高频色</Text>
+      <ColorPicker value={params.coolColorHex} onChange={(c) => set({ coolColorHex: c })} />
+      <Text size={11} color={theme['c-font-label']} style={styles.colorLabel}>背景色</Text>
+      <ColorPicker value={params.bgColorHex} onChange={(c) => set({ bgColorHex: c })} />
+
       <Text size={12} color={theme['c-primary']} style={styles.section}>相机</Text>
       <Row label="高度" value={params.camHeight} min={2} max={12} step={0.1} onChange={(v) => set({ camHeight: v })} />
       <Row label="距离" value={params.camDist} min={4} max={22} step={0.1} onChange={(v) => set({ camDist: v })} />
@@ -128,19 +159,20 @@ const EffectParamPanel = memo(({ params, onChange }: Props) => {
         </Pressable>
       </View>
       {msg ? <Text size={11} color={theme['c-primary']} style={styles.msg}>{msg}</Text> : null}
-    </ScrollView>
+    </View>
   )
 })
 
 const styles = createStyle({
-  container: { marginTop: DESIGN.spacing.xs, maxHeight: 320 },
-  section: { marginTop: DESIGN.spacing.sm, marginBottom: DESIGN.spacing.xs, fontWeight: 'bold', paddingHorizontal: DESIGN.spacing.xl },
+  container: { marginTop: DESIGN.spacing.xs },
+  section: { marginTop: DESIGN.spacing.sm, marginBottom: DESIGN.spacing.xs, paddingHorizontal: DESIGN.spacing.xl },
   row: { flexDirection: 'row', alignItems: 'center', marginTop: DESIGN.spacing.xs, paddingHorizontal: DESIGN.spacing.xl },
   label: { width: 62 },
   sliderBox: { flex: 1, marginHorizontal: 6 },
   val: { width: 40, textAlign: 'right' },
   btnRow: { flexDirection: 'row', marginTop: DESIGN.spacing.md, justifyContent: 'space-around', paddingHorizontal: DESIGN.spacing.xl },
-  btn: { paddingHorizontal: 18, paddingVertical: 6, borderRadius: DESIGN.radius.md, backgroundColor: DESIGN.chipBg },
+  colorLabel: { marginTop: DESIGN.spacing.sm, marginBottom: DESIGN.spacing.xs, paddingHorizontal: DESIGN.spacing.xl },
+  btn: { paddingHorizontal: DESIGN.spacing.lg + 2, paddingVertical: 6, borderRadius: DESIGN.radius.md, backgroundColor: DESIGN.chipBg },
   msg: { marginTop: DESIGN.spacing.sm, textAlign: 'center' },
 })
 

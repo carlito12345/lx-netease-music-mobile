@@ -1,5 +1,6 @@
 import {memo, useState, useRef, useMemo, useEffect, useCallback} from 'react'
-import { View, AppState, StyleSheet, PanResponder, Dimensions } from 'react-native'
+import { View, Dimensions, AppState, StyleSheet } from 'react-native'
+import EffectTouchLayer from '@/components/common/GLShader/EffectTouchLayer'
 
 import Header from './components/Header'
 // import Aside from './components/Aside'
@@ -13,11 +14,16 @@ import { screenkeepAwake, screenUnkeepAwake } from '@/utils/nativeModules/utils'
 import commonState, { type InitState as CommonState } from '@/store/common/state'
 import { createStyle } from '@/utils/tools'
 import { useSettingValue } from '@/store/setting/hook'
+import { useLrcPlay } from '@/plugins/lyric'
+import type { GalaxyHandle } from '@/components/common/GLShader/Galaxy'
 import { useTheme } from '@/store/theme/hook'
 import { StarfieldBackground } from '@/components/starfield/StarfieldBackground'
 import { SpectrumBars } from '@/components/echo/SpectrumBars'
 import LiquidChrome, { type LiquidChromeHandle } from '@/components/common/GLShader/LiquidChrome'
 import AudioCity from '@/components/common/GLShader/AudioCity'
+import StarField from '@/components/common/GLShader/StarField'
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const Galaxy = require('@/components/common/GLShader/Galaxy').default
 import DenseWave, { type DenseWaveHandle } from '@/components/common/GLShader/DenseWave'
 import { WallpaperView } from '@/components/wallpaper/WallpaperView'
 import { SlideshowBg } from '@/components/slideshow/SlideshowBg'
@@ -50,12 +56,17 @@ export default memo(({ componentId }: { componentId: string }) => {
   const starfieldEnabled = useSettingValue('playDetail.effect.starfield.enabled')
   const spectrumEnabled = useSettingValue('playDetail.effect.spectrum.enabled')
   const liquidChromeEnabled = useSettingValue('playDetail.effect.liquidChrome.enabled')
+  const kaleidoEnabled = useSettingValue('playDetail.effect.kaleido.enabled')
+  const galaxyEnabled = useSettingValue('playDetail.effect.galaxy.enabled')
   const echoNearEnabled = useSettingValue('playDetail.effect.echoNear.enabled')
   const denseWaveEnabled = useSettingValue('playDetail.effect.denseWave.enabled')
   const denseWaveMetal = useSettingValue('playDetail.effect.denseWave.metalness')
   const denseWaveNeon = useSettingValue('playDetail.effect.denseWave.neon')
   const denseWaveParamsJson = useSettingValue('playDetail.effect.denseWave.params')
   const denseWaveRef = useRef<DenseWaveHandle>(null)
+  const galaxyRef = useRef<GalaxyHandle>(null)
+  const lrcInfo = useLrcPlay()
+  const miniLyricLineCount = useSettingValue('playDetail.style.miniLyricLineCount')
 
   // 解析参数面板配置(JSON)
   const denseWaveParams = useMemo(() => {
@@ -68,27 +79,24 @@ export default memo(({ componentId }: { componentId: string }) => {
   }, [denseWaveParamsJson])
   const liquidChromeRef = useRef<LiquidChromeHandle>(null)
 
-  // 液态铬触摸: 只捕获滑动手势, 点击(短按)透传给下层按钮
-  // 屏幕尺寸(用于归一化触摸坐标)
+  // 统一特效触控(单一 PanResponder, 按激活特效分发)
   const screenW = Dimensions.get('window').width
   const screenH = Dimensions.get('window').height
-  const liquidChromePan = useRef(
-    PanResponder.create({
-      onStartShouldSetPanResponder: () => false,       // 点击不拦截(透传)
-      onMoveShouldSetPanResponder: () => true,         // 滑动时接管
-      onPanResponderGrant: (evt) => {
-        const { locationX, locationY } = evt.nativeEvent
-        liquidChromeRef.current?.setMouse(locationX / screenW, locationY / screenH)
-      },
-      onPanResponderMove: (evt) => {
-        const { locationX, locationY } = evt.nativeEvent
-        liquidChromeRef.current?.setMouse(locationX / screenW, locationY / screenH)
-        // 音域地形涟漪(滑动触发)
-        denseWaveRef.current?.addRipple(locationX / screenW, locationY / screenH)
-      },
-      onPanResponderTerminationRequest: () => false,
-    }),
-  ).current
+  const handleFxDrag = useCallback((x: number, y: number, dx: number, dy: number) => {
+    const nx = x / screenW
+    const ny = y / screenH
+    if (liquidChromeEnabled) liquidChromeRef.current?.setMouse(nx, ny)
+    if (denseWaveEnabled && !echoNearEnabled && !kaleidoEnabled && !galaxyEnabled) {
+      denseWaveRef.current?.addRipple(nx, ny)
+    }
+    if (galaxyEnabled) galaxyRef.current?.setRot(dx * 0.008, dy * 0.008)
+  }, [liquidChromeEnabled, denseWaveEnabled, echoNearEnabled, kaleidoEnabled, galaxyEnabled, screenW, screenH])
+  const handleFxPinch = useCallback((delta: number) => {
+    if (galaxyEnabled) galaxyRef.current?.addZoom(delta * 0.012)
+  }, [galaxyEnabled])
+  const handleFxPinchEnd = useCallback(() => {
+    if (galaxyEnabled) galaxyRef.current?.resetZoom()
+  }, [galaxyEnabled])
   const wallpaperEnabled = useSettingValue('playDetail.effect.wallpaper.enabled')
   const slideshowEnabled = useSettingValue('playDetail.effect.slideshow.enabled')
 
@@ -141,14 +149,30 @@ export default memo(({ componentId }: { componentId: string }) => {
     }
   }, [])
 
+  // 当前歌词 → 星河粒子歌词
+  useEffect(() => {
+    if (galaxyEnabled && lrcInfo.text) {
+      galaxyRef.current?.setLyric(lrcInfo.text)
+    }
+  }, [galaxyEnabled, lrcInfo.text])
+
   return (
-    <View style={{ flex: 1 }} {...liquidChromePan.panHandlers}>
+    <EffectTouchLayer
+      style={{ flex: 1 }}
+      onDrag={handleFxDrag}
+      onPinch={handleFxPinch}
+      onPinchEnd={handleFxPinchEnd}
+    >
       {/* 背景模式(最外层, 覆盖 Header) */}
       <PlayDetailBackground />
+      {/* 万花筒(ShiningStars 分形, 覆盖 Header, 独立单选) */}
+      {kaleidoEnabled && <StarField style={StyleSheet.absoluteFill} />}
+      {/* 星河星云(粒子星河+粒子歌词, 独立单选) */}
+      {galaxyEnabled && <Galaxy ref={galaxyRef} style={StyleSheet.absoluteFill} />}
       {/* 音域回响近景(echo 音频城市, 覆盖 Header) */}
-      {echoNearEnabled && <AudioCity style={StyleSheet.absoluteFill} />}
+      {echoNearEnabled && !kaleidoEnabled && !galaxyEnabled && <AudioCity style={StyleSheet.absoluteFill} />}
       {/* 可调音域回响(echoplus 密集频谱柱, 覆盖 Header) */}
-      {denseWaveEnabled && !echoNearEnabled && (
+      {denseWaveEnabled && !echoNearEnabled && !kaleidoEnabled && !galaxyEnabled && (
         <DenseWave
           ref={denseWaveRef}
           metalness={denseWaveMetal}
@@ -190,7 +214,7 @@ export default memo(({ componentId }: { componentId: string }) => {
               <View style={styles.sideRight}>
                 <MiniLyricPreview
                   onPress={handleSwitchToLyricPage}
-                  lineCount={5}
+                  lineCount={miniLyricLineCount}
                 />
               </View>
             </View>
@@ -205,7 +229,7 @@ export default memo(({ componentId }: { componentId: string }) => {
         </View> */}
         <Player componentId={componentId} />
       </View>
-    </View>
+    </EffectTouchLayer>
   )
 })
 

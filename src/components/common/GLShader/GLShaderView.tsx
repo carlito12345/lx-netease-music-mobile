@@ -12,12 +12,17 @@ const NativeGLShaderView: any = requireNativeComponent('GLShaderView')
 export interface GLShaderViewHandle {
   setBands: (bands: number[]) => void
   setVolume: (volume: number) => void
+  setPresence: (v: number) => void
+  setBrilliance: (v: number) => void
   setMouse: (x: number, y: number) => void
   addRipple: (x: number, z: number, strength: number) => void
   spawnMeteor: (strength: number) => void
 }
 
 export interface DenseParams {
+  floating?: number[]
+  presence?: number
+  brilliance?: number
   camHeight?: number
   camDist?: number
   camSpeed?: number
@@ -64,6 +69,16 @@ const GLShaderView = forwardRef<GLShaderViewHandle, Props>(({
     UIManager.dispatchViewManagerCommand(node, UIManager.getViewManagerConfig('GLShaderView').Commands.setBands, [bands])
   }, [])
 
+  const setPresence = useCallback((presence: number) => {
+    const node = findNodeHandle(viewRef.current)
+    if (node == null) return
+    UIManager.dispatchViewManagerCommand(node, UIManager.getViewManagerConfig('GLShaderView').Commands.setPresence, [presence])
+  }, [])
+  const setBrilliance = useCallback((brilliance: number) => {
+    const node = findNodeHandle(viewRef.current)
+    if (node == null) return
+    UIManager.dispatchViewManagerCommand(node, UIManager.getViewManagerConfig('GLShaderView').Commands.setBrilliance, [brilliance])
+  }, [])
   const setVolume = useCallback((volume: number) => {
     const node = findNodeHandle(viewRef.current)
     if (node == null) return
@@ -88,7 +103,7 @@ const GLShaderView = forwardRef<GLShaderViewHandle, Props>(({
     UIManager.dispatchViewManagerCommand(node, UIManager.getViewManagerConfig('GLShaderView').Commands.spawnMeteor, [strength])
   }, [])
 
-  useImperativeHandle(ref, () => ({ setBands, setVolume, setMouse, addRipple, spawnMeteor }), [setBands, setVolume, setMouse, addRipple, spawnMeteor])
+  useImperativeHandle(ref, () => ({ setBands, setVolume, setPresence, setBrilliance, setMouse, addRipple, spawnMeteor }), [setBands, setVolume, setPresence, setBrilliance, setMouse, addRipple, spawnMeteor])
 
   return (
     <NativeGLShaderView
@@ -109,7 +124,9 @@ const GLShaderView = forwardRef<GLShaderViewHandle, Props>(({
       pillarWidth={params?.pillarWidth ?? 0.15}
       pillarHeight={params?.pillarHeight ?? 1.0}
       palette={params?.palette}
-      bgColor={params?.bgColor}
+          bgColor={params?.bgColor}
+      presence={params?.presence ?? 0}
+      brilliance={params?.brilliance ?? 0}
       style={style}
     />
   )

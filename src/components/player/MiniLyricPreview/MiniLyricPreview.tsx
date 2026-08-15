@@ -2,17 +2,17 @@
  * MiniLyricPreview - 歌词预览组件(可调参数)
  * 显示当前行歌词居中, 前后行半透明(共 N 行)
  * 点击展开完整歌词页
- * 全部样式可配: 行数/字号/行间距/对齐/透明度
+ * 歌词舞台(跟随歌词页 lyricStage 设置): 当前行文字发光 + 弹入动画
  */
-import { memo, useMemo } from 'react'
-import { View, TouchableOpacity } from 'react-native'
+import { memo, useMemo, useEffect, useRef } from 'react'
+import { View, TouchableOpacity, Animated, Easing } from 'react-native'
 import { useLrcPlay, useLrcSet } from '@/plugins/lyric'
 import { useTheme } from '@/store/theme/hook'
 import { useBackgroundColor } from '@/store/backgroundColor'
 import { getTextColorByMode } from '@/utils/adaptiveTextColor'
 import { useSettingValue } from '@/store/setting/hook'
 import { createStyle } from '@/utils/tools'
-import Text from '@/components/common/Text'
+import Text, { AnimatedColorText } from '@/components/common/Text'
 
 interface Props {
   /** 点击展开完整歌词页 */
@@ -59,14 +59,25 @@ const MiniLyricPreview = memo(({
   const settingAlign = useSettingValue('playDetail.style.align')
   const { textColorMode } = useBackgroundColor()
   const activeColor = getTextColorByMode(textColorMode, theme.isDark)
+  // 歌词舞台(跟随歌词页设置): 当前行发光 + 弹入
+  const stageEnabled = useSettingValue('playDetail.effect.lyricStage.enabled')
+  const scaleAnim = useRef(new Animated.Value(1)).current
+  const glowAnim = useRef(new Animated.Value(0)).current
+  useEffect(() => {
+    if (!stageEnabled) return
+    scaleAnim.setValue(0.88)
+    glowAnim.setValue(0)
+    Animated.parallel([
+      Animated.timing(scaleAnim, { toValue: 1, duration: 320, easing: Easing.out(Easing.back(1.6)), useNativeDriver: false }),
+      Animated.timing(glowAnim, { toValue: 1, duration: 420, useNativeDriver: false }),
+    ]).start()
+  }, [activeLine, stageEnabled, scaleAnim, glowAnim])
 
-  // 兼容: 未传入时用设置值, 传入则优先 props
+  // 文字对齐
   const textAlign = align ?? settingAlign
   const settingFont = useSettingValue('playDetail.vertical.style.lrcFontSize')
-  // 注意: lrcFontSize 是 10 倍值(如 200=20pt), 需先 /10 再缩放
   const baseSize = fontSize ?? Math.round((settingFont / 10) * 0.8)
 
-  // 前后各 (lineCount-1)/2 行
   const half = Math.floor((lineCount - 1) / 2)
 
   const visible = useMemo(() => {
@@ -90,21 +101,59 @@ const MiniLyricPreview = memo(({
       {visible.length === 0 ? (
         <Text size={13} color={theme['c-font-label']} style={styles.empty}>...</Text>
       ) : (
-        visible.map(item => (
-          <View key={item.lineNum} style={[styles.line, { paddingVertical: lineGap }]}>
-            <Text
-              size={item.active ? Math.round(baseSize) : Math.max(Math.round(baseSize) - 2, 11)}
-              color={item.active ? activeColor : theme['c-font-label']}
-              style={{
-                textAlign: textAlign as any,
-                opacity: item.active ? 1 : inactiveOpacity,
-              }}
-              numberOfLines={1}
-            >
-              {String(item.text ?? '')}
-            </Text>
-          </View>
-        ))
+        visible.map(item => {
+          const isActive = item.active
+          const lineColor = isActive ? activeColor : theme['c-font-label']
+          const lineOpacity = isActive ? 1 : inactiveOpacity
+          const lineSize = isActive ? Math.round(baseSize) : Math.max(Math.round(baseSize) - 2, 11)
+
+          // 歌词舞台: 当前行 Animated 缩放 + 发光(跟随 lyricStage 设置)
+          const useStage = isActive && stageEnabled
+          const glow = glowAnim.interpolate({
+            inputRange: [0, 1],
+            outputRange: [0, 0.85],
+          })
+          const stageStyle = useStage
+            ? {
+                transform: [{ scale: scaleAnim }],
+                textShadowColor: activeColor,
+                textShadowRadius: 6,
+                textShadowOffset: { width: 0, height: 0 },
+                shadowOpacity: glow,
+              }
+            : null
+
+          return (
+            <View key={item.lineNum} style={[styles.line, { paddingVertical: lineGap }]}>
+              {useStage ? (
+                <AnimatedColorText
+                  size={lineSize}
+                  color={lineColor}
+                  style={[{
+                    textAlign: textAlign as any,
+                    opacity: lineOpacity,
+                    ...stageStyle,
+                  }]}
+                  numberOfLines={1}
+                >
+                  {String(item.text ?? '')}
+                </AnimatedColorText>
+              ) : (
+                <Text
+                  size={lineSize}
+                  color={lineColor}
+                  style={{
+                    textAlign: textAlign as any,
+                    opacity: lineOpacity,
+                  }}
+                  numberOfLines={1}
+                >
+                  {String(item.text ?? '')}
+                </Text>
+              )}
+            </View>
+          )
+        })
       )}
     </TouchableOpacity>
   )

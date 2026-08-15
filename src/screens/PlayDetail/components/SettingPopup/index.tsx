@@ -9,6 +9,7 @@ import { getData, saveData } from '@/plugins/storage'
 import SettingLyricProgress from './settings/SettingLyricProgress'
 import SettingVolume from './settings/SettingVolume'
 import SettingPlaybackRate from './settings/SettingPlaybackRate'
+import SettingMiniLyricLineCount from './settings/SettingMiniLyricLineCount'
 import SettingLrcFontSize from './settings/SettingLrcFontSize'
 import SettingLrcAlign from './settings/SettingLrcAlign'
 import SettingCoverSpin from "@/screens/PlayDetail/components/SettingPopup/settings/SettingCoverSpin.tsx";
@@ -82,6 +83,7 @@ export default forwardRef<SettingPopupType, SettingPopupProps>(({ direction, ...
             <SettingPlaybackRate />
             <SettingLrcFontSize direction={direction} />
             <SettingLrcAlign />
+            <SettingMiniLyricLineCount />
           </Section>
           {/* 播放器外观组 */}
           <Section title={t('play_detail_setting_appearance')} bgColor={DESIGN.cardDark2} hideTitle

@@ -4,7 +4,7 @@
  * 交互: 涟漪(kick/snare/触摸) + 流星(落地炸坑+涟漪)
  * 配置: 金属感(uMetalness) + 荧光(uNeon)
  */
-import { memo, useRef, useEffect, useCallback, forwardRef, useImperativeHandle } from 'react'
+import { memo, useRef, useEffect, useCallback, useMemo, forwardRef, useImperativeHandle } from 'react'
 import GLShaderView, { type GLShaderViewHandle } from './GLShaderView'
 import { useAudioSpectrum } from '@/components/echo/useAudioSpectrum'
 
@@ -34,6 +34,9 @@ uniform vec3 uWarmCol;
 uniform vec3 uGreenCol;
 uniform vec3 uCoolCol;
 uniform vec3 uBgCol;
+uniform float uPresence;
+uniform float uBrilliance;
+uniform vec4 uFloating[8];
 varying vec2 vUv;
 
 float sampleBands(float fi) {
@@ -157,9 +160,13 @@ void main() {
             h -= exp(-cd * cd / 0.7) * uCrater.w * cf;
         }
 
-        // 柱色: 频率分色
+        // 柱色: 频率分色 + 原版 warm/cool 分区(距离混合)
         vec3 baseCol = mix(warmCol, greenCol, clamp(freq / 3.0, 0.0, 1.0));
         baseCol = mix(baseCol, coolCol, clamp((freq - 1.5) / 3.0, 0.0, 1.0));
+        float warmBlend = smoothstep(0.0, 1.0, 0.5 - d / 20.0);
+        vec3 zoneCore = mix(coolCol, warmCol, warmBlend);
+        float distFade = 1.0 - smoothstep(30.0, 60.0, d);
+        vec3 targetGlow = mix(zoneCore, baseCol, rnd * 0.5);
 
         float me = sdBox(
             p - vec3(cen.x * cell, -50.0, cen.y * cell),
@@ -186,6 +193,22 @@ void main() {
             vec3 pillarCol = baseCol * idShade * freqLight * soft * volBoost * 0.5;
             // 顶面发光(金属感配置)
             pillarCol += whiteCol * isTop * normElev * 0.3 * uMetalness;
+            // 原版: 顶面闪烁(随机点 + presence 驱动)
+            float twinkleDist = smoothstep(45.0, 15.0, d);
+            float twinkleMul = mix(twinkleDist, 1.0, smoothstep(0.01, 0.1, normElev));
+            if (fract(rnd * 31.0) > 0.95 && normElev < 0.1) {
+                pillarCol += whiteCol * uPresence * 1.6 * twinkleMul;
+            }
+            // 原版: presence 闪光(柱顶)
+            float flashChance = smoothstep(0.3, 1.0, uPresence);
+            if (fract(rnd * 53.0) > 0.98 - flashChance * 0.1) {
+                float flashSync = sin(uTime * 40.0 + rnd * 100.0) * 0.5 + 0.5;
+                pillarCol += mix(whiteCol, vec3(0.5, 1.0, 1.0), rnd) * flashSync * uPresence * twinkleMul;
+            }
+            // 原版: 侧面边缘辉光(从顶向下衰减)
+            float distFromTop = 1.0 - clamp(relY, 0.0, 1.0);
+            float sideGlow = smoothstep(0.17, 0.0, distFromTop) * normElev;
+            pillarCol += targetGlow * sideGlow * 1.2;
             // 涟漪顶部白色高光(随涟漪消散衰减)
             pillarCol += whiteCol * rip.y * 0.8 * (0.4 + 0.6 * isTop);
 
@@ -195,6 +218,36 @@ void main() {
 
         t += max(me, 0.045);
         if (t > 38.0) { break; }
+    }
+
+    // 地面光晕(原版: 底部向中心渐变辉光)
+    {
+        vec3 groundP = ro + rd * t;
+        float groundDist = length(groundP.xz);
+        float groundFade = 1.0 - smoothstep(8.0, 55.0, groundDist);
+        float horizonGlow = exp(-abs(groundP.y + 0.5) * 1.2);
+        vec3 groundGlowCol = mix(warmCol, coolCol, 0.5 + groundDist / 60.0);
+        col += groundGlowCol * groundFade * horizonGlow * 0.35;
+    }
+
+    // 漂浮方块(billboard 光点, 性能友好; 位置正弦浮动 + 脉动缩放)
+    for (int i = 0; i < 8; i++) {
+        vec4 fb = uFloating[i];
+        if (fb.w > 0.0) {
+            float phase = float(i) * 1.7;
+            vec3 fPos = vec3(
+                fb.x + sin(uTime * 0.4 + phase) * 0.6,
+                fb.y + sin(uTime * 0.7 + phase * 1.3) * 0.4,
+                fb.z + cos(uTime * 0.5 + phase) * 0.6
+            );
+            vec3 fp = fPos - ro;
+            float fT = dot(fp, rd);
+            vec3 fProj = ro + rd * fT - fPos;
+            float fDist = length(fProj);
+            float pulse = 0.6 + 0.4 * sin(uTime * 2.0 + phase);
+            float fGlow = exp(-fDist * fDist / (fb.w * fb.w * pulse)) * 0.7;
+            col += mix(warmCol, coolCol, 0.5 + 0.3 * sin(uTime * 0.3 + phase)) * fGlow;
+        }
     }
 
     // 流星
@@ -228,6 +281,7 @@ interface Props {
   metalness?: number   // 金属感 0-1
   neon?: number        // 荧光 0-1
   params?: import('./GLShaderView').DenseParams  // 可调参数
+  floating?: number[]  // 漂浮方块 [x,y,z,size]*8
   style?: any
 }
 
@@ -236,12 +290,29 @@ const DenseWave = memo(forwardRef<DenseWaveHandle, Props>(({
   metalness = 0.8,
   neon = 0.5,
   params,
+  floating,
   style,
 }, ref) => {
   const viewRef = useRef<GLShaderViewHandle>(null)
   const { bins } = useAudioSpectrum()
   const binsRef = useRef<number[]>(new Array(16).fill(0.1))
   if (bins && bins.length >= 16) binsRef.current = bins.slice(0, 16)
+
+  // 漂浮方块默认数据(环形分布: 半径 4-12, 高度 0.5-3)
+  const defaultFloating = useMemo(() => {
+    const arr: number[] = []
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * Math.PI * 2 + i * 0.7
+      const r = 4 + (i % 5) * 2
+      arr.push(
+        Math.cos(a) * r,
+        0.5 + ((i * 13) % 8) * 0.35,
+        Math.sin(a) * r,
+        0.35 + ((i * 7) % 5) * 0.12,
+      )
+    }
+    return arr
+  }, [])
 
   // 触摸涟漪(原版 pointerRipple 强度 1.2)
   const addRipple = useCallback((screenX: number, screenY: number) => {
@@ -270,6 +341,9 @@ const DenseWave = memo(forwardRef<DenseWaveHandle, Props>(({
     const push = () => {
       const bands = binsRef.current
       viewRef.current?.setBands(bands)
+      // presence/brilliance(高频段驱动顶面闪光)
+      viewRef.current?.setPresence(Math.min(bands[7] * 0.7 + bands[8] * 0.3, 1.0))
+      viewRef.current?.setBrilliance(Math.min(bands[9] + bands[10] * 0.5, 1.0))
       const time = performance.now() / 1000
 
       const kickEnv = Math.min(bands[0] * 0.7 + bands[1] * 0.3, 1.0)
@@ -313,7 +387,7 @@ const DenseWave = memo(forwardRef<DenseWaveHandle, Props>(({
       baseColor={baseColor}
       metalness={metalness}
       neon={neon}
-      params={params}
+      params={{ ...params, floating: floating ?? defaultFloating }}
       style={style}
     />
   )

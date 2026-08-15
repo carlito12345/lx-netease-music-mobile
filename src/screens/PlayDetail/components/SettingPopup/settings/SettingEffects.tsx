@@ -21,6 +21,8 @@ const DEFAULT_PARAMS: ParamState = {
   camHeight: 6.5, camDist: 12.5, camSpeed: 0.06, fov: 1.7,
   pillarCell: 0.5, pillarWidth: 0.15, pillarHeight: 1.0,
   metalness: 0.8, neon: 0.5,
+  warmColorHex: '#FF4D8C', greenColorHex: '#33FF80',
+  coolColorHex: '#8073FF', bgColorHex: '#05070C',
 }
 
 export default memo(() => {
@@ -30,6 +32,8 @@ export default memo(() => {
   const magicRingsRadius = useSettingValue('playDetail.effect.magicRings.radius')
   const lyricWheel = useSettingValue('playDetail.effect.lyricWheel.enabled')
   const liquidChrome = useSettingValue('playDetail.effect.liquidChrome.enabled')
+  const kaleido = useSettingValue('playDetail.effect.kaleido.enabled')
+  const galaxy = useSettingValue('playDetail.effect.galaxy.enabled')
   const echoNear = useSettingValue('playDetail.effect.echoNear.enabled')
   const denseWave = useSettingValue('playDetail.effect.denseWave.enabled')
   const denseWaveMetal = useSettingValue('playDetail.effect.denseWave.metalness')
@@ -41,6 +45,8 @@ export default memo(() => {
       camHeight: 6.5, camDist: 12.5, camSpeed: 0.06, fov: 1.7,
       pillarCell: 0.5, pillarWidth: 0.15, pillarHeight: 1.0,
       metalness: denseWaveMetal, neon: denseWaveNeon,
+      warmColorHex: '#FF4D8C', greenColorHex: '#33FF80',
+      coolColorHex: '#8073FF', bgColorHex: '#05070C',
     }
     if (!denseWaveParamsJson) return base
     try { return { ...base, ...JSON.parse(denseWaveParamsJson) } } catch { return base }
@@ -50,13 +56,31 @@ export default memo(() => {
   const [fxMsg, setFxMsg] = useState('')
   const fxPickerRef = useRef<FxConfigPickerType>(null)
 
+  // hex → [r,g,b] 0-1
+  const hexToRgb01 = useCallback((hex: string): [number, number, number] => {
+    const m = hex.replace('#', '').match(/^([0-9a-f]{6})$/i)
+    if (!m) return [1, 0.3, 0.55]
+    const v = parseInt(m[1], 16)
+    return [((v >> 16) & 255) / 255, ((v >> 8) & 255) / 255, (v & 255) / 255]
+  }, [])
+
   const handleParamChange = useCallback((p: ParamState) => {
+    // hex 颜色 → palette(9 元素) + bgColor 数组
+    const warm = hexToRgb01(p.warmColorHex)
+    const green = hexToRgb01(p.greenColorHex)
+    const cool = hexToRgb01(p.coolColorHex)
+    const bg = hexToRgb01(p.bgColorHex)
+    const withColors: ParamState = {
+      ...p,
+      palette: [...warm, ...green, ...cool],
+      bgColor: bg,
+    }
     updateSetting({
       'playDetail.effect.denseWave.metalness': p.metalness,
       'playDetail.effect.denseWave.neon': p.neon,
-      'playDetail.effect.denseWave.params': JSON.stringify(p),
+      'playDetail.effect.denseWave.params': JSON.stringify(withColors),
     })
-  }, [])
+  }, [hexToRgb01])
 
   return (
     <View style={styles.content}>
@@ -80,13 +104,45 @@ export default memo(() => {
 
       <View style={styles.listContainer}>
         <CheckBoxItem
+          check={kaleido}
+          label="万花筒"
+          onChange={(v) => {
+            updateSetting({
+              'playDetail.effect.kaleido.enabled': v,
+              'playDetail.effect.echoNear.enabled': v ? false : echoNear,
+              'playDetail.effect.denseWave.enabled': v ? false : denseWave,
+              'playDetail.effect.galaxy.enabled': v ? false : galaxy,
+            })
+          }}
+        />
+      </View>
+
+      <View style={styles.listContainer}>
+        <CheckBoxItem
+          check={galaxy}
+          label="星河星云"
+          onChange={(v) => {
+            updateSetting({
+              'playDetail.effect.galaxy.enabled': v,
+              'playDetail.effect.echoNear.enabled': v ? false : echoNear,
+              'playDetail.effect.denseWave.enabled': v ? false : denseWave,
+              'playDetail.effect.kaleido.enabled': v ? false : kaleido,
+            })
+          }}
+        />
+      </View>
+
+      <View style={styles.listContainer}>
+        <CheckBoxItem
           check={echoNear}
           label="音域回响近景"
           onChange={(v) => {
             updateSetting({
               'playDetail.effect.echoNear.enabled': v,
-              // 互斥: 开 echo 时关 echoplus
+              // 互斥: 开 echo 时关 echoplus 和星河
               'playDetail.effect.denseWave.enabled': v ? false : denseWave,
+              'playDetail.effect.kaleido.enabled': v ? false : kaleido,
+              'playDetail.effect.galaxy.enabled': v ? false : galaxy,
             })
           }}
         />
@@ -99,8 +155,10 @@ export default memo(() => {
           onChange={(v) => {
             updateSetting({
               'playDetail.effect.denseWave.enabled': v,
-              // 互斥: 开 echoplus 时关 echo
+              // 互斥: 开 echoplus 时关 echo 和星河
               'playDetail.effect.echoNear.enabled': v ? false : echoNear,
+              'playDetail.effect.kaleido.enabled': v ? false : kaleido,
+              'playDetail.effect.galaxy.enabled': v ? false : galaxy,
             })
           }}
         />

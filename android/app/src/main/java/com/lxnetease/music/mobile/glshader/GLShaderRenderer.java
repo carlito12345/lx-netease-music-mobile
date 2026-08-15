@@ -59,6 +59,7 @@ public class GLShaderRenderer implements GLSurfaceView.Renderer {
   private int camHHandle = -1, camDHandle = -1, camSpeedHandle = -1, fovHandle = -1;
   private int cellHandle = -1, halfWHandle = -1, hScaleHandle = -1;
   private int warmHandle = -1, greenHandle = -1, coolHandle = -1, bgHandle = -1;
+  private int presenceHandle = -1, brillianceHandle = -1, floatingHandle = -1;
 
   private final FloatBuffer vertexBuffer;
   private long startTimeMs = 0;
@@ -112,6 +113,9 @@ public class GLShaderRenderer implements GLSurfaceView.Renderer {
   private volatile float greenR = 0.2f, greenG = 1.0f, greenB = 0.5f; // 荧光绿
   private volatile float coolR = 0.5f, coolG = 0.45f, coolB = 1.5f;   // 紫蓝
   private volatile float bgR = 0.02f, bgG = 0.012f, bgB = 0.045f;     // 背景
+  private volatile float presence = 0.0f;   // 高频存在感(顶面闪光)
+  private volatile float brilliance = 0.0f; // 明亮度(边缘闪烁)
+  private volatile float[] floating = new float[8 * 4]; // 漂浮方块 x,y,z,size
 
   public GLShaderRenderer() {
     ByteBuffer bb = ByteBuffer.allocateDirect(FULLSCREEN_VERTICES.length * 4);
@@ -190,6 +194,9 @@ public class GLShaderRenderer implements GLSurfaceView.Renderer {
     warmR = wr; warmG = wg; warmB = wb; greenR = gr; greenG = gg; greenB = gb; coolR = cr; coolG = cg; coolB = cb;
   }
   public void setBg(float r, float g, float b) { bgR = r; bgG = g; bgB = b; }
+  public void setPresence(float v) { this.presence = v; }
+  public void setBrilliance(float v) { this.brilliance = v; }
+  public void setFloating(float[] arr) { if (arr != null && arr.length == 32) this.floating = arr; }
 
   public float camHeight() { return camHeight; }
   public float camDist() { return camDist; }
@@ -285,6 +292,9 @@ public class GLShaderRenderer implements GLSurfaceView.Renderer {
     greenHandle = GLES20.glGetUniformLocation(program, "uGreenCol");
     coolHandle = GLES20.glGetUniformLocation(program, "uCoolCol");
     bgHandle = GLES20.glGetUniformLocation(program, "uBgCol");
+    presenceHandle = GLES20.glGetUniformLocation(program, "uPresence");
+    brillianceHandle = GLES20.glGetUniformLocation(program, "uBrilliance");
+    floatingHandle = GLES20.glGetUniformLocation(program, "uFloating");
   }
 
   @Override
@@ -348,6 +358,9 @@ public class GLShaderRenderer implements GLSurfaceView.Renderer {
     if (greenHandle >= 0) GLES20.glUniform3f(greenHandle, greenR, greenG, greenB);
     if (coolHandle >= 0) GLES20.glUniform3f(coolHandle, coolR, coolG, coolB);
     if (bgHandle >= 0) GLES20.glUniform3f(bgHandle, bgR, bgG, bgB);
+    if (presenceHandle >= 0) GLES20.glUniform1f(presenceHandle, presence);
+    if (brillianceHandle >= 0) GLES20.glUniform1f(brillianceHandle, brilliance);
+    if (floatingHandle >= 0) GLES20.glUniform4fv(floatingHandle, 8, floating, 0);
     if (ripplesHandle >= 0) {
       // 涟漪数组(8 x vec4: x,z,startTimeMs,strength), 非活跃为0
       float[] r = new float[32];
